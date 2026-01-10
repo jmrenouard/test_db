@@ -12,7 +12,7 @@ Ce document recense 60 requêtes SQL optimisées pour MySQL 8.0, couvrant des sc
 
 Voici une représentation visuelle des relations entre les tables de la base employees.
 
-``mermaid
+```mermaid
 erDiagram
     EMPLOYEES ||--o{ SALARIES : "a"
     EMPLOYEES ||--o{ TITLES : "a"
@@ -49,7 +49,7 @@ erDiagram
         date to_date
     }
 
-``
+```
 
 ## **🚀 Tableau des 60 Requêtes SQL**
 

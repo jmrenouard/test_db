@@ -12,7 +12,7 @@ This document lists 60 SQL queries optimized for MySQL 8.0, covering complex dat
 
 Here is a visual representation of the relationships between the tables in the employees database.
 
-``mermaid
+```mermaid
 erDiagram
     EMPLOYEES ||--o{ SALARIES : "has"
     EMPLOYEES ||--o{ TITLES : "has"
@@ -48,8 +48,7 @@ erDiagram
         date from_date PK
         date to_date
     }
-
-``
+```
 
 ## **🚀 Table of 60 SQL Queries**
 
