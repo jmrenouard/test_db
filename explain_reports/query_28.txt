@@ -1,0 +1,11 @@
+QUERY:
+WITH Stats AS (SELECT AVG(salary) as avg_sal, STDDEV(salary) as std_dev FROM salaries WHERE to_date = '9999-01-01') SELECT s.emp_no, s.salary FROM salaries s, Stats st WHERE s.to_date = '9999-01-01' AND s.salary > (st.avg_sal + 3 * st.std_dev)
+
+EXPLAIN PLAN:
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	s	ALL	NULL	NULL	NULL	NULL	2838426	Using where
+1	PRIMARY	<derived2>	ALL	NULL	NULL	NULL	NULL	2838426	Using where; Using join buffer (flat, BNL join)
+2	DERIVED	salaries	ALL	NULL	NULL	NULL	NULL	2838426	Using where
+
+ANALYSIS ISSUES:
+- Full Table Scan (ALL) detected.

@@ -1,0 +1,10 @@
+QUERY:
+WITH Managers AS (SELECT dept_no, emp_no, from_date, to_date FROM dept_manager) SELECT dept_no, emp_no, LAG(emp_no) OVER (PARTITION BY dept_no ORDER BY from_date) as prev_manager FROM Managers
+
+EXPLAIN PLAN:
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	SIMPLE	dept_manager	ALL	NULL	NULL	NULL	NULL	24	Using temporary
+
+ANALYSIS ISSUES:
+- Temporary table used.
+- Full Table Scan (ALL) detected.

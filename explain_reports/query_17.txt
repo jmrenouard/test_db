@@ -1,0 +1,9 @@
+QUERY:
+SELECT JSON_OBJECT('id', emp_no, 'name', CONCAT(first_name, ' ', last_name), 'gender', gender) as emp_json FROM employees LIMIT 10
+
+EXPLAIN PLAN:
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	SIMPLE	employees	ALL	NULL	NULL	NULL	NULL	299202	
+
+ANALYSIS ISSUES:
+- Full Table Scan (ALL) detected.

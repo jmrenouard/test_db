@@ -1,0 +1,7 @@
+QUERY:
+SELECT emp_no, GROUP_CONCAT(title ORDER BY from_date SEPARATOR ', ') as title_history FROM titles GROUP BY emp_no LIMIT 100
+
+EXPLAIN PLAN:
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	SIMPLE	titles	index	NULL	PRIMARY	209	NULL	100	
+

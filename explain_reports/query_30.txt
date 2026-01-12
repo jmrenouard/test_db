@@ -1,0 +1,9 @@
+QUERY:
+SELECT SUM(CASE WHEN dept_no = 'd001' THEN 1 ELSE 0 END) as Marketing, SUM(CASE WHEN dept_no = 'd002' THEN 1 ELSE 0 END) as Finance FROM dept_emp WHERE to_date = '9999-01-01'
+
+EXPLAIN PLAN:
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	SIMPLE	dept_emp	ALL	NULL	NULL	NULL	NULL	331143	Using where
+
+ANALYSIS ISSUES:
+- Full Table Scan (ALL) detected.
