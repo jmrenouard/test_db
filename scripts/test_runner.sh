@@ -35,7 +35,7 @@ function run_verify {
 
 function run_analyze {
     echo -e "${BLUE}=== SQL Performance Analysis ===${NC}"
-    python3 "$SCRIPTS_DIR/generate_reports.py" \
+    python3 "$SCRIPTS_DIR/sql_analyzer.py" \
         --container "$CONTAINER_NAME" \
         --user "$DB_USER" \
         --password "$DB_PASS" \

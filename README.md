@@ -86,6 +86,18 @@ The project includes a sophisticated reporting system:
 
 ---
 
+## 📚 Documentation
+
+Detailed technical documentation is available in the `documentation/` directory:
+
+- [SQL Analyzer (Performance & EXPLAIN)](documentation/en/sql_analyzer.md)
+- [MariaDB Management (Docker)](documentation/en/mariadb_management.md)
+- [Benchmarking (Sysbench)](documentation/en/benchmarking.md)
+
+*French versions are also available in `documentation/fr/`.*
+
+---
+
 ## 📜 Credits & License
 
 ### Origin
