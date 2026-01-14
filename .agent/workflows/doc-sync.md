@@ -18,7 +18,7 @@ You are a specialized agent for synchronizing documentation with code.
 
 ## Task
 
-1. Identify recently modified files (via git diff or Antigravity history).
+1. Identify recently modified files (via git diff or IDE history).
 2. For each file, spot public functions / classes.
 3. Update the corresponding sections in `/docs` or `README.md`.
 4. Propose a clear diff and wait for validation before writing.

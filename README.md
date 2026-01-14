@@ -21,9 +21,24 @@ This project is optimized for a **MariaDB 11.8+** Docker environment. A `Makefil
 | `make start` | Start the MariaDB container (`mariadb-11-8`). |
 | `make stop` | Stop the MariaDB container. |
 | `make status` | Check the container status. |
-| `make inject` | Inject the `employees.sql` dataset into the container. |
-| `make report` | Generate performance and EXPLAIN reports in `reports/`. |
-| `make sysbench` | Run a custom Sysbench load test. |
+| `make inject` | Inject the `employees.sql` dataset. |
+| `make verify` | Run data integrity checks (counts/checksums). |
+| `make bench` | Run Sysbench performance tests. |
+| `make analyze` | Generate SQL EXPLAIN and performance reports. |
+| `make test-all` | Run all tests (Verify + Analyze + Bench). |
+| `make interactive` | Launch the Antigravity HTML test runner. |
+| `make clean` | Clean up generated reports. |
+
+### 🤖 Agentic Workflows
+
+This project includes specialized agent workflows in `.agent/workflows/` for easier management:
+
+- `/run-tests`: Runs full test suite and syncs documentation.
+- `/git-sync`: Manages `pull`, `commit` (conventional), and optional `release`.
+- `/release`: Automates versioning, changelog updates, and tagging.
+- `/maintain`: Performs environment health checks and cleanup.
+- `/audit`: Structural audit of the codebase and parameters.
+- `/ideate`: Suggests project improvements and new features.
 
 ---
 

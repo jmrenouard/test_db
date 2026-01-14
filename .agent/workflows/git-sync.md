@@ -2,41 +2,60 @@
 description: git-flow
 ---
 
-# Git Flow Workflow
+# Git & Release Flow Workflow
 
-This workflow automates the common git operations: pulling updates, checking status, and committing changes.
+This unified workflow manages the entire lifecycle of local changes, from synchronization to production release.
 
 ## When to use this workflow
 
-- When the user types `/git-sync` or `/commit`.
-- Before starting work (pull).
-- After completing a task (commit).
+- When the user types `/git-sync`, `/commit`, or `/release`.
 
-## Task
+## Phase 1: Local Sync & Development
 
-1. Pull latest changes from the repository.
+1. **Pull & Status**:
 
    ```bash
    git pull --rebase
-   ```
-
-2. Show current git status.
-
-   ```bash
    git status
    ```
 
-3. Ask the user for a commit message or suggest one based on `git diff`.
-
-4. Add all changes and commit.
+2. **Commit**:
+   - Propose a message (Conventional Commits: `feat:`, `fix:`, ...).
 
    ```bash
    git add .
    git commit -m "[message]"
    ```
 
+## Phase 2: Decision - Sync vs Release
+
+3. **Choice Required**: Ask the USER if they want to perform a **Simple Push** or a **Full Release**.
+
+### Option A: Simple Push
+
+- Execute push only.
+
+  ```bash
+  git push
+  ```
+
+### Option B: Full Release
+
+1. **Validation**: Run `/run-tests` to ensure stability.
+2. **Versioning**:
+   - Calculate next version according to `CHANGELOG_MANAGEMENT.md`.
+   - Update `Changelog` (date, version, bullet points).
+3. **Finalize**:
+
+   ```bash
+   git add Changelog
+   git commit -m "chore: release version X.X.Y"
+   git tag -a vX.X.Y -m "Release version X.X.Y"
+   git push origin main --tags
+   ```
+
 ## Constraints
 
-- Use **Conventional Commits** (feat:, fix:, chore:, docs:) as required by `WORKFLOW.md`.
-- Never force push.
-- If conflicts occur during pull, stop and notify the user.
+- **NO CHATTER**: Response only contains technical steps.
+- **TAGGING**: If a tag exists with the same version, confirm deletion before replacing.
+- **LOGS**: Maintain YYYY-MM-DD format in Changelog.
