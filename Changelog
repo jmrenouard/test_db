@@ -1,3 +1,8 @@
+1.2.1 2026-01-14
+	- Added timeout mechanism (default 3 minutes) to interactive runner to prevent hangs
+	- Added --run-all option to interactive runner for automated testing without prompts
+	- Improved signal handling and output streaming in interactive runner
+
 1.2.0 2026-01-14
 	- Integrated Agentic Workflows for automated maintenance (/maintain)
 	- Added Git synchronization and commit automation (/git-sync)
