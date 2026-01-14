@@ -1,9 +1,0 @@
-QUERY:
-WITH CurrentSalaries AS (SELECT salary FROM salaries WHERE to_date = '9999-01-01') SELECT AVG(salary) FROM CurrentSalaries
-
-EXPLAIN PLAN:
-id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
-1	SIMPLE	salaries	ALL	NULL	NULL	NULL	NULL	2838426	Using where
-
-ANALYSIS ISSUES:
-- Full Table Scan (ALL) detected.

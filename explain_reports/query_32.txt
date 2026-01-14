@@ -1,9 +1,0 @@
-QUERY:
-SELECT CONCAT(LEFT(first_name, 1), '.', LEFT(last_name, 1), '.') as initials FROM employees LIMIT 50
-
-EXPLAIN PLAN:
-id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
-1	SIMPLE	employees	ALL	NULL	NULL	NULL	NULL	299202	
-
-ANALYSIS ISSUES:
-- Full Table Scan (ALL) detected.

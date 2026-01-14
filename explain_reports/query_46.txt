@@ -1,9 +1,0 @@
-QUERY:
-SELECT JSON_PRETTY(JSON_OBJECT('id', emp_no, 'dates', JSON_OBJECT('birth', birth_date, 'hire', hire_date))) FROM employees LIMIT 1
-
-EXPLAIN PLAN:
-id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
-1	SIMPLE	employees	ALL	NULL	NULL	NULL	NULL	299202	
-
-ANALYSIS ISSUES:
-- Full Table Scan (ALL) detected.

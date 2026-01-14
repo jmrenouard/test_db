@@ -1,3 +1,8 @@
+1.1.0 2026-01-14
+	- Automated MariaDB workflow with Makefile integration
+	- Standardized report generation in reports/ directory
+	- Integrated sysbench performance testing
+	- Added documentation for Docker environment
 1.0.7 2015-08-30
 	- Moved to GitHub
 	- Fixed bug#393423 Duplicate key in dept_manager

@@ -1,9 +1,0 @@
-QUERY:
-SELECT JSON_EXTRACT(JSON_OBJECT('name', first_name), '$.name') as name_extracted FROM employees LIMIT 10
-
-EXPLAIN PLAN:
-id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
-1	SIMPLE	employees	ALL	NULL	NULL	NULL	NULL	299202	
-
-ANALYSIS ISSUES:
-- Full Table Scan (ALL) detected.

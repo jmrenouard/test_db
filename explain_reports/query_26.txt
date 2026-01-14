@@ -1,9 +1,0 @@
-QUERY:
-SELECT AVG(DATEDIFF(IF(to_date='9999-01-01', CURDATE(), to_date), from_date)) as avg_days_as_manager FROM dept_manager
-
-EXPLAIN PLAN:
-id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
-1	SIMPLE	dept_manager	ALL	NULL	NULL	NULL	NULL	24	
-
-ANALYSIS ISSUES:
-- Full Table Scan (ALL) detected.

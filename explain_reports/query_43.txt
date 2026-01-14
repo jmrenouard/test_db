@@ -1,9 +1,0 @@
-QUERY:
-SELECT * FROM employees WHERE DAYOFWEEK(birth_date) IN (1, 7) LIMIT 50
-
-EXPLAIN PLAN:
-id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
-1	SIMPLE	employees	ALL	NULL	NULL	NULL	NULL	299202	Using where
-
-ANALYSIS ISSUES:
-- Full Table Scan (ALL) detected.
