@@ -1,42 +1,74 @@
+1.2.6 2026-01-14
+
+- docs: Refactored JULES_PROMPT.md with strict architectural and operational rules
+- feat: Standardized agent instructions for better prompt engineering results
+
+1.2.5 2026-01-14
+
+- ui: Optimized HTML report layout for higher density (reduced margins, smaller fonts)
+- ui: Compacted step cards and header dashboard to maximize space efficiency
+
+1.2.4 2026-01-14
+
+- feat: Added CLI parameters `-a/--auto` and `-i/--interactive` to the runner
+- feat: Improved CLI help documentation and execution mode feedback
+
+1.2.3 2026-01-14
+
+- feat: Added 5s auto-reload and live progress updates to interactive_runner report
+- feat: Added auto-focus (scrolling) to active tasks in the HTML report
+- feat: Implemented auto-stop for reload when execution finishes
+- feat: Added collapsible task details (only active task is expanded by default)
+
+1.2.2 2026-01-14
+
+- fix: Fixed 'make inject' failure by copying data files into container context
+- fix: Resolved 'make verify' reporting 0 records due to failed injection
+- feat: Added shell robustness (set -euo pipefail) to test scripts
+- feat: Added requirements.txt for project environment standardization
+
 1.2.1 2026-01-14
-	- Added /audit (architecture audit) and /ideate (feature suggestions) workflows
-	- Unified git-sync and release workflows into a single decision-driven process
-	- Synchronized README with all available Makefile targets and workflows
+
+- Added /audit (architecture audit) and /ideate (feature suggestions) workflows
+- Unified git-sync and release workflows into a single decision-driven process
+- Synchronized README with all available Makefile targets and workflows
 
 1.2.0 2026-01-14
-	- Integrated Agentic Workflows for automated maintenance (/maintain)
-	- Added Git synchronization and commit automation (/git-sync)
-	- Automated release process with Changelog management and tagging (/release)
-	- Enhanced test suite with advanced SQL performance queries
+
+- Integrated Agentic Workflows for automated maintenance (/maintain)
+- Added Git synchronization and commit automation (/git-sync)
+- Automated release process with Changelog management and tagging (/release)
+- Enhanced test suite with advanced SQL performance queries
 
 1.1.0 2026-01-14
-	- Automated MariaDB workflow with Makefile integration
-	- Standardized report generation in reports/ directory
-	- Integrated sysbench performance testing
-	- Added documentation for Docker environment
-	- Comprehensive documentation overhaul (READMEs, Projects structure, and internal guides)
+
+- Automated MariaDB workflow with Makefile integration
+- Standardized report generation in reports/ directory
+- Integrated sysbench performance testing
+- Added documentation for Docker environment
+- Comprehensive documentation overhaul (READMEs, Projects structure, and internal guides)
 1.0.7 2015-08-30
-	- Moved to GitHub
-	- Fixed bug#393423 Duplicate key in dept_manager
-	- Fixed bug#393429 Column order in employees.dept_manager is incorrect
-	- Adapted partitioned structure to MySQL 5.5+ syntax
+- Moved to GitHub
+- Fixed bug#393423 Duplicate key in dept_manager
+- Fixed bug#393429 Column order in employees.dept_manager is incorrect
+- Adapted partitioned structure to MySQL 5.5+ syntax
 1.0.6 2009-03-29
-	- fixed bug#320513 - employees with same start date are counted twice
+- fixed bug#320513 - employees with same start date are counted twice
 1.0.5 2008-08-02
-	- removed comment for FK in employees.sql 
-	- added some database objects (views, stored procedures and functions)
+- removed comment for FK in employees.sql
+- added some database objects (views, stored procedures and functions)
 1.0.4 2008-07-26
-	- fixed bug in test_employees 
-	- added partitioning to employees.sql (saved as employees_partitioned.sql)
+- fixed bug in test_employees
+- added partitioning to employees.sql (saved as employees_partitioned.sql)
 1.0.3 2008-07-19
-	- adapted for testing on MD5 or SHA1 (two separated test files)
-	- removed views and table changelog
+- adapted for testing on MD5 or SHA1 (two separated test files)
+- removed views and table changelog
 1.0.2 2008-03-15
-	- Added support for PBXT - replaced LOAD DATA with SQL dumps
+- Added support for PBXT - replaced LOAD DATA with SQL dumps
 1.0.1 2008-01-04
-	- Adapted code to run on 4.1
+- Adapted code to run on 4.1
 1.0.0 2008-01-03
-    - Based on a work by Fusheng Wang and Carlo Zaniolo 
-    - modified by Giuseppe Maxia and Patrick Crews
-	- Initial release
-	- no known bugs
+  - Based on a work by Fusheng Wang and Carlo Zaniolo
+  - modified by Giuseppe Maxia and Patrick Crews
+- Initial release
+- no known bugs
