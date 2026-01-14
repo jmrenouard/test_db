@@ -42,6 +42,12 @@ STEPS = [
         "name": "Run Sysbench",
         "description": "Executes sysbench performance tests.",
         "command": "make bench"
+    },
+    {
+        "id": "perf-threads",
+        "name": "Thread Scaling Test",
+        "description": "Executes scaling tests from 1 to 64 threads.",
+        "command": "make perf-threads"
     }
 ]
 

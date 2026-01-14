@@ -59,7 +59,7 @@ SELECT emp_no, salary, ROW_NUMBER() OVER (PARTITION BY emp_no ORDER BY from_date
 -- 30. Analytics: Salary difference between current and first salary for each employee
 WITH FirstLast AS (SELECT emp_no, FIRST_VALUE(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as first_sal, LAST_VALUE(salary) OVER (PARTITION BY emp_no ORDER BY from_date RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as last_sal FROM salaries) SELECT DISTINCT emp_no, last_sal - first_sal as salary_growth FROM FirstLast LIMIT 10;
 -- 31. OLTP: Insert a new temporary department (Transaction check)
-INSERT INTO departments (dept_no, dept_name) VALUES ('d999', 'Temporary Service');
+INSERT IGNORE INTO departments (dept_no, dept_name) VALUES ('d999', 'Temporary Service');
 -- 32. Join: Find employees who have never been managers
 SELECT e.first_name, e.last_name FROM employees e LEFT JOIN dept_manager dm ON e.emp_no = dm.emp_no WHERE dm.emp_no IS NULL LIMIT 10;
 -- 33. Aggregation: Group by year of hiring
@@ -97,7 +97,7 @@ SELECT e.first_name, e.birth_date as emp_birth, m.first_name as mgr_name, m.birt
 -- 49. CTE: Find the 'Gap' years where no one was hired
 WITH Years AS (SELECT DISTINCT YEAR(hire_date) as y FROM employees) SELECT t1.y + 1 FROM Years t1 WHERE NOT EXISTS (SELECT 1 FROM Years t2 WHERE t2.y = t1.y + 1) AND t1.y < (SELECT MAX(y) FROM Years);
 -- 50. Analytics: Top 1% earners in each department
-WITH Ranked AS (SELECT emp_no, dept_no, salary, PERCENT_RANK() OVER (PARTITION BY dept_no ORDER BY salary DESC) as p_rank FROM salaries s JOIN dept_emp de ON s.emp_no = de.emp_no WHERE s.to_date = '9999-01-01' AND de.to_date = '9999-01-01') SELECT * FROM Ranked WHERE p_rank <= 0.01;
+WITH Ranked AS (SELECT s.emp_no, dept_no, salary, PERCENT_RANK() OVER (PARTITION BY dept_no ORDER BY salary DESC) as p_rank FROM salaries s JOIN dept_emp de ON s.emp_no = de.emp_no WHERE s.to_date = '9999-01-01' AND de.to_date = '9999-01-01') SELECT * FROM Ranked WHERE p_rank <= 0.01;
 -- 51. Window Function: Moving average of salaries (prev 2 records)
 SELECT emp_no, salary, AVG(salary) OVER (PARTITION BY emp_no ORDER BY from_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as moving_avg FROM salaries;
 -- 52. Join: Employees with their very first title and their very first salary

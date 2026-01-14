@@ -1,3 +1,12 @@
+1.3.0 2026-01-15
+
+- feat: Overhauled scripts/generate_reports.py with advanced CLI parameters (Docker/Host)
+- feat: Added single query analysis mode with --query and --stdout
+- feat: Implemented heuristic SQL analysis for automated index recommendations
+- feat: Added automated CREATE INDEX DDL generation for sub-optimal queries
+- feat: Integrated modern HTML report dashboard powered by Tailwind CSS
+- feat: Enhanced detailed reports with consolidated table schema and index views
+
 1.2.6 2026-01-14
 
 - docs: Refactored JULES_PROMPT.md with strict architectural and operational rules

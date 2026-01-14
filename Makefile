@@ -2,7 +2,7 @@
 
 CONTAINER_NAME = mariadb-11-8
 
-.PHONY: help start stop status inject verify bench analyze test-all clean
+.PHONY: help start stop status inject verify bench perf-threads analyze test-all clean
 
 help:
 	@echo "🛠️ test_db Management"
@@ -16,6 +16,7 @@ help:
 	@echo "Test Commands:"
 	@echo "  make verify     - Verify data integrity (counts/checksums)"
 	@echo "  make bench      - Run sysbench performance tests"
+	@echo "  make perf-threads - Run sysbench scaling test (1 to 64 threads)"
 	@echo "  make analyze    - Run SQL explain and performance analysis"
 	@echo "  make test-all   - Run all tests sequentially"
 	@echo "  make interactive - Run tests interactively with HTML report"
@@ -47,6 +48,9 @@ verify:
 bench:
 	@bash scripts/test_runner.sh bench
 
+perf-threads:
+	@bash scripts/test_runner.sh perf-threads
+
 analyze:
 	@bash scripts/test_runner.sh analyze
 
@@ -58,4 +62,4 @@ interactive:
 
 clean:
 	@echo "🧹 Cleaning up reports..."
-	@rm -rf reports/performance_report.md reports/explain_reports/*.txt
+	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt
