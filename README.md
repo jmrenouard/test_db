@@ -4,97 +4,77 @@ A sample database with an integrated test suite, used to test your applications 
 
 ---
 
-## 🚀 Quick Start (Modern Workflow)
+## 🚀 Setup & Usage (Modern Workflow)
 
 This project is optimized for a **MariaDB 11.8+** Docker environment. A `Makefile` is provided to streamline common operations.
 
-### Prerequisites
+### 1. Prerequisites
 
 - Docker & Docker Compose
 - Make
-- Python 3 (for reporting)
+- Python 3 (for premium reporting)
 
-### Commands
+### 2. Core Commands
 
-| Command | Description |
+| Command | Action |
 | :--- | :--- |
 | `make start` | Start the MariaDB container (`mariadb-11-8`). |
-| `make stop` | Stop the MariaDB container. |
-| `make status` | Check the container status. |
-| `make inject` | Inject the `employees.sql` dataset. |
-| `make verify` | Run data integrity checks (counts/checksums). |
-| `make bench` | Run Sysbench performance tests. |
-| `make analyze` | Generate SQL EXPLAIN and performance reports. |
-| `make test-all` | Run all tests (Verify + Analyze + Bench). |
+| `make status` | Check if the database is up and healthy. |
+| `make inject` | Inject the `employees.sql` dataset into the container. |
+| `make test-all` | **Recommended**: Run Verify + Analyze + Bench in one go. |
 | `make interactive` | Launch the <www.lightpath.fr> HTML test runner. |
-| `make clean` | Clean up generated reports. |
-
-### 🤖 Agentic Workflows
-
-This project includes specialized agent workflows in `.agent/workflows/` for easier management:
-
-- `/run-tests`: Runs full test suite and syncs documentation.
-- `/git-sync`: Manages `pull`, `commit` (conventional), and optional `release`.
-- `/release`: Automates versioning, changelog updates, and tagging.
-- `/maintain`: Performs environment health checks and cleanup.
-- `/audit`: Structural audit of the codebase and parameters.
-- `/ideate`: Suggests project improvements and new features.
+| `make stop` | Stop the MariaDB container. |
+| `make clean` | Remove all generated reports and artifacts. |
 
 ---
 
-## 📂 Project Structure
+## 📚 Technical Documentation
 
-- `employees/`: Core dataset and SQL scripts.
-- `sakila/`: Sakila sample database (Alternative).
-- `scripts/`: Utility scripts for automation and reporting.
-- `reports/`: Generated performance analysis and EXPLAIN plans.
-- `doc_employees/`: Extended documentation with 60+ sample queries and ER diagrams.
+Deep-dive documentation for specific components is available in the `documentation/` directory:
+
+| Topic | Documentation (EN) | Documentation (FR) |
+| :--- | :--- | :--- |
+| **SQL Analysis** | [sql_analyzer.md](documentation/en/sql_analyzer.md) | [sql_analyzer.md](documentation/fr/sql_analyzer.md) |
+| **MariaDB/Docker** | [mariadb_management.md](documentation/en/mariadb_management.md) | [mariadb_management.md](documentation/fr/mariadb_management.md) |
+| **Benchmarking** | [benchmarking.md](documentation/en/benchmarking.md) | [benchmarking.md](documentation/fr/benchmarking.md) |
 
 ---
 
-## 🛠 Manual Installation
+## 🤖 Automation & Workflows
 
-If you're not using Docker, you can install it manually on any MySQL-compatible server:
+For users working with AI agents or seeking automated maintenance, we provide specialized workflows in `.agent/workflows/`:
 
-1. **Prerequisites**: Ensure your user has the necessary privileges (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `DROP`, `RELOAD`, `REFERENCES`, `INDEX`, `ALTER`, `SHOW DATABASES`, `CREATE TEMPORARY TABLES`, `LOCK TABLES`, `EXECUTE`, `CREATE VIEW`).
-2. **Import**:
+- `/run-tests`: Comprehensive battery of tests with documentation sync.
+- `/git-sync`: Conventional commit automation and remote synchronization.
+- `/release`: **Full release flow**: logic for versioning, changelog, and multi-line annotated tags.
+- `/audit`: Structural and performance audit of the environment.
+
+---
+
+## 📂 Repository Map
+
+- `employees/`: Core dataset, schema definitions, and 60+ sample queries.
+- `scripts/`: Python/Bash automation (SQL analyzer, sysbench Lua, runners).
+- `reports/`: Destination for EXPLAIN plans, QPS results, and HTML dashboards.
+- `documentation/`: Bilingual technical guides.
+- `doc_employees/`: Extended documentation including ER diagrams.
+
+---
+
+## 🛠 Manual Installation (Non-Docker)
+
+1. **Privileges**: Ensure your user has `CREATE`, `DROP`, `RELOAD`, `INDEX`, `ALTER`, and `CREATE VIEW` rights.
+2. **Import Data**:
 
    ```bash
-   mysql < employees.sql
+   mysql < employees/employees.sql
    ```
 
-   *For partitioned tables:*
+3. **Run Verification**:
 
    ```bash
-   mysql < employees_partitioned.sql
+   mysql -t < employees/test_employees_md5.sql
    ```
-
-3. **Verify**:
-
-   ```bash
-   mysql -t < test_employees_md5.sql
-   ```
-
----
-
-## 📊 Reporting & Analysis
-
-The project includes a sophisticated reporting system:
-
-- **Performance Reports**: Located in `reports/`, generated via `make report`.
-- **EXPLAIN Plans**: Detailed query execution plans are stored in `reports/explain_reports/`.
-
----
-
-## 📚 Documentation
-
-Detailed technical documentation is available in the `documentation/` directory:
-
-- [SQL Analyzer (Performance & EXPLAIN)](documentation/en/sql_analyzer.md)
-- [MariaDB Management (Docker)](documentation/en/mariadb_management.md)
-- [Benchmarking (Sysbench)](documentation/en/benchmarking.md)
-
-*French versions are also available in `documentation/fr/`.*
 
 ---
 
@@ -102,13 +82,13 @@ Detailed technical documentation is available in the `documentation/` directory:
 
 ### Origin
 
-- Data created by Fusheng Wang and Carlo Zaniolo at Siemens Corporate Research.
-- Relational schema by Giuseppe Maxia.
-- Data export by Patrick Crews.
+- **Data Creation**: Fusheng Wang and Carlo Zaniolo (Siemens Corporate Research).
+- **Relational Schema**: Giuseppe Maxia.
+- **Data Export**: Patrick Crews.
 
 ### License
 
-This work is licensed under the **Creative Commons Attribution-Share Alike 3.0 Unported License**. To view a copy of this license, visit [Creative Commons](http://creativecommons.org/licenses/by-sa/3.0/).
+This work is licensed under the **Creative Commons Attribution-Share Alike 3.0 Unported License**. To view a copy, visit [Creative Commons](http://creativecommons.org/licenses/by-sa/3.0/).
 
 ---
 *Note: This data is fabricated and does not correspond to real people. Any similarity is purely coincidental.*

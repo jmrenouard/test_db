@@ -1,83 +1,80 @@
 # 📊 test_db (Base de données Employees)
 
-Une base de données exemple avec une suite de tests intégrée, utilisée pour tester vos applications et serveurs de bases de données. Ce dépôt fournit un ensemble de données conséquent (300 000 employés, 2,8M de salaires) pour les tests de performance et la pratique de requêtes complexes.
+Une base de données exemple avec une suite de tests intégrée, utilisée pour tester vos applications et vos serveurs de bases de données. Ce dépôt fournit un ensemble de données conséquent (300 000 employés, 2,8M de salaires) pour les tests de performance et la pratique de requêtes complexes.
 
 ---
 
-## 🚀 Démarrage Rapide (Méthode Moderne)
+## 🚀 Configuration & Utilisation (Méthode Moderne)
 
 Ce projet est optimisé pour un environnement Docker **MariaDB 11.8+**. Un `Makefile` est fourni pour simplifier les opérations courantes.
 
-### Prérequis
+### 1. Prérequis
 
 - Docker & Docker Compose
 - Make
-- Python 3 (pour les rapports)
+- Python 3 (pour le reporting premium)
 
-### Commandes
+### 2. Commandes Principales
 
-| Commande | Description |
+| Commande | Action |
 | :--- | :--- |
 | `make start` | Démarre le conteneur MariaDB (`mariadb-11-8`). |
-| `make stop` | Arrête le conteneur MariaDB. |
-| `make status` | Vérifie le statut du conteneur. |
-| `make inject` | Injecte le jeu de données `employees.sql`. |
-| `make verify` | Exécute les tests d'intégrité des données (comptages/checksums). |
-| `make bench` | Lance les tests de performance Sysbench. |
-| `make analyze` | Génère les rapports EXPLAIN et de performance SQL. |
-| `make test-all` | Exécute tous les tests (Verify + Analyze + Bench). |
+| `make status` | Vérifie si la base de données est opérationnelle. |
+| `make inject` | Injecte le jeu de données `employees.sql` dans le conteneur. |
+| `make test-all` | **Recommandé** : Exécute Verify + Analyze + Bench en une seule fois. |
 | `make interactive` | Lance le gestionnaire de tests HTML <www.lightpath.fr>. |
-| `make clean` | Nettoie les rapports générés. |
-
-### 🤖 Workflows Agentiques
-
-Ce projet inclut des workflows spécialisés dans `.agent/workflows/` pour une gestion facilitée :
-
-- `/run-tests` : Exécute la suite complète de tests et synchronise la documentation.
-- `/git-sync` : Gère le `pull`, le `commit` (conventionnel) et optionnellement la `release`.
-- `/release` : Automatise le versionnement, la mise à jour du changelog et le tagage.
-- `/maintain` : Réalise des tests de santé de l'environnement et du nettoyage.
-- `/doc-sync` : Synchronise la documentation avec les changements de code.
+| `make stop` | Arrête le conteneur MariaDB. |
+| `make clean` | Supprime tous les rapports et artefacts générés. |
 
 ---
 
-## 📂 Structure du Projet
+## 📚 Documentation Technique
 
-- `employees/` : Jeu de données principal et scripts SQL.
-- `sakila/` : Exemple de base de données Sakila (Alternative).
-- `scripts/` : Scripts utilitaires pour l'automatisation et les rapports.
-- `reports/` : Plans EXPLAIN et analyses de performance générés.
-- `documentation/` : Documentation technique détaillée (FR/EN).
-- `doc_employees/` : Documentation étendue avec plus de 60 requêtes exemples et diagrammes ER.
+Une documentation détaillée pour chaque composant est disponible dans le répertoire `documentation/` :
+
+| Sujet | Documentation (FR) | Documentation (EN) |
+| :--- | :--- | :--- |
+| **Analyse SQL** | [sql_analyzer.md](documentation/fr/sql_analyzer.md) | [sql_analyzer.md](documentation/en/sql_analyzer.md) |
+| **MariaDB/Docker** | [mariadb_management.md](documentation/fr/mariadb_management.md) | [mariadb_management.md](documentation/en/mariadb_management.md) |
+| **Benchmarking** | [benchmarking.md](documentation/fr/benchmarking.md) | [benchmarking.md](documentation/en/benchmarking.md) |
 
 ---
 
-## 🛠 Installation Manuelle
+## 🤖 Automatisation & Workflows
 
-Si vous n'utilisez pas Docker, vous pouvez l'installer manuellement sur n'importe quel serveur compatible MySQL :
+Pour les utilisateurs travaillant avec des agents IA ou cherchant une maintenance automatisée, nous proposons des workflows spécialisés dans `.agent/workflows/` :
 
-1. **Prérequis** : Assurez-vous que votre utilisateur possède les privilèges nécessaires (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `DROP`, `RELOAD`, `REFERENCES`, `INDEX`, `ALTER`, `SHOW DATABASES`, `CREATE TEMPORARY TABLES`, `LOCK TABLES`, `EXECUTE`, `CREATE VIEW`).
-2. **Importation** :
+- `/run-tests` : Batterie complète de tests avec synchronisation documentaire.
+- `/git-sync` : Automatisation des commits conventionnels et synchronisation distante.
+- `/release` : **Flux de release complet** : gestion du versionnement, du changelog et des tags annotés.
+- `/audit` : Audit structurel et de performance de l'environnement.
+
+---
+
+## 📂 Carte du Dépôt
+
+- `employees/` : Jeu de données, définitions de schémas et plus de 60 requêtes exemples.
+- `scripts/` : Automatisation Python/Bash (analyseur SQL, Lua sysbench, runners).
+- `reports/` : Destination des plans EXPLAIN, résultats QPS et tableaux de bord HTML.
+- `documentation/` : Guides techniques bilingues.
+- `doc_employees/` : Documentation étendue incluant les diagrammes ER.
+
+---
+
+## 🛠 Installation Manuelle (Hors Docker)
+
+1. **Privilèges** : Assurez-vous que votre utilisateur dispose des droits `CREATE`, `DROP`, `RELOAD`, `INDEX`, `ALTER`, et `CREATE VIEW`.
+2. **Importer les données** :
 
    ```bash
-   mysql < employees.sql
+   mysql < employees/employees.sql
    ```
 
-3. **Vérification** :
+3. **Lancer la vérification** :
 
    ```bash
-   mysql -t < test_employees_md5.sql
+   mysql -t < employees/test_employees_md5.sql
    ```
-
----
-
-## 📊 Rapports & Analyses
-
-Le projet inclut un système de reporting sophistiqué :
-
-- **Analyse SQL** : Le script `sql_analyzer.py` génère des rapports de performance détaillés.
-- **Tableaux de bord HTML** : Des tableaux de bord modernes basés sur Tailwind CSS sont disponibles dans `reports/`.
-- **Plans EXPLAIN** : Les plans d'exécution détaillés sont stockés dans `reports/explain_reports/`.
 
 ---
 
@@ -85,9 +82,9 @@ Le projet inclut un système de reporting sophistiqué :
 
 ### Origine
 
-- Données créées par Fusheng Wang et Carlo Zaniolo chez Siemens Corporate Research.
-- Schéma relationnel par Giuseppe Maxia.
-- Export des données par Patrick Crews.
+- **Création des données** : Fusheng Wang et Carlo Zaniolo (Siemens Corporate Research).
+- **Schéma relationnel** : Giuseppe Maxia.
+- **Export des données** : Patrick Crews.
 
 ### Licence
 
