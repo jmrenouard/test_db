@@ -338,13 +338,6 @@ def main():
                 should_run = False
         
         if should_run:
-            # Mark current as RUNNING in report
-            current_report = results + [{**step, "status": "RUNNING", "stdout": "", "stderr": ""}] + [
-                {**s, "status": "PENDING", "stdout": "", "stderr": ""}
-                for s in STEPS[len(results)+1:]
-            ]
-            generate_report(current_report)
-
             returncode, stdout, stderr = run_command(step['command'])
             status = "SUCCESS" if returncode == 0 else "FAILED"
             results.append({
