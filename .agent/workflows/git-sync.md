@@ -1,5 +1,5 @@
 ---
-description: Git & Release Flow Workflow
+description: git-flow
 ---
 
 # Git & Release Flow Workflow
@@ -50,6 +50,7 @@ This unified workflow manages the entire lifecycle of local changes, from synchr
    content must be grabbed from Changelog
    If Changelog is not updated with last information, git log information and produce missing information from git log for this specific release
    information for a specific release should go to <Version inforamtion>
+   Tag can be deleted remotely if exists for maintenance reason
 
    ```bash
    git add Changelog
