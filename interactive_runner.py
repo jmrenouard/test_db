@@ -2,6 +2,7 @@ import subprocess
 import os
 import json
 import sys
+import argparse
 from datetime import datetime
 
 # Configuration
@@ -105,44 +106,106 @@ HTML_TEMPLATE = """
         ::-webkit-scrollbar-track {{ background: rgba(0, 0, 0, 0.2); }}
         ::-webkit-scrollbar-thumb {{ background: rgba(255, 255, 255, 0.1); border-radius: 4px; }}
         ::-webkit-scrollbar-thumb:hover {{ background: rgba(255, 255, 255, 0.2); }}
+        
+        .status-running {{ 
+            color: #60a5fa; 
+            text-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+            animation: pulse-blue 2s infinite;
+        }}
+        @keyframes pulse-blue {{
+            0%, 100% {{ opacity: 1; }}
+            50% {{ opacity: 0.7; }}
+        }}
+        .header-compact {{ padding-bottom: 2rem; margin-bottom: 2rem; }}
+        .step-compact {{ margin-bottom: 1.5rem !important; }}
     </style>
+    <script>
+        let countdown = 5;
+        function updateTimer() {{
+            const timerEl = document.getElementById('auto-reload-timer');
+            const isFinished = document.body.hasAttribute('data-finished');
+            
+            if (isFinished) {{
+                if (timerEl) timerEl.innerText = 'Execution Complete';
+                return;
+            }}
+
+            if (timerEl) {{
+                timerEl.innerText = 'Auto-refreshing in ' + countdown + 's';
+            }}
+            if (countdown <= 0) {{
+                window.location.reload();
+            }}
+            countdown--;
+        }}
+        
+        window.onload = () => {{
+            // Start countdown
+            setInterval(updateTimer, 1000);
+            
+            // Focus on running task
+            const runningIcon = document.querySelector('.animate-spin');
+            if (runningIcon) {{
+                const section = runningIcon.closest('section');
+                if (section) {{
+                    section.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                    section.classList.add('ring-2', 'ring-blue-500/50');
+                }}
+            }} else {{
+                // If nothing is running, focus on the last successful/failed task
+                const steps = document.querySelectorAll('section[id^="step-"]');
+                let target = null;
+                steps.forEach(s => {{
+                    if (s.querySelector('.status-success') || s.querySelector('.status-failure')) {{
+                        target = s;
+                    }}
+                }});
+                if (target) {{
+                    target.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                }}
+            }}
+        }};
+    </script>
 </head>
-<body class="p-6 md:p-12">
+<body class="p-6 md:p-12 text-slate-100" {data_finished}>
     <div class="max-w-6xl mx-auto">
-        <header class="mb-16 relative">
-            <div class="absolute -top-24 -left-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
-            <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        <header class="header-compact relative">
+            <div class="absolute -top-12 -left-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl"></div>
             
             <div class="relative text-center">
-                <h1 class="text-6xl font-black tracking-tight mb-6 gradient-text">
-                    Interactive Test execution
+                <h1 class="text-4xl font-black tracking-tight mb-3 gradient-text">
+                    Test execution
                 </h1>
-                <p class="text-slate-400 text-xl font-light">
-                    Real-time execution dashboard for <span class="text-slate-200 font-medium">test_db</span> suite
+                <p class="text-slate-400 text-sm font-light">
+                    Real-time dashboard for <span class="text-slate-200 font-medium">test_db</span>
                 </p>
-                <div class="flex flex-wrap justify-center gap-6 mt-10">
-                    <div class="glass px-8 py-4 flex flex-col items-center min-w-[140px]">
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Execution Date</span>
-                        <span class="text-lg font-semibold text-slate-200">{timestamp}</span>
+                <div id="auto-reload-timer" class="mt-2 text-[10px] uppercase tracking-[0.3em] text-blue-400/60 font-bold">
+                    Auto-refreshing in 5s
+                </div>
+                <div class="flex flex-wrap justify-center gap-4 mt-6">
+                    <div class="glass px-4 py-2 flex flex-col items-center min-w-[120px]">
+                        <span class="text-[9px] uppercase tracking-[0.1em] text-slate-500 font-bold">Date</span>
+                        <span class="text-sm font-semibold text-slate-200">{timestamp}</span>
                     </div>
-                    <div class="glass px-8 py-4 flex flex-col items-center min-w-[120px]">
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Steps</span>
-                        <span class="text-3xl font-black text-white">{total_steps}</span>
+                    <div class="glass px-4 py-2 flex flex-col items-center min-w-[80px]">
+                        <span class="text-[9px] uppercase tracking-[0.1em] text-slate-500 font-bold">Steps</span>
+                        <span class="text-xl font-black text-white">{total_steps}</span>
                     </div>
-                    <div class="glass px-8 py-4 border-emerald-500/20 flex flex-col items-center min-w-[120px]">
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-emerald-500/60 font-bold mb-1">Passed</span>
-                        <span class="text-3xl font-black text-emerald-400">{passed_steps}</span>
+                    <div class="glass px-4 py-2 border-emerald-500/20 flex flex-col items-center min-w-[80px]">
+                        <span class="text-[9px] uppercase tracking-[0.1em] text-emerald-500/60 font-bold">Passed</span>
+                        <span class="text-xl font-black text-emerald-400">{passed_steps}</span>
                     </div>
-                    <div class="glass px-8 py-4 border-rose-500/20 flex flex-col items-center min-w-[120px]">
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-rose-500/60 font-bold mb-1">Failed</span>
-                        <span class="text-3xl font-black text-rose-400">{failed_steps}</span>
+                    <div class="glass px-4 py-2 border-rose-500/20 flex flex-col items-center min-w-[80px]">
+                        <span class="text-[9px] uppercase tracking-[0.1em] text-rose-500/60 font-bold">Failed</span>
+                        <span class="text-xl font-black text-rose-400">{failed_steps}</span>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="space-y-10 relative">
-            <div class="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/20 via-slate-500/10 to-transparent hidden lg:block"></div>
+        <main class="space-y-4 relative">
+            <div class="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/20 via-slate-500/10 to-transparent hidden lg:block"></div>
             {steps_content}
         </main>
 
@@ -155,40 +218,41 @@ HTML_TEMPLATE = """
 """
 
 STEP_TEMPLATE = """
-<section id="step-{id}" class="step-card glass p-6 md:p-8 relative overflow-hidden">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10">
-        <div>
-            <div class="flex items-center gap-4 mb-2">
-                <span class="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Step {index}</span>
-                <h2 class="text-3xl font-bold text-white tracking-tight">{name}</h2>
+<section id="step-{id}" class="step-card glass p-4 md:p-5 relative overflow-hidden step-compact">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 relative z-10">
+        <div class="flex items-center gap-4">
+            <span class="text-[9px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Step {index}</span>
+            <div>
+                <h2 class="text-xl font-bold text-white tracking-tight">{name}</h2>
+                <p class="text-slate-400 text-xs font-light leading-relaxed">{description}</p>
             </div>
-            <p class="text-slate-400 text-lg font-light leading-relaxed max-w-2xl">{description}</p>
         </div>
-        <div class="flex items-center gap-6 glass px-6 py-4 bg-white/[0.02]">
+        <div class="flex items-center gap-4 glass px-4 py-2 bg-white/[0.02]">
             <div class="text-right">
-                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Current Status</p>
-                <p class="text-xl font-black tracking-tight {status_class}">{status}</p>
+                <p class="text-lg font-black tracking-tight {status_class}">{status}</p>
             </div>
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center {status_bg} relative overflow-hidden">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center {status_bg} relative overflow-hidden">
                 <div class="absolute inset-0 bg-current opacity-10 animate-pulse"></div>
                 {status_icon}
             </div>
         </div>
     </div>
 
-    <div class="space-y-6 relative z-10">
-        <div>
-            <div class="flex items-center gap-2 mb-3">
-                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Command Executed</h3>
+    <details class="group/details" {open_state}>
+        <summary class="flex items-center gap-2 cursor-pointer list-none text-slate-500 hover:text-blue-400 transition-colors mb-2">
+            <svg class="w-3 h-3 transition-transform group-open/details:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Logs</span>
+        </summary>
+        <div class="space-y-4 pt-3 border-t border-white/5 relative z-10">
+            <div>
+                <div class="code-block p-3 rounded-lg border border-white/5 text-blue-300 group transition-all duration-300">
+                    <code class="text-xs font-medium leading-relaxed">{command}</code>
+                </div>
             </div>
-            <div class="code-block p-5 rounded-xl border border-white/5 text-blue-300 group transition-all duration-300 hover:border-blue-500/30">
-                <code class="text-sm font-medium leading-relaxed">{command}</code>
-            </div>
-        </div>
 
-        {output_section}
-    </div>
+            {output_section}
+        </div>
+    </details>
 </section>
 """
 
@@ -215,7 +279,7 @@ OUTPUT_TEMPLATE = """
         </div>
 """
 
-def run_command(command):
+def run_command(command, update_func=None):
     print(f"\n📦 Executing: {command}")
     print("-" * 40)
     process = subprocess.Popen(
@@ -231,11 +295,7 @@ def run_command(command):
     stdout_lines = []
     stderr_lines = []
 
-    # Using a simple way to read both streams or at least show progress
-    # For simplicity in a script like this, we'll read stdout then stderr 
-    # or use a more advanced selector if needed. 
-    # Let's try to read line by line from stdout first as it's the primary output.
-    
+    # Read stdout in real-time
     while True:
         line = process.stdout.readline()
         if not line and process.poll() is not None:
@@ -243,25 +303,38 @@ def run_command(command):
         if line:
             print(line, end="")
             stdout_lines.append(line)
+            # Update report every 5 lines of output to avoid too many writes
+            if update_func and len(stdout_lines) % 5 == 0:
+                update_func("".join(stdout_lines), "".join(stderr_lines))
             
     # Capture remaining stderr
     stderr_content = process.stderr.read()
     if stderr_content:
         print(f"\n❌ STDERR:\n{stderr_content}")
         stderr_lines.append(stderr_content)
+        if update_func:
+            update_func("".join(stdout_lines), "".join(stderr_lines))
 
     print("-" * 40)
     return process.returncode, "".join(stdout_lines), "".join(stderr_lines)
 
-def generate_report(results):
+def generate_report(results, finished=False):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     steps_content = ""
     passed = 0
     failed = 0
     
+    data_finished = "data-finished" if finished else ""
+    
     for i, res in enumerate(results):
-        status_class = "status-success" if res['status'] == "SUCCESS" else "status-failure" if res['status'] == "FAILED" else "text-blue-400" if res['status'] == "RUNNING" else "text-amber-400" if res['status'] == "PENDING" else "status-skipped"
-        status_bg = "bg-emerald-500/20" if res['status'] == "SUCCESS" else "bg-rose-500/20" if res['status'] == "FAILED" else "bg-blue-500/20" if res['status'] == "RUNNING" else "bg-amber-500/20" if res['status'] == "PENDING" else "bg-slate-500/20"
+        status_colors = {
+            "SUCCESS": ("status-success", "bg-emerald-500/20"),
+            "FAILED": ("status-failure", "bg-rose-500/20"),
+            "RUNNING": ("status-running text-blue-400", "bg-blue-500/20"),
+            "PENDING": ("text-amber-400", "bg-amber-500/20"),
+            "SKIPPED": ("status-skipped", "bg-slate-500/20")
+        }
+        status_class, status_bg = status_colors.get(res['status'], ("status-skipped", "bg-slate-500/20"))
         
         status_icon = ""
         if res['status'] == "SUCCESS":
@@ -284,6 +357,8 @@ def generate_report(results):
                 stderr=res['stderr'] if res['stderr'] else "(no error output)"
             )
 
+        open_state = "open" if res['status'] == "RUNNING" else ""
+
         steps_content += STEP_TEMPLATE.format(
             index=i+1,
             id=res['id'],
@@ -294,7 +369,8 @@ def generate_report(results):
             status_class=status_class,
             status_bg=status_bg,
             status_icon=status_icon,
-            output_section=output_section
+            output_section=output_section,
+            open_state=open_state
         )
 
     html = HTML_TEMPLATE.format(
@@ -302,7 +378,8 @@ def generate_report(results):
         total_steps=len(results),
         passed_steps=passed,
         failed_steps=failed,
-        steps_content=steps_content
+        steps_content=steps_content,
+        data_finished=data_finished
     )
 
     os.makedirs(os.path.dirname(REPORT_FILE), exist_ok=True)
@@ -312,11 +389,24 @@ def generate_report(results):
     print(f"\n✨ Report updated: {REPORT_FILE}")
 
 def main():
-    print("\n🚀 Interactive Test Runner")
-    print("==========================")
+    parser = argparse.ArgumentParser(description="Interactive and Automated Test Runner for test_db")
+    parser.add_argument("-a", "--auto", action="store_true", help="Run in automated mode (no prompts)")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Run in interactive mode (prompts for each step)")
+    args = parser.parse_args()
+
+    print("\n🚀 Test Runner Dashboard")
+    print("========================")
     
-    mode_input = input("Run mode ([a]uto / [i]nteractive - default: i)? ").lower().strip()
-    mode = 'a' if mode_input == 'a' else 'i'
+    if args.auto:
+        mode = 'a'
+    elif args.interactive:
+        mode = 'i'
+    else:
+        # Fallback to interactive prompt if no flag provided
+        mode_input = input("Run mode ([a]uto / [i]nteractive - default: i)? ").lower().strip()
+        mode = 'a' if mode_input == 'a' else 'i'
+    
+    print(f"Mode: {'Automated (no prompts)' if mode == 'a' else 'Interactive'}")
     
     results = []
     
@@ -339,13 +429,15 @@ def main():
         
         if should_run:
             # Mark current as RUNNING in report
-            current_report = results + [{**step, "status": "RUNNING", "stdout": "", "stderr": ""}] + [
-                {**s, "status": "PENDING", "stdout": "", "stderr": ""}
-                for s in STEPS[len(results)+1:]
-            ]
-            generate_report(current_report)
+            def on_update(curr_stdout, curr_stderr):
+                curr_report = results + [{**step, "status": "RUNNING", "stdout": curr_stdout, "stderr": curr_stderr}] + [
+                    {**s, "status": "PENDING", "stdout": "", "stderr": ""}
+                    for s in STEPS[len(results)+1:]
+                ]
+                generate_report(curr_report)
 
-            returncode, stdout, stderr = run_command(step['command'])
+            on_update("", "") # Initial running status
+            returncode, stdout, stderr = run_command(step['command'], update_func=on_update)
             status = "SUCCESS" if returncode == 0 else "FAILED"
             results.append({
                 **step,
@@ -379,6 +471,8 @@ def main():
             ]
             generate_report(current_report)
     
+    # Final update after all tasks
+    generate_report(results, finished=True)
     print(f"\n✅ All steps completed. Final report: {REPORT_FILE}")
 
 if __name__ == "__main__":

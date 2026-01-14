@@ -1,10 +1,11 @@
 #!/bin/bash
+set -euo pipefail
 
 # Configuration
-CONTAINER_NAME=${1:-"mariadb-11-8"}
-DB_USER=${2:-"root"}
-DB_PASS=${3:-"root"}
-DB_NAME=${4:-"employees"}
+CONTAINER_NAME="${1:-mariadb-11-8}"
+DB_USER="${2:-root}"
+DB_PASS="${3:-root}"
+DB_NAME="${4:-employees}"
 
 # Colors
 RED='\033[0;31m'
@@ -32,17 +33,17 @@ EXPECTED=(
 )
 
 function get_expected {
-    local table=$1
-    local field=$2
+    local table="$1"
+    local field="$2"
     for E in "${EXPECTED[@]}"; do
-        t=$(echo $E | cut -d':' -f1)
-        count=$(echo $E | cut -d':' -f2)
-        crc=$(echo $E | cut -d':' -f3)
+        t=$(echo "$E" | cut -d':' -f1)
+        count=$(echo "$E" | cut -d':' -f2)
+        crc=$(echo "$E" | cut -d':' -f3)
         if [ "$t" == "$table" ]; then
             if [ "$field" == "count" ]; then
-                echo $count
+                echo "$count"
             else
-                echo $crc
+                echo "$crc"
             fi 
             return
         fi
@@ -55,33 +56,44 @@ echo '------------------------- ----------     --------------- ----------'
 TOTAL_ERRORS=0
 
 # Only check BASE TABLES, skip views
-for T in $($MYSQL_CMD -e "show full tables from ${DB_NAME} where table_type = 'BASE TABLE'" | cut -f1); do 
-    CRC_TEXT=$($MYSQL_CMD -e "checksum table $T" ${DB_NAME})
-    COUNT=$($MYSQL_CMD -e "select count(*) from $T" ${DB_NAME})
-    CRC=$(echo $CRC_TEXT | awk '{print $2}')
+# We use -r to avoid issues with backslashes if any
+TABLES=$($MYSQL_CMD -e "show full tables from ${DB_NAME} where table_type = 'BASE TABLE'" | cut -f1)
+
+for T in $TABLES; do 
+    # Use -BN to avoid borders, but be aware it might still include the table name
+    CRC_TEXT=$($MYSQL_CMD -e "checksum table $T" "${DB_NAME}")
+    COUNT=$($MYSQL_CMD -e "select count(*) from $T" "${DB_NAME}")
+    
+    # Checksum output with -BN is usually "dbname.tablename CRC"
+    # We take the last field to get the CRC
+    CRC=$(echo "$CRC_TEXT" | awk '{print $NF}')
     
     # Handle NULL or empty values
-    [ "$CRC" == "NULL" ] || [ -z "$CRC" ] && CRC=0
-    [ -z "$COUNT" ] && COUNT=0
+    if [ "$CRC" == "NULL" ] || [ -z "$CRC" ]; then
+        CRC=0
+    fi
+    if [ -z "$COUNT" ]; then
+        COUNT=0
+    fi
     
-    expected_crc=$(get_expected $T crc)
-    expected_count=$(get_expected $T count)
+    expected_crc=$(get_expected "$T" crc)
+    expected_count=$(get_expected "$T" count)
     
     if [ -z "$expected_crc" ]; then
         STATUS="${YELLOW}UNKNOWN${NC}"
-    elif [ "$expected_count" == "$COUNT" ] && [ "$expected_crc" == "$CRC" ]; then
+    elif [ "$expected_count" -eq "$COUNT" ] && [ "$expected_crc" == "$CRC" ]; then
         STATUS="${GREEN}OK${NC}"
     else
         STATUS="${RED}ERROR${NC}"
         ((TOTAL_ERRORS++))
     fi
     
-    printf "%-25s %'10d     %'15d %b\n" $T $COUNT $CRC "$STATUS"
+    printf "%-25s %'10d     %'15s %b\n" "$T" "$COUNT" "$CRC" "$STATUS"
 done
 
 
 echo '----------------------------------------------------------'
-if [ $TOTAL_ERRORS -eq 0 ]; then
+if [ "$TOTAL_ERRORS" -eq 0 ]; then
     echo -e "${GREEN}✅ Data integrity verification passed!${NC}"
     exit 0
 else

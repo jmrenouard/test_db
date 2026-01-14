@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Configuration
 CONTAINER_NAME="mariadb-11-8"
@@ -61,7 +62,7 @@ function run_bench {
 }
 
 
-case "$1" in
+case "${1:-help}" in
     verify)
         run_verify
         ;;
@@ -72,7 +73,9 @@ case "$1" in
         run_bench
         ;;
     all)
-        run_verify && run_analyze && run_bench
+        run_verify
+        run_analyze
+        run_bench
         ;;
     help|*)
         show_help

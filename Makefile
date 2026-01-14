@@ -37,7 +37,9 @@ status:
 
 inject:
 	@echo "💉 Injecting employees.sql into $(CONTAINER_NAME)..."
-	@cd employees && docker exec -i $(CONTAINER_NAME) mariadb -u root -proot employees < employees.sql
+	@docker exec -i $(CONTAINER_NAME) mkdir -p /tmp/employees_data
+	@docker cp employees/. $(CONTAINER_NAME):/tmp/employees_data/
+	@docker exec -i $(CONTAINER_NAME) bash -c "cd /tmp/employees_data && mariadb -u root -proot < employees.sql"
 
 verify:
 	@bash scripts/test_runner.sh verify

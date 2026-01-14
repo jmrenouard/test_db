@@ -1,0 +1,19 @@
+# Project: test_db
+# High Quality MariaDB Testing Environment Requirements
+
+# System-level dependencies
+# These tools must be installed on the host system
+docker >= 20.10.0
+docker-compose-plugin >= 2.0.0
+mariadb-client >= 11.0.0
+sysbench >= 1.0.20
+bash >= 5.0
+make >= 4.0
+
+# Python environment
+# No external pip packages required as of now (standard library only)
+python >= 3.8
+
+# Data Files
+# - employees dataset: included in /employees folder
+# - sakila dataset: included in /sakila folder
