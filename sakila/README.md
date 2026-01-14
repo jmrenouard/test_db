@@ -1,9 +1,19 @@
+# 🎬 Sakila Sample Database
 
-This sample database is derived from the Sakila-spatial db, available from 
-[the MySQL docs](https://dev.mysql.com/doc/index-other.html).
+This sample database is a modified version of the [Sakila Spatial Database](https://dev.mysql.com/doc/index-other.html), optimized for diverse MySQL and MariaDB versions.
 
-The changes applied here are quite simple:
+## ✨ Key Enhancements
 
-* The FULLTEXT index in InnoDB is added conditionally for MySQL 5.6+
-* The GEOMETRY column and SPATIAL index are added conditionally for MySQL 5.7+
+- **Engine Compatibility**: Fine-tuned for modern InnoDB features.
+- **Conditional Indexes**:
+  - **FULLTEXT**: Automatically added for MySQL 5.6+ / MariaDB environments.
+  - **SPATIAL**: GEOMETRY columns and SPATIAL indexes are added conditionally for MySQL 5.7+ / MariaDB environments.
 
+## 🚀 Installation
+
+To import the Sakila database:
+
+```bash
+mysql < sakila-mv-schema.sql
+mysql < sakila-mv-data.sql
+```

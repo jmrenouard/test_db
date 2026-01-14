@@ -1,115 +1,87 @@
-# test_db
-A sample database with an integrated test suite, used to test your applications and database servers
+# 📊 test_db (Employees Database)
 
-This repository was migrated from [Launchpad](https://launchpad.net/test-db).
+A sample database with an integrated test suite, used to test your applications and database servers. This repository provides a large dataset (300,000 employees, 2.8M salaries) for performance testing and complex query practice.
 
-See usage in the [MySQL docs](https://dev.mysql.com/doc/employee/en/index.html)
+---
 
+## 🚀 Quick Start (Modern Workflow)
 
-## Where it comes from
+This project is optimized for a **MariaDB 11.8+** Docker environment. A `Makefile` is provided to streamline common operations.
 
-The original data was created by Fusheng Wang and Carlo Zaniolo at 
-Siemens Corporate Research. The data is in XML format.
-http://timecenter.cs.aau.dk/software.htm
+### Prerequisites
 
-Giuseppe Maxia made the relational schema and Patrick Crews exported
-the data in relational format.
+- Docker & Docker Compose
+- Make
+- Python 3 (for reporting)
 
-The database contains about 300,000 employee records with 2.8 million 
-salary entries. The export data is 167 MB, which is not huge, but
-heavy enough to be non-trivial for testing.
+### Commands
 
-The data was generated, and as such there are inconsistencies and subtle
-problems. Rather than removing them, we decided to leave the contents
-untouched, and use these issues as data cleaning exercises.
+| Command | Description |
+| :--- | :--- |
+| `make start` | Start the MariaDB container (`mariadb-11-8`). |
+| `make stop` | Stop the MariaDB container. |
+| `make status` | Check the container status. |
+| `make inject` | Inject the `employees.sql` dataset into the container. |
+| `make report` | Generate performance and EXPLAIN reports in `reports/`. |
+| `make sysbench` | Run a custom Sysbench load test. |
 
-## Prerequisites
+---
 
-You need a MySQL database server (5.0+) and run the commands below through a 
-user that has the following privileges:
+## 📂 Project Structure
 
-    SELECT, INSERT, UPDATE, DELETE, 
-    CREATE, DROP, RELOAD, REFERENCES, 
-    INDEX, ALTER, SHOW DATABASES, 
-    CREATE TEMPORARY TABLES, 
-    LOCK TABLES, EXECUTE, CREATE VIEW
+- `employees/`: Core dataset and SQL scripts.
+- `sakila/`: Sakila sample database (Alternative).
+- `scripts/`: Utility scripts for automation and reporting.
+- `reports/`: Generated performance analysis and EXPLAIN plans.
+- `doc_employees/`: Extended documentation with 60+ sample queries and ER diagrams.
 
-## Installation:
+---
 
-1. Download the repository
-2. Change directory to the repository
+## 🛠 Manual Installation
 
-Then run
+If you're not using Docker, you can install it manually on any MySQL-compatible server:
 
-    mysql < employees.sql
+1. **Prerequisites**: Ensure your user has the necessary privileges (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `DROP`, `RELOAD`, `REFERENCES`, `INDEX`, `ALTER`, `SHOW DATABASES`, `CREATE TEMPORARY TABLES`, `LOCK TABLES`, `EXECUTE`, `CREATE VIEW`).
+2. **Import**:
 
+   ```bash
+   mysql < employees.sql
+   ```
 
-If you want to install with two large partitioned tables, run
+   *For partitioned tables:*
 
-    mysql < employees_partitioned.sql
+   ```bash
+   mysql < employees_partitioned.sql
+   ```
 
+3. **Verify**:
 
-## Testing the installation
+   ```bash
+   mysql -t < test_employees_md5.sql
+   ```
 
-After installing, you can run one of the following
+---
 
-    mysql -t < test_employees_md5.sql
-    # OR
-    mysql -t < test_employees_sha.sql
+## 📊 Reporting & Analysis
 
-For example:
+The project includes a sophisticated reporting system:
 
-    mysql  -t < test_employees_md5.sql
-    +----------------------+
-    | INFO                 |
-    +----------------------+
-    | TESTING INSTALLATION |
-    +----------------------+
-    +--------------+------------------+----------------------------------+
-    | table_name   | expected_records | expected_crc                     |
-    +--------------+------------------+----------------------------------+
-    | employees    |           300024 | 4ec56ab5ba37218d187cf6ab09ce1aa1 |
-    | departments  |                9 | d1af5e170d2d1591d776d5638d71fc5f |
-    | dept_manager |               24 | 8720e2f0853ac9096b689c14664f847e |
-    | dept_emp     |           331603 | ccf6fe516f990bdaa49713fc478701b7 |
-    | titles       |           443308 | bfa016c472df68e70a03facafa1bc0a8 |
-    | salaries     |          2844047 | fd220654e95aea1b169624ffe3fca934 |
-    +--------------+------------------+----------------------------------+
-    +--------------+------------------+----------------------------------+
-    | table_name   | found_records    | found_crc                        |
-    +--------------+------------------+----------------------------------+
-    | employees    |           300024 | 4ec56ab5ba37218d187cf6ab09ce1aa1 |
-    | departments  |                9 | d1af5e170d2d1591d776d5638d71fc5f |
-    | dept_manager |               24 | 8720e2f0853ac9096b689c14664f847e |
-    | dept_emp     |           331603 | ccf6fe516f990bdaa49713fc478701b7 |
-    | titles       |           443308 | bfa016c472df68e70a03facafa1bc0a8 |
-    | salaries     |          2844047 | fd220654e95aea1b169624ffe3fca934 |
-    +--------------+------------------+----------------------------------+
-    +--------------+---------------+-----------+
-    | table_name   | records_match | crc_match |
-    +--------------+---------------+-----------+
-    | employees    | OK            | ok        |
-    | departments  | OK            | ok        |
-    | dept_manager | OK            | ok        |
-    | dept_emp     | OK            | ok        |
-    | titles       | OK            | ok        |
-    | salaries     | OK            | ok        |
-    +--------------+---------------+-----------+
+- **Performance Reports**: Located in `reports/`, generated via `make report`.
+- **EXPLAIN Plans**: Detailed query execution plans are stored in `reports/explain_reports/`.
 
+---
 
-## DISCLAIMER
+## 📜 Credits & License
 
-To the best of my knowledge, this data is fabricated and
-it does not correspond to real people. 
-Any similarity to existing people is purely coincidental.
+### Origin
 
+- Data created by Fusheng Wang and Carlo Zaniolo at Siemens Corporate Research.
+- Relational schema by Giuseppe Maxia.
+- Data export by Patrick Crews.
 
-## LICENSE
-This work is licensed under the 
-Creative Commons Attribution-Share Alike 3.0 Unported License. 
-To view a copy of this license, visit 
-http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to 
-Creative Commons, 171 Second Street, Suite 300, San Francisco, 
-California, 94105, USA.
+### License
 
+This work is licensed under the **Creative Commons Attribution-Share Alike 3.0 Unported License**. To view a copy of this license, visit [Creative Commons](http://creativecommons.org/licenses/by-sa/3.0/).
 
+---
+*Note: This data is fabricated and does not correspond to real people. Any similarity is purely coincidental.*

@@ -2,7 +2,26 @@
 
 CONTAINER_NAME = mariadb-11-8
 
-.PHONY: start stop status inject report sysbench
+.PHONY: help start stop status inject verify bench analyze test-all clean
+
+help:
+	@echo "🛠️ test_db Management"
+	@echo ""
+	@echo "Core Commands:"
+	@echo "  make start      - Start MariaDB container"
+	@echo "  make stop       - Stop MariaDB container"
+	@echo "  make status     - Show container status"
+	@echo "  make inject     - Inject employees dataset"
+	@echo ""
+	@echo "Test Commands:"
+	@echo "  make verify     - Verify data integrity (counts/checksums)"
+	@echo "  make bench      - Run sysbench performance tests"
+	@echo "  make analyze    - Run SQL explain and performance analysis"
+	@echo "  make test-all   - Run all tests sequentially"
+	@echo "  make interactive - Run tests interactively with HTML report"
+	@echo ""
+	@echo "Maintenance:"
+	@echo "  make clean      - Remove generated reports"
 
 start:
 	@echo "🚀 Starting MariaDB container ($(CONTAINER_NAME))..."
@@ -20,17 +39,21 @@ inject:
 	@echo "💉 Injecting employees.sql into $(CONTAINER_NAME)..."
 	@cd employees && docker exec -i $(CONTAINER_NAME) mariadb -u root -proot employees < employees.sql
 
-report:
-	@echo "📊 Running generate_reports.py..."
-	@ln -sf employees/req_employees.sql .
-	@python3 scripts/generate_reports.py
-	@rm req_employees.sql
+verify:
+	@bash scripts/test_runner.sh verify
 
-sysbench:
-	@echo "⚡ Running sysbench test with employees_sysbench.lua..."
-	@if [ -f scripts/employees_sysbench.lua ]; then \
-		sysbench --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=root --mysql-password=root --mysql-db=employees scripts/employees_sysbench.lua run; \
-	else \
-		echo "❌ Error: scripts/employees_sysbench.lua not found."; \
-		exit 1; \
-	fi
+bench:
+	@bash scripts/test_runner.sh bench
+
+analyze:
+	@bash scripts/test_runner.sh analyze
+
+test-all:
+	@bash scripts/test_runner.sh all
+
+interactive:
+	@python3 interactive_runner.py
+
+clean:
+	@echo "🧹 Cleaning up reports..."
+	@rm -rf reports/performance_report.md reports/explain_reports/*.txt
