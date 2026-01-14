@@ -29,7 +29,7 @@ This unified workflow manages the entire lifecycle of local changes, from synchr
 
 ## Phase 2: Decision - Sync vs Release
 
-3. **Choice Required**: Ask the USER if they want to perform a **Simple Push** or a **Full Release**.
+1. **Choice Required**: Ask the USER if they want to perform a **Simple Push** or a **Full Release**.
 
 ### Option A: Simple Push
 
