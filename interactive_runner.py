@@ -2,6 +2,10 @@ import subprocess
 import os
 import json
 import sys
+import time
+import signal
+import argparse
+import threading
 from datetime import datetime
 
 # Configuration
@@ -215,8 +219,8 @@ OUTPUT_TEMPLATE = """
         </div>
 """
 
-def run_command(command):
-    print(f"\n📦 Executing: {command}")
+def run_command(command, timeout=180):
+    print(f"\n📦 Executing: {command} (Timeout: {timeout}s)")
     print("-" * 40)
     process = subprocess.Popen(
         command,
@@ -225,33 +229,63 @@ def run_command(command):
         stderr=subprocess.PIPE,
         text=True,
         bufsize=1,
-        universal_newlines=True
+        universal_newlines=True,
+        start_new_session=True
     )
     
     stdout_lines = []
     stderr_lines = []
 
-    # Using a simple way to read both streams or at least show progress
-    # For simplicity in a script like this, we'll read stdout then stderr 
-    # or use a more advanced selector if needed. 
-    # Let's try to read line by line from stdout first as it's the primary output.
+    def stream_reader(pipe, lines_list, is_stderr=False):
+        try:
+            for line in iter(pipe.readline, ''):
+                if is_stderr:
+                    print(f"❌ STDERR: {line}", end="")
+                else:
+                    print(line, end="")
+                lines_list.append(line)
+        except Exception:
+            pass
+        finally:
+            pipe.close()
+
+    t_out = threading.Thread(target=stream_reader, args=(process.stdout, stdout_lines, False))
+    t_err = threading.Thread(target=stream_reader, args=(process.stderr, stderr_lines, True))
     
-    while True:
-        line = process.stdout.readline()
-        if not line and process.poll() is not None:
-            break
-        if line:
-            print(line, end="")
-            stdout_lines.append(line)
-            
-    # Capture remaining stderr
-    stderr_content = process.stderr.read()
-    if stderr_content:
-        print(f"\n❌ STDERR:\n{stderr_content}")
-        stderr_lines.append(stderr_content)
+    t_out.start()
+    t_err.start()
+
+    start_time = time.time()
+    timed_out = False
+
+    try:
+        while t_out.is_alive() or t_err.is_alive():
+            if time.time() - start_time > timeout:
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                print(f"\n❌ TIMEOUT: Command exceeded {timeout} seconds.")
+                stdout_lines.append(f"\n[TIMEOUT] Execution exceeded {timeout} seconds.\n")
+                timed_out = True
+                break
+            time.sleep(0.1)
+
+        t_out.join(timeout=1)
+        t_err.join(timeout=1)
+
+        process.wait()
+
+    except Exception as e:
+        print(f"\n❌ ERROR during execution: {e}")
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+        except:
+            pass
+        return -1, "".join(stdout_lines), str(e)
 
     print("-" * 40)
-    return process.returncode, "".join(stdout_lines), "".join(stderr_lines)
+    return -1 if timed_out else process.returncode, "".join(stdout_lines), "".join(stderr_lines)
 
 def generate_report(results):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -314,9 +348,17 @@ def generate_report(results):
 def main():
     print("\n🚀 Interactive Test Runner")
     print("==========================")
+
+    parser = argparse.ArgumentParser(description="Interactive Test Runner")
+    parser.add_argument("--run-all", action="store_true", help="Run all tests automatically without prompts")
+    args = parser.parse_args()
     
-    mode_input = input("Run mode ([a]uto / [i]nteractive - default: i)? ").lower().strip()
-    mode = 'a' if mode_input == 'a' else 'i'
+    if args.run_all:
+        mode = 'a'
+        print("Run mode set to [a]uto via --run-all flag.")
+    else:
+        mode_input = input("Run mode ([a]uto / [i]nteractive - default: i)? ").lower().strip()
+        mode = 'a' if mode_input == 'a' else 'i'
     
     results = []
     
