@@ -1,3 +1,9 @@
+1.2.0 2026-01-14
+	- Integrated Agentic Workflows for automated maintenance (/maintain)
+	- Added Git synchronization and commit automation (/git-sync)
+	- Automated release process with Changelog management and tagging (/release)
+	- Enhanced test suite with advanced SQL performance queries
+
 1.1.0 2026-01-14
 	- Automated MariaDB workflow with Makefile integration
 	- Standardized report generation in reports/ directory
