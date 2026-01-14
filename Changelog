@@ -1,3 +1,8 @@
+1.2.1 2026-01-14
+	- Added /audit (architecture audit) and /ideate (feature suggestions) workflows
+	- Unified git-sync and release workflows into a single decision-driven process
+	- Synchronized README with all available Makefile targets and workflows
+
 1.2.0 2026-01-14
 	- Integrated Agentic Workflows for automated maintenance (/maintain)
 	- Added Git synchronization and commit automation (/git-sync)
