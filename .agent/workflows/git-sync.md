@@ -1,5 +1,5 @@
 ---
-description: git-flow
+description: Git & Release Flow Workflow
 ---
 
 # Git & Release Flow Workflow
@@ -41,16 +41,20 @@ This unified workflow manages the entire lifecycle of local changes, from synchr
 
 ### Option B: Full Release
 
-1. **Validation**: Run `/run-tests` to ensure stability.
-2. **Versioning**:
+1. **Versioning**:
    - Calculate next version according to `CHANGELOG_MANAGEMENT.md`.
    - Update `Changelog` (date, version, bullet points).
-3. **Finalize**:
+
+2. **Finalize**:
+   Comment for tags MUST contains all information related to this tag
+   content must be grabbed from Changelog
+   If Changelog is not updated with last information, git log information and produce missing information from git log for this specific release
+   information for a specific release should go to <Version inforamtion>
 
    ```bash
    git add Changelog
    git commit -m "chore: release version X.X.Y"
-   git tag -a vX.X.Y -m "Release version X.X.Y"
+   git tag -a vX.X.Y -m "Release version X.X.Y + <Version information>"
    git push origin main --tags
    ```
 
