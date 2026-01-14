@@ -26,7 +26,7 @@ This project is optimized for a **MariaDB 11.8+** Docker environment. A `Makefil
 | `make bench` | Run Sysbench performance tests. |
 | `make analyze` | Generate SQL EXPLAIN and performance reports. |
 | `make test-all` | Run all tests (Verify + Analyze + Bench). |
-| `make interactive` | Launch the Antigravity HTML test runner. |
+| `make interactive` | Launch the <www.lightpath.fr> HTML test runner. |
 | `make clean` | Clean up generated reports. |
 
 ### 🤖 Agentic Workflows

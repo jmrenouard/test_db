@@ -2,6 +2,7 @@
 
 - docs: Refactored JULES_PROMPT.md with strict architectural and operational rules
 - feat: Standardized agent instructions for better prompt engineering results
+- chore: Rebranded 'Antigravity' to 'www.lightpath.fr' across the codebase
 
 1.2.5 2026-01-14
 
