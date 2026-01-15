@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 description: git-sync
 ---
 
@@ -100,3 +101,8 @@ git tag \-a v\[VERSION\_NUMBER\] \-m "Release version \[VERSION\_NUMBER\]+ \<ALL
 
 \# Push tags to remote  
 git push origin \--tags  
+=======
+description:
+---
+
+>>>>>>> d5bdf69bed6fd38cc00f8543af2df49dde6a2fd9
