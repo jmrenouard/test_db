@@ -1,3 +1,16 @@
+1.3.4 2026-01-15
+
+- fix: Resolved merge conflicts in `.agent/workflows/git-flow.md`
+- feat: Executed unified `git-flow` release process for version 1.3.4
+- chore: Synchronized `.agent/rules/` constraints and objectives
+
+1.3.3 2026-01-15
+
+- feat: Added interactive sorting and filtering to SQL performance HTML reports
+- ui: Refactored SQL Analytics Dashboard with premium glassmorphism aesthetics
+- feat: Implemented live search for queries, issues, and DDL suggestions
+- feat: Added multi-column sorting (ID, Exec Time, Rating) via vanilla JavaScript
+
 1.3.2 2026-01-15
 
 - docs: Overhauled .agent/workflows/git-sync.md with unified Git & Release Flow

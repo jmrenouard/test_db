@@ -8,11 +8,11 @@ $$DYNAMIC_CONTEXT$$
 
 # priority TASKS
 
-* [IN PROGRESS] Realize a complete Docker environment for MariaDB database tests via Makefile and scripts.
+* [DONE] Realize a complete Docker environment for MariaDB database tests via Makefile and scripts.
 
-* [IN PROGRESS] automated performance tests.
-* [IN PROGRESS] automated report about set of request.
-* [IN PROGRESS] produce report HTML and Markdown report files (CSS/tailwind)
+* [DONE] automated performance tests.
+* [DONE] automated report about set of request.
+* [DONE] produce report HTML and Markdown report files (CSS/tailwind)
 
 ## Success Criteria
 

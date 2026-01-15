@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 description: git-sync
 ---
 
@@ -100,9 +99,4 @@ Create a version tag corresponding to the latest entry in the Changelog and push
 git tag \-a v\[VERSION\_NUMBER\] \-m "Release version \[VERSION\_NUMBER\]+ \<ALL VERSION ITEMS FROM Changelog\>"
 
 \# Push tags to remote  
-git push origin \--tags  
-=======
-description:
----
-
->>>>>>> d5bdf69bed6fd38cc00f8543af2df49dde6a2fd9
+git push origin \--tags

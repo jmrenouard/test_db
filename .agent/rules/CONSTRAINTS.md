@@ -31,4 +31,7 @@ trigger: always_on
 * All tests should be easy to run from scratch 
 * tests should be reproductible
 * tests should be scripted and automated with simple script
-* tests should be run on specific part of feature easily 
+* tests should be run on specific part of feature easily
+
+## 5. Changelog maintenance
+* All changes MUST be traced and documented inside @Changelog
