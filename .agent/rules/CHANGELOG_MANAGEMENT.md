@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # 📜 STATE MEMORY & HISTORY
 
 ## Contextual Consistency Protocols
@@ -13,3 +17,5 @@
 ## History Entry Example
 1.0.7 2015-08-30
  - Description of the change/fix.
+ - feat: add parameter to myscript.py
+ - fix: error solved for 64 bits archi. 
