@@ -62,4 +62,4 @@ interactive:
 
 clean:
 	@echo "🧹 Cleaning up reports..."
-	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt
+	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt reports/perf_threads/*.html reports/perf_threads/*.md

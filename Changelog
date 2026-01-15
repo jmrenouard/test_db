@@ -1,3 +1,18 @@
+1.3.6 2026-01-16
+
+- docs: Created comprehensive bilingual Tools & Metrics guides (EN/FR)
+- docs: Added detailed explanations for Sysbench metrics (QPS, TPS, Latency)
+- docs: Documented thread scaling analysis and saturation points
+- docs: Added Mermaid architectural diagrams to technical documentation
+- docs: Updated README.md and README_fr.md with new guide references
+
+1.3.5 2026-01-15
+
+- feat: Implemented automated scaling performance reporter (`perf_threads_reporter.py`)
+- feat: Added Markdown and HTML report generation for `perf-threads` scaling tests
+- ui: Integrated modern Tailwind CSS dashboard with CSS-based bar graphs for performance metrics
+- feat: Automated report generation within `test_runner.sh` after scaling tests
+
 1.3.4 2026-01-15
 
 - fix: Resolved merge conflicts in `.agent/workflows/git-flow.md`

@@ -37,6 +37,7 @@ Deep-dive documentation for specific components is available in the `documentati
 | **SQL Analysis** | [sql_analyzer.md](documentation/en/sql_analyzer.md) | [sql_analyzer.md](documentation/fr/sql_analyzer.md) |
 | **MariaDB/Docker** | [mariadb_management.md](documentation/en/mariadb_management.md) | [mariadb_management.md](documentation/fr/mariadb_management.md) |
 | **Benchmarking** | [benchmarking.md](documentation/en/benchmarking.md) | [benchmarking.md](documentation/fr/benchmarking.md) |
+| **Tools & Metrics** | [tools_guide.md](documentation/en/tools_guide.md) | [guide_outils.md](documentation/fr/guide_outils.md) |
 
 ---
 

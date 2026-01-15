@@ -119,6 +119,14 @@ function run_perf_threads {
         local lat=$(grep "avg:" "reports/perf_threads/results_${t}_threads.txt" | head -n 1 | awk '{print $2}')
         echo -e "${GREEN}✅ Finished $t threads: $tps QPS, $lat ms avg latency${NC}"
     done
+
+    echo -e "${YELLOW}📊 Generating reports...${NC}"
+    python3 "$SCRIPTS_DIR/perf_threads_reporter.py" \
+        --dir "reports/perf_threads" \
+        --md "reports/perf_threads/scaling_report.md" \
+        --html "reports/perf_threads/scaling_report.html"
+    
+    echo -e "${GREEN}✅ Scaling reports generated in reports/perf_threads/${NC}"
 }
 
 
