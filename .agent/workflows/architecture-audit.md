@@ -1,5 +1,5 @@
 ---
-description: architecture-audit
+description: archi
 ---
 
 # Architecture Audit Workflow
