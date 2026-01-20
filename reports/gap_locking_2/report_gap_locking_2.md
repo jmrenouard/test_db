@@ -1,5 +1,5 @@
-# 📊 DB Simulation: TRANSACTIONS
-**Generated:** 2026-01-20 15:15:58
+# 📊 DB Simulation: GAP_LOCKING_2
+**Generated:** 2026-01-20 15:15:46
 
 ## Connection Info
 - **Host:** `127.0.0.1`
@@ -10,11 +10,11 @@
 ## Key Metrics
 | Metric | Value |
 |---|---|
-| **TPS** | 6296.51 |
-| **QPS** | 18889.54 |
-| **Avg Latency** | 0.63 ms |
-| **95th Latency** | 0.77 ms |
-| **Total Events** | 62988 |
+| **TPS** | 224.95 |
+| **QPS** | 749.35 |
+| **Avg Latency** | 17.72 ms |
+| **95th Latency** | 51.94 ms |
+| **Total Events** | 2259 |
 
 ## 🏗️ Infrastructure
 - **OS:** `Linux 6.6.87.2-microsoft-standard-WSL2`
@@ -485,24 +485,54 @@ end
 ```
 
 ### SQL Transaction Files
-#### t3.sql
+#### trans_insert_gap.sql
 ```sql
+-- Transaction attempting to insert into a locked gap
 BEGIN;
-SELECT 3;
+-- Use IGNORE to prevent crash on duplicate, but it will still WAIT if there is a gap lock
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'Intruder');
 COMMIT;
 
 ```
-#### t1.sql
+#### trans_lock_range.sql
 ```sql
+-- Transaction locking a range (gap)
 BEGIN;
-SELECT 1;
+-- This will lock the gap between 10 and 20 (and the record 20)
+SELECT * FROM gap_parent WHERE id > 10 AND id < 20;
+-- Simulate processing time to allow conflict
+SELECT SLEEP(0.05);
 COMMIT;
 
 ```
-#### t2.sql
+#### trans_insert_child.sql
 ```sql
+-- Transaction inserting into child (fk check should also be affected by gap lock)
 BEGIN;
-SELECT 2;
+INSERT IGNORE INTO gap_child (id, parent_id, description) VALUES (100, 20, 'Child of locked Node');
 COMMIT;
+
+```
+#### setup.sql
+```sql
+-- Setup tables for gap locking demonstration
+DROP TABLE IF EXISTS gap_child;
+DROP TABLE IF EXISTS gap_parent;
+
+CREATE TABLE gap_parent (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+) ENGINE=InnoDB;
+
+CREATE TABLE gap_child (
+    id INT PRIMARY KEY,
+    parent_id INT,
+    description VARCHAR(100),
+    FOREIGN KEY (parent_id) REFERENCES gap_parent(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Insert sparse data to create gaps
+INSERT INTO gap_parent (id, name) VALUES (10, 'Node 10'), (20, 'Node 20'), (30, 'Node 30');
+INSERT INTO gap_child (id, parent_id, description) VALUES (1, 10, 'Child 1'), (2, 20, 'Child 2');
 
 ```

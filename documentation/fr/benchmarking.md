@@ -12,8 +12,12 @@ La suite de tests utilise un script Lua personnalisé (`scripts/employees_sysben
   Exécute le jeu de requêtes de manière séquentielle, en répétant l'ensemble 10 fois pour mesurer le débit moyen.
 - **Échelonnage des Threads** : `make perf-threads`  
   Lance un test de scalabilité sur 1, 2, 4, 8, 16, 32 et 64 threads pendant 60 secondes chacun.
-- **Transactions basées sur un Répertoire**: `scripts/run_dir_bench.sh`  
-  Exécute des fichiers SQL à partir d'un répertoire spécifié en parallèle. Chaque fichier est traité comme un bloc de transaction unique.
+- **Transactions basées sur un Répertoire**: `make test-data`  
+  Exécute tous les fichiers SQL de chaque sous-répertoire de `tests/data/` en parallèle.
+  - Tout exécuter : `make test-data`
+  - Un test spécifique : `make test-data TEST=deadlock`
+- **Exécuteur Manuel**: `scripts/run_dir_bench.sh`  
+  Lanceur CLI direct pour des répertoires SQL personnalisés.
 
 ## Métriques Capturées
 

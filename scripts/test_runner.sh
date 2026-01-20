@@ -131,6 +131,7 @@ function run_perf_threads {
 }
  
 function run_data_tests {
+    local target_test="${1:-}"
     echo -e "${BLUE}=== Subdirectory Data Tests ===${NC}"
     local data_dir="tests/data"
     
@@ -139,7 +140,17 @@ function run_data_tests {
         return 1
     fi
 
-    for test_path in "$data_dir"/*; do
+    if [ -n "$target_test" ]; then
+        if [ ! -d "$data_dir/$target_test" ]; then
+            echo -e "${RED}❌ Error: Test directory $data_dir/$target_test not found.${NC}"
+            return 1
+        fi
+        local test_paths=("$data_dir/$target_test")
+    else
+        local test_paths=("$data_dir"/*)
+    fi
+
+    for test_path in "${test_paths[@]}"; do
         if [ -d "$test_path" ]; then
             local test_name=$(basename "$test_path")
             echo -e "${YELLOW}📂 Running test: $test_name...${NC}"
@@ -177,7 +188,7 @@ case "${1:-help}" in
         run_perf_threads
         ;;
     data-tests)
-        run_data_tests
+        run_data_tests "${2:-}"
         ;;
     all)
         run_verify

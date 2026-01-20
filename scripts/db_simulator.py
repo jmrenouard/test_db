@@ -8,6 +8,7 @@ import json
 import html
 import platform
 import multiprocessing
+import shutil
 from datetime import datetime
 
 class DBSimulator:
@@ -43,6 +44,10 @@ class DBSimulator:
 
     def run_simulation(self):
         """Runs the sysbench simulation via run_dir_bench.sh and captures output."""
+        # Pre-simulation: Clear container logs to ensure transparency
+        if self.args.container:
+            self.clear_container_logs()
+            
         # Capture start time to filter logs later
         self.start_time = datetime.now()
         print(f"🚀 Starting simulation on {self.args.host}...")
@@ -119,6 +124,31 @@ class DBSimulator:
         except Exception as e:
             print(f"❌ Error running simulation: {e}")
             return False
+
+    def clear_container_logs(self):
+        """Attempts to clear (truncate) the docker container logs."""
+        print(f"🧹 Clearing logs for container: {self.args.container}...")
+        try:
+            # Get the log path
+            cmd_path = ["docker", "inspect", "--format", "{{.LogPath}}", self.args.container]
+            path_res = subprocess.run(cmd_path, capture_output=True, text=True)
+            if path_res.returncode == 0:
+                log_path = path_res.stdout.strip()
+                if log_path:
+                    # Try to truncate via sudo if needed, but since we are usually in a dev env
+                    # we try to run a command that truncates it.
+                    # On many systems, we can use a docker-based trick to truncate:
+                    truncate_cmd = ["sudo", "truncate", "-s", "0", log_path]
+                    # We try without sudo first if we are in a container or have direct access
+                    res = subprocess.run(["truncate", "-s", "0", log_path], capture_output=True)
+                    if res.returncode != 0:
+                        # If that fails, we can try via a temporary container that mounts the path
+                        # but that might be overkill. Let's just log that we rely on --since.
+                        print("⚠️  Could not truncate log file directly (permission denied). Using strict --since filtering instead.")
+            else:
+                print("⚠️  Could not find log path for container.")
+        except Exception as e:
+            print(f"⚠️  Failed to clear container logs: {e}")
 
     def fetch_deadlocks(self):
         """Fetches and parses deadlocks from the container's error log."""

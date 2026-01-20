@@ -56,7 +56,7 @@ analyze:
 	@bash scripts/test_runner.sh analyze
 
 test-data:
-	@bash scripts/test_runner.sh data-tests
+	@bash scripts/test_runner.sh data-tests $(TEST)
 
 test-all:
 	@bash scripts/test_runner.sh all

@@ -21,7 +21,8 @@ This project is optimized for a **MariaDB 11.8+** Docker environment. A `Makefil
 | `make start` | Start the MariaDB container (`mariadb-11-8`). |
 | `make status` | Check if the database is up and healthy. |
 | `make inject` | Inject the `employees.sql` dataset into the container. |
-| `make test-all` | **Recommended**: Run Verify + Analyze + Bench in one go. |
+| `make test-data`| Run all tests from `tests/data/` (e.g. deadlocks, gap locking). |
+| `make test-all` | **Recommended**: Run Verify + Analyze + Bench + Data in one go. |
 | `make interactive` | Launch the <www.lightpath.fr> HTML test runner. |
 | `make stop` | Stop the MariaDB container. |
 | `make clean` | Remove all generated reports and artifacts. |

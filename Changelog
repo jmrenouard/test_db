@@ -1,3 +1,15 @@
+1.4.6 2026-01-20
+
+- feat: Added container log clearing (truncation) before each test in `db_simulator.py`
+- feat: Unified documentation sync across README and benchmarking guides (EN/FR)
+- feat: Finalized flexible test selection for `make test-data TEST=name`
+
+1.4.5 2026-01-20
+
+- feat: Added support for specific subdirectory testing via `make test-data TEST=name`
+- feat: Updated `test_runner.sh` to handle optional test name argument
+- feat: Enabled execution of all data tests when no `TEST` variable is provided
+
 1.4.1 2026-01-20
 
 - feat: Enhanced report transparency by displaying the actual `sysbench` command instead of the wrapper script

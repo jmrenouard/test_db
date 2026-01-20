@@ -12,8 +12,12 @@ The benchmarking suite leverages a custom Lua script (`scripts/employees_sysbenc
   Executes the query set sequentially, repeating the entire set 10 times to measure average throughput.
 - **Threaded Scaling**: `make perf-threads`  
   Runs a scalability test across 1, 2, 4, 8, 16, 32, and 64 threads for 60 seconds each.
-- **Directory-Based Transactions**: `scripts/run_dir_bench.sh`  
-  Executes SQL files from a specified directory in parallel. Each file is treated as a single transaction block.
+- **Directory-Based Transactions**: `make test-data`  
+  Executes all SQL files from each subdirectory in `tests/data/` in parallel.
+  - Run all: `make test-data`
+  - Run specific: `make test-data TEST=deadlock`
+- **Manual Runner**: `scripts/run_dir_bench.sh`  
+  Direct CLI runner for custom SQL directories.
 
 ## Metrics Captured
 
