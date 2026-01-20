@@ -17,6 +17,8 @@ class DBSimulator:
 
     def run_simulation(self):
         """Runs the sysbench simulation via run_dir_bench.sh and captures output."""
+        # Capture start time to filter logs later
+        self.start_time = datetime.now()
         print(f"🚀 Starting simulation on {self.args.host}...")
         
         cmd = [
@@ -43,10 +45,46 @@ class DBSimulator:
             
             self.raw_output = stdout
             self.parse_sysbench_output(stdout)
+            
+            # Fetch and parse deadlocks if container is specified
+            if self.args.container:
+                self.fetch_deadlocks()
+            
             return True
         except Exception as e:
             print(f"❌ Error running simulation: {e}")
             return False
+
+    def fetch_deadlocks(self):
+        """Fetches and parses deadlocks from the container's error log."""
+        self.deadlocks = []
+        try:
+            # Use UTC for since_ts as Docker usually logs in UTC
+            import datetime as dt
+            since_ts = (self.start_time - dt.timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%S")
+            cmd = ["docker", "logs", "--since", since_ts, self.args.container]
+            process = subprocess.run(cmd, capture_output=True, text=True)
+            
+            log_content = process.stdout + process.stderr
+            
+            # Simplified regex: start at *** (1) TRANSACTION and end at WE ROLL BACK TRANSACTION
+            pattern = re.compile(r'(\*\*\* \(1\) TRANSACTION:.*?\*\*\* WE ROLL BACK TRANSACTION.*?\n)', re.DOTALL)
+            matches = pattern.findall(log_content)
+            
+            for match in matches:
+                self.deadlocks.append(match.strip())
+            
+            if self.deadlocks:
+                print(f"⚠️  Found {len(self.deadlocks)} deadlocks in error logs.")
+            else:
+                if "deadlock" in log_content.lower():
+                    print("⚠️  Deadlocks mentioned in logs but regex failed to extract blocks.")
+                    # Show a bigger sample
+                    sample_idx = log_content.find("*** (1) TRANSACTION:")
+                    if sample_idx != -1:
+                        print(f"DEBUG: Log sample (1000 chars):\n{log_content[sample_idx:sample_idx+1000]}")
+        except Exception as e:
+            print(f"⚠️  Failed to fetch deadlocks: {e}")
 
     def parse_sysbench_output(self, output):
         """Parses metrics from sysbench output."""
@@ -100,11 +138,41 @@ class DBSimulator:
             f"| **95th Latency** | {self.results['p95_lat']:.2f} ms |",
             f"| **Total Events** | {self.results['total_events']} |",
         ]
+
+        if hasattr(self, 'deadlocks') and self.deadlocks:
+            lines.extend([
+                f"\n## ⚠️ Deadlocks Detected",
+                f"The simulation triggered {len(self.deadlocks)} deadlock(s). See logs for details.\n"
+            ])
+            for d in self.deadlocks[:5]: # Show first 5
+                lines.append(f"```text\n{d}\n```\n")
+
         with open(self.output_md, 'w') as f:
             f.write('\n'.join(lines))
         print(f"✅ Markdown report: {self.output_md}")
 
     def _generate_html(self):
+        deadlock_html = ""
+        if hasattr(self, 'deadlocks') and self.deadlocks:
+            events = ""
+            for d in self.deadlocks[:5]:
+                events += f"""
+                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
+                    <pre class="whitespace-pre-wrap text-[10px] text-red-300 font-mono">{d}</pre>
+                </div>"""
+            
+            deadlock_html = f"""
+            <section class="glass rounded-3xl p-8 mb-12 border-red-500/30">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-3 text-red-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Deadlock Analysis ({len(self.deadlocks)} detected)
+                </h2>
+                <div class="max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                    {events}
+                </div>
+            </section>
+            """
+
         html_template = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -118,6 +186,9 @@ class DBSimulator:
         body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #f8fafc; }}
         .glass {{ background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }}
         .gradient-text {{ background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
+        .custom-scrollbar::-webkit-scrollbar {{ width: 6px; }}
+        .custom-scrollbar::-webkit-scrollbar-track {{ background: rgba(255, 255, 255, 0.05); }}
+        .custom-scrollbar::-webkit-scrollbar-thumb {{ background: rgba(255, 255, 255, 0.1); border-radius: 10px; }}
     </style>
 </head>
 <body class="min-h-screen p-8 md:p-16">
@@ -160,6 +231,8 @@ class DBSimulator:
                 </div>
             </div>
         </div>
+
+        {deadlock_html}
 
         <section class="glass rounded-3xl p-8 mb-12">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
@@ -215,6 +288,7 @@ def main():
         sim.generate_reports()
     else:
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,9 @@
 1.3.11 2026-01-20
 
--
+- feat: Added automated deadlock detection and premium reporting to `db_simulator.py`
+- feat: Created deadlock simulation scenario (A->B, B->A) for MariaDB labs
+- docs: Created comprehensive experiment guide for deadlock analysis
+- fix: Enhanced `dir_transactions_sysbench.lua` with `pcall` for transaction resilience
 
 1.3.10 2026-01-20
 
