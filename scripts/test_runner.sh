@@ -1,7 +1,23 @@
 #!/bin/bash
+# scripts/test_runner.sh
+# ============================================================================
+# Main Test Orchestrator
+# ============================================================================
+# Purpose:
+#   Provides a unified entry point for all database lab operations:
+#   integrity verification, performance analysis, and stress testing.
+#
+# Commands:
+#   - verify: Data checksums and counts.
+#   - analyze: Query plans and optimization suggestions.
+#   - bench: Single-threaded sysbench run.
+#   - perf-threads: Multi-threaded scaling analysis.
+#   - data-tests: Recursive testing of subdirectories in tests/data/.
+# ============================================================================
+
 set -euo pipefail
 
-# Configuration
+# Default Configuration
 CONTAINER_NAME="mariadb-11-8"
 DB_USER="root"
 DB_PASS=""

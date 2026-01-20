@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+"""
+scripts/perf_threads_reporter.py
+================================================================================
+Scaling Performance Reporter for MariaDB
+================================================================================
+Purpose:
+  Aggregates multiple sysbench result files (one per thread count) into a 
+  consolidated performance scaling report.
+
+Workflow:
+  1. Discovery: Scans a directory for results_{N}_threads.txt files.
+  2. Parsing: Extracts key metrics (QPS, TPS, Latency, Events) for each thread count.
+  3. Visualization:
+     - Generates Markdown tables for logs and documentation.
+     - Generates Premium HTML reports featuring CSS-based horizontal bar graphs
+       for visual performance scaling analysis.
+
+Usage:
+  python3 scripts/perf_threads_reporter.py --dir reports/perf_threads/
+================================================================================
+"""
 import os
 import re
 import sys
@@ -13,13 +34,17 @@ class PerfReporter:
         self.data = []
 
     def parse_results(self):
-        """Parses all results_N_threads.txt files in the results directory."""
+        """
+        Scans results_dir for files matching results_{N}_threads.txt.
+        Extracts performance metrics from each file and stores them in self.data.
+        """
         if not os.path.exists(self.results_dir):
             print(f"Directory {self.results_dir} not found.")
             return
 
+        # Filtering and discovery logic
         files = [f for f in os.listdir(self.results_dir) if f.startswith('results_') and f.endswith('_threads.txt')]
-        # Sort by thread number
+        # Sort files numerically by thread count to ensure logical report order
         files.sort(key=lambda x: int(re.search(r'results_(\d+)_threads\.txt', x).group(1)))
 
         for filename in files:
@@ -28,7 +53,8 @@ class PerfReporter:
             
             with open(filepath, 'r') as f:
                 content = f.read()
-                
+            
+            # Extract metrics using regex. Refer to sysbench output format.
             metrics = {
                 'threads': threads,
                 'read': self._extract(r'read:\s+(\d+)', content),

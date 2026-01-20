@@ -1,7 +1,22 @@
 #!/bin/bash
+# scripts/verify_data.sh
+# ============================================================================
+# Data Integrity & Checksum Verifier
+# ============================================================================
+# Purpose:
+#   Ensures that the MariaDB database content matches the baseline reference
+#   by comparing row counts and table checksums.
+#
+# Logic:
+#   1. Iterates through base tables in the target schema.
+#   2. Calculates current CHECKSUM and COUNT(*).
+#   3. Compares against hardcoded EXPECTED values (baseline).
+#   4. Reports OK/ERROR/UNKNOWN for each table.
+# ============================================================================
+
 set -euo pipefail
 
-# Configuration
+# Default Configuration
 CONTAINER_NAME="${1:-mariadb-11-8}"
 DB_USER="${2:-root}"
 DB_PASS="${3:-root}"

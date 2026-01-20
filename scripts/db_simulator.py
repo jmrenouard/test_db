@@ -1,4 +1,28 @@
 #!/usr/bin/env python3
+"""
+scripts/db_simulator.py
+================================================================================
+Generic MariaDB Simulation & Premium Reporting Tool
+================================================================================
+Purpose:
+  Orchestrates complex database simulations by running sysbench with directory-
+  based transactions and generating high-quality HTML/Markdown reports.
+
+Workflow:
+  1. Environment Preparation: Truncates container logs and runs setup.sql.
+  2. Simulation: Launches sysbench via run_dir_bench.sh wrapper.
+  3. Analysis:
+     - Parses sysbench metrics (TPS, QPS, Latency).
+     - Fetches Docker logs and extracts deadlock blocks via regex.
+     - Captures DB variables and infrastructure metadata.
+  4. Cleanup: Runs teardown.sql.
+  5. Reporting: Generates glassmorphism HTML and descriptive Markdown reports.
+
+Usage:
+  python3 scripts/db_simulator.py --sql-dir tests/data/deadlock/ \
+    --container mariadb-11-8 --name "Deadlock Test"
+================================================================================
+"""
 import os
 import re
 import sys
@@ -13,6 +37,7 @@ from datetime import datetime
 
 class DBSimulator:
     def __init__(self, args):
+        """Initializes the simulator with CLI arguments and sets up reporting paths."""
         self.args = args
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.ts_slug = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -30,8 +55,7 @@ class DBSimulator:
         # Output directory handling
         self.output_dir = self.args.output_dir or "reports"
         
-        # If output_dir is specified and not the default 'reports', 
-        # we simplify the filename to avoid redundancy with the directory name
+        # Determine output filenames based on directory structure
         if self.args.output_dir and self.args.output_dir != "reports":
             self.output_md = os.path.join(self.output_dir, f"report_{self.test_name}.md")
             self.output_html = os.path.join(self.output_dir, f"report_{self.test_name}.html")
@@ -39,11 +63,18 @@ class DBSimulator:
             self.output_md = os.path.join(self.output_dir, f"report_{self.test_name}_{self.ts_slug}.md")
             self.output_html = os.path.join(self.output_dir, f"report_{self.test_name}_{self.ts_slug}.html")
 
-        # Ensure output directory exists
+        # Ensure output directory exists before any writing
         os.makedirs(self.output_dir, exist_ok=True)
 
     def run_simulation(self):
-        """Runs the sysbench simulation via run_dir_bench.sh and captures output."""
+        """
+        Main execution flow:
+        1. Cleanup logs
+        2. Run setup.sql
+        3. Execute performance test
+        4. Capture metrics and analysis
+        5. Run teardown.sql
+        """
         # Pre-simulation: Clear container logs to ensure transparency
         if self.args.container:
             self.clear_container_logs()
@@ -52,6 +83,7 @@ class DBSimulator:
         self.start_time = datetime.now()
         print(f"🚀 Starting simulation on {self.args.host}...")
         
+        # Wrapper command that invokes our custom Lua script
         cmd = [
             "bash", "scripts/run_dir_bench.sh",
             "--sql-dir", self.args.sql_dir,
@@ -66,7 +98,7 @@ class DBSimulator:
         if self.args.container:
             cmd.extend(["--container", self.args.container])
 
-        # Pre-simulation: Run setup.sql if it exists
+        # Pre-simulation: Run setup.sql if it exists (e.g. for creating state/tables)
         setup_script = os.path.join(self.args.sql_dir, "setup.sql")
         if os.path.exists(setup_script):
             print(f"🔧 Running setup script: {setup_script}")
@@ -84,6 +116,7 @@ class DBSimulator:
                 print(f"⚠️  Setup script failed: {e}")
 
         try:
+            # Execute simulation via subprocess
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             stdout, stderr = process.communicate()
             
@@ -95,7 +128,6 @@ class DBSimulator:
             
             # Reconstruct sysbench command for transparency in the report
             container_name = self.args.container or "mariadb-11-8"
-            # We assume it's running in Docker based on the project environment
             sb_cmd = [
                 "sysbench",
                 f"--mysql-host={self.args.host}",
@@ -112,12 +144,14 @@ class DBSimulator:
             reconstructed_cmd = f"docker exec -i {container_name} " + " ".join(sb_cmd)
             self.env_details['sysbench_cmd'] = reconstructed_cmd
             
+            # Parse metrics from stdout
             self.parse_sysbench_output(stdout)
             
             # Fetch and parse deadlocks if container is specified
             if self.args.container:
                 self.fetch_deadlocks()
             
+            # Gather configuration and infrastructure data
             self.fetch_environment_details()
             
             # Post-simulation: Run teardown.sql if it exists
@@ -172,10 +206,14 @@ class DBSimulator:
             print(f"⚠️  Failed to clear container logs: {e}")
 
     def fetch_deadlocks(self):
-        """Fetches and parses deadlocks from the container's error log."""
+        """
+        Retrieves deadlocks from the MariaDB container logs.
+        Uses --since strategy with a 1-second overlap to capture events 
+        that occurred during the simulation.
+        """
         self.deadlocks = []
         try:
-            # Use UTC for since_ts as Docker usually logs in UTC
+            # Docker logs are usually UTC; we use a 1-second buffer to be safe
             import datetime as dt
             since_ts = (self.start_time - dt.timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%S")
             cmd = ["docker", "logs", "--since", since_ts, self.args.container]
@@ -183,7 +221,9 @@ class DBSimulator:
             
             log_content = process.stdout + process.stderr
             
-            # Simplified regex: start at *** (1) TRANSACTION and end at WE ROLL BACK TRANSACTION
+            # REGEX LOGIC:
+            # InnoDB deadlock reports start with '*** (1) TRANSACTION:'
+            # and end with '*** WE ROLL BACK TRANSACTION'.
             pattern = re.compile(r'(\*\*\* \(1\) TRANSACTION:.*?\*\*\* WE ROLL BACK TRANSACTION.*?\n)', re.DOTALL)
             matches = pattern.findall(log_content)
             
@@ -193,9 +233,9 @@ class DBSimulator:
             if self.deadlocks:
                 print(f"⚠️  Found {len(self.deadlocks)} deadlocks in error logs.")
             else:
+                # Fallback if text is present but regex didn't match perfectly
                 if "deadlock" in log_content.lower():
                     print("⚠️  Deadlocks mentioned in logs but regex failed to extract blocks.")
-                    # Show a bigger sample
                     sample_idx = log_content.find("*** (1) TRANSACTION:")
                     if sample_idx != -1:
                         print(f"DEBUG: Log sample (1000 chars):\n{log_content[sample_idx:sample_idx+1000]}")
@@ -330,7 +370,10 @@ class DBSimulator:
         return 0
 
     def generate_reports(self):
-        """Generates Markdown and Premium HTML reports."""
+        """
+        Entry point for reporting. 
+        Creates both Markdown (for quick review/logs) and HTML (for presentation).
+        """
         os.makedirs(self.output_dir, exist_ok=True)
         self._generate_markdown()
         self._generate_html()

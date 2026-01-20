@@ -1,3 +1,24 @@
+#!/usr/bin/env python3
+"""
+scripts/sql_analyzer.py
+================================================================================
+SQL Performance Analyzer & Index Recommender
+================================================================================
+Purpose:
+  Analyzes the performance of individual SQL queries using EXPLAIN plans and
+  provides automated optimization ratings and index suggestions.
+
+Features:
+  - Heuristic-based analysis of EXPLAIN output (detects Full Table Scans, etc.).
+  - Automated CREATE INDEX DDL generation.
+  - Generates detailed Markdown and interactive HTML dashboards.
+  - Supports single query analysis via CLI or batch processing from SQL files.
+
+Usage:
+  python3 scripts/sql_analyzer.py --query-file employees/req_employees.sql \
+    --container mariadb-11-8
+================================================================================
+"""
 import subprocess
 import time
 import os
@@ -7,7 +28,7 @@ import re
 import json
 
 def run_command(cmd_list):
-    """Runs a shell command and returns stdout and stderr."""
+    """Executes a shell command and captures its standard output and errors."""
     try:
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=False)
         return result.stdout, result.stderr

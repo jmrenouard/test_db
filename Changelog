@@ -1,10 +1,14 @@
+1.5.3 2026-01-20
+
+- feat: Added `gap_locking_4_ext` simulation with a 3-table schema and `ON DELETE CASCADE`.
+- docs: Demonstrated gap locking on non-PK Unique indexes with cascading foreign keys.
+- feat: Verified deadlock emergence with `INSERT ... SELECT` shared locks in complex relationships.
+
 1.5.2 2026-01-20
 
-- doc: Added comprehensive documentation and header to `scripts/dir_transactions_sysbench.lua`.
-- doc: Explained SQL transaction loading, parsing, and execution logic.
-
-1.5.2 2026-01-20
-
+- doc: Added comprehensive documentation and headers to all files in `scripts/`.
+- doc: Documented `db_simulator.py`, `employees_sysbench.lua`, `perf_threads_reporter.py`, `run_dir_bench.sh`, `sql_analyzer.py`, `test_runner.sh`, and `verify_data.sh`.
+- doc: Explained SQL transaction loading, parsing, execution, and analysis logic.
 - feat: Added `gap_locking_4` comprehensive simulation (FK on Unique/non-PK, DELETE, UPDATE, INSERT, SELECT).
 - docs: Demonstrated gap locking during `INSERT ... SELECT` shared lock acquisition.
 - fix: Added `INSERT IGNORE` to `gap_locking_4` transaction for stable sysbench looping.

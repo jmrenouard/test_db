@@ -1,10 +1,27 @@
 #!/bin/bash
+# scripts/run_dir_bench.sh
+# ============================================================================
+# Sysbench Directory Transaction Runner
+# ============================================================================
+# Purpose:
+#   Orchestrates the execution of directory-based SQL transactions.
+#   It synchronizes local SQL files and the Lua driver with a Docker container
+#   before launching the stress test.
+#
+# Logic:
+#   1. Parse CLI arguments (threads, time, host, etc.).
+#   2. Detect if the target MariaDB container is running.
+#   3. If Docker:
+#      - Synchronize scripts/dir_transactions_sysbench.lua to /tmp.
+#      - Synchronize provided --sql-dir to /tmp/bench_dir/sql/ inside container.
+#      - Execute sysbench inside the container.
+#   4. If Local:
+#      - Execute sysbench directly using local paths.
+# ============================================================================
+
 set -euo pipefail
 
-# scripts/run_dir_bench.sh
-# Runner for dir_transactions_sysbench.lua
-
-# Configuration with defaults
+# Configuration with defaults from environment or hardcoded values
 CONTAINER_NAME="${CONTAINER_NAME:-mariadb-11-8}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_USER="${DB_USER:-root}"
@@ -29,7 +46,7 @@ show_usage() {
     echo ""
 }
 
-# Parse arguments
+# Parse Command Line Arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --sql-dir) SQL_DIR="$2"; shift 2 ;;
@@ -45,6 +62,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Mandatory Parameter Check
 if [[ -z "$SQL_DIR" ]]; then
     echo "Error: --sql-dir is mandatory."
     show_usage
@@ -56,6 +74,7 @@ if [[ ! -d "$SQL_DIR" ]]; then
     exit 1
 fi
 
+# Locate the Lua driver script relative to this script
 SCRIPTS_DIR="$(dirname "$0")"
 LUA_SCRIPT="$SCRIPTS_DIR/dir_transactions_sysbench.lua"
 
@@ -69,20 +88,21 @@ echo "📂 SQL Directory: $SQL_DIR"
 echo "🧵 Threads: $THREADS"
 echo "⏱️ Time: ${TIME}s"
 
-# Check if we should run inside a container or local
+# STRATEGY: Check if container exists to decide between Docker or Local execution
 if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo "🐳 Running inside Docker container: $CONTAINER_NAME"
     
-    # Copy files to container
+    # 1. Prepare container environment
     docker exec -i "$CONTAINER_NAME" mkdir -p /tmp/bench_dir
     docker cp "$LUA_SCRIPT" "$CONTAINER_NAME:/tmp/dir_transactions_sysbench.lua"
     
-    # Create temp directory in container for SQL files
+    # 2. Synchronize SQL transactions
+    # We clear the remote directory first to avoid mixing different test scenarios.
     docker exec -i "$CONTAINER_NAME" rm -rf /tmp/bench_dir/sql
     docker exec -i "$CONTAINER_NAME" mkdir -p /tmp/bench_dir/sql
     docker cp "$SQL_DIR/." "$CONTAINER_NAME:/tmp/bench_dir/sql/"
 
-    # Execute
+    # 3. Execute sysbench inside the container scope
     docker exec -i "$CONTAINER_NAME" sysbench \
         --mysql-host="$DB_HOST" \
         --mysql-user="$DB_USER" \
@@ -94,6 +114,7 @@ if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         --events=0 \
         /tmp/dir_transactions_sysbench.lua run
 else
+    # FALLBACK: Local execution (useful for standalone DBs or non-docker labs)
     echo "💻 Running locally (sysbench must be installed)"
     sysbench \
         --mysql-host="$DB_HOST" \
