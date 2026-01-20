@@ -1,5 +1,5 @@
 # 📊 DB Simulation: TRANSACTIONS
-**Generated:** 2026-01-20 16:00:30
+**Generated:** 2026-01-20 16:14:22
 
 ## Connection Info
 - **Host:** `127.0.0.1`
@@ -10,11 +10,11 @@
 ## Key Metrics
 | Metric | Value |
 |---|---|
-| **TPS** | 5994.09 |
-| **QPS** | 17982.27 |
-| **Avg Latency** | 0.67 ms |
-| **95th Latency** | 0.83 ms |
-| **Total Events** | 59958 |
+| **TPS** | 6346.12 |
+| **QPS** | 19038.35 |
+| **Avg Latency** | 0.63 ms |
+| **95th Latency** | 0.75 ms |
+| **Total Events** | 63477 |
 
 ## 🏗️ Infrastructure
 - **OS:** `Linux 6.6.87.2-microsoft-standard-WSL2`

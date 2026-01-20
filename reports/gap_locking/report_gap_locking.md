@@ -1,5 +1,5 @@
 # 📊 DB Simulation: GAP_LOCKING
-**Generated:** 2026-01-20 15:59:55
+**Generated:** 2026-01-20 16:13:40
 
 ## Connection Info
 - **Host:** `127.0.0.1`
@@ -10,11 +10,11 @@
 ## Key Metrics
 | Metric | Value |
 |---|---|
-| **TPS** | 53.35 |
-| **QPS** | 179.26 |
-| **Avg Latency** | 74.66 ms |
-| **95th Latency** | 204.11 ms |
-| **Total Events** | 539 |
+| **TPS** | 0.91 |
+| **QPS** | 5.71 |
+| **Avg Latency** | 3872.97 ms |
+| **95th Latency** | 5033.35 ms |
+| **Total Events** | 12 |
 
 ## 🏗️ Infrastructure
 - **OS:** `Linux 6.6.87.2-microsoft-standard-WSL2`
@@ -27,6 +27,193 @@
 - **Target Storage:** `employees`
 - **Host Node:** `127.0.0.1`
 - **Total RAM:** `15631 MB`
+
+
+## ⚠️ Deadlocks Detected
+The simulation triggered 5 deadlock(s).
+
+```text
+*** (1) TRANSACTION:
+
+TRANSACTION 19507, ACTIVE 1 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2389, OS thread handle 137749198591680, query id 1570505 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19507 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19503 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19503, ACTIVE 3 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2391, OS thread handle 137749199206080, query id 1570504 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19503 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19507 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+```
+
+```text
+*** (1) TRANSACTION:
+
+TRANSACTION 19508, ACTIVE 1 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2389, OS thread handle 137749198591680, query id 1570514 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19508 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19504, ACTIVE 4 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2388, OS thread handle 137748795619008, query id 1570513 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19508 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+```
+
+```text
+*** (1) TRANSACTION:
+
+TRANSACTION 19509, ACTIVE 2 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2391, OS thread handle 137749199206080, query id 1570518 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19509 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19504, ACTIVE 5 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2388, OS thread handle 137748795619008, query id 1570513 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19509 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+```
 
 
 ## 🛠️ Reproducibility
@@ -220,6 +407,316 @@ docker exec -i mariadb-11-8 sysbench --mysql-host=127.0.0.1 --mysql-user=root --
 | `version_ssl_library` | `OpenSSL 3.0.13 30 Jan 2024` |
 | `wait_timeout` | `28800` |
 
+### MariaDB Error Log (Tail)
+```text
+2026-01-20 15:13:44 2389 [Note] InnoDB: Transactions deadlock detected, dumping detailed information.
+2026-01-20 15:13:44 2389 [Note] InnoDB: 
+*** (1) TRANSACTION:
+
+TRANSACTION 19507, ACTIVE 1 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2389, OS thread handle 137749198591680, query id 1570505 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19507 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19503 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19503, ACTIVE 3 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2391, OS thread handle 137749199206080, query id 1570504 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19503 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19507 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:44 2389 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: Transactions deadlock detected, dumping detailed information.
+2026-01-20 15:13:45 2389 [Note] InnoDB: 
+*** (1) TRANSACTION:
+
+TRANSACTION 19508, ACTIVE 1 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2389, OS thread handle 137749198591680, query id 1570514 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19508 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19504, ACTIVE 4 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2388, OS thread handle 137748795619008, query id 1570513 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19508 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:45 2389 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: Transactions deadlock detected, dumping detailed information.
+2026-01-20 15:13:46 2391 [Note] InnoDB: 
+*** (1) TRANSACTION:
+
+TRANSACTION 19509, ACTIVE 2 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2391, OS thread handle 137749199206080, query id 1570518 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19509 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19504, ACTIVE 5 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2388, OS thread handle 137748795619008, query id 1570513 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19504 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19509 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:46 2391 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+
+2026-01-20 15:13:49 2389 [Note] InnoDB: Transactions deadlock detected, dumping detailed information.
+2026-01-20 15:13:49 2389 [Note] InnoDB: 
+*** (1) TRANSACTION:
+
+TRANSACTION 19514, ACTIVE 1 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2389, OS thread handle 137749198591680, query id 1570537 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:49 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19514 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:49 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19511 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:49 2389 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19511, ACTIVE 3 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2391, OS thread handle 137749199206080, query id 1570536 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:49 2389 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19511 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:49 2389 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19514 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:49 2389 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+
+2026-01-20 15:13:51 2388 [Note] InnoDB: Transactions deadlock detected, dumping detailed information.
+2026-01-20 15:13:51 2388 [Note] InnoDB: 
+*** (1) TRANSACTION:
+
+TRANSACTION 19517, ACTIVE 1 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 3 row lock(s)
+MariaDB thread id 2388, OS thread handle 137748795619008, query id 1570551 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap')
+2026-01-20 15:13:51 2388 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19517 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:51 2388 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19513 lock_mode X
+Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000014; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034011d; asc     4  ;;
+ 3: len 7; hex 4e6f6465203230; asc Node 20;;
+
+2026-01-20 15:13:51 2388 [Note] InnoDB: 
+*** (2) TRANSACTION:
+
+TRANSACTION 19513, ACTIVE 4 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s)
+MariaDB thread id 2390, OS thread handle 137748422940352, query id 1570550 127.0.0.1 root Update
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap')
+2026-01-20 15:13:51 2388 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19513 lock mode S locks rec but not gap waiting
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:51 2388 [Note] InnoDB: *** CONFLICTING WITH:
+
+RECORD LOCKS space id 304 page no 3 n bits 320 index PRIMARY of table `employees`.`gap_parent` trx id 19517 lock_mode X
+Record lock, heap no 4 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 8000001e; asc     ;;
+ 1: len 6; hex 000000004c25; asc     L%;;
+ 2: len 7; hex c800000034012a; asc     4 *;;
+ 3: len 7; hex 4e6f6465203330; asc Node 30;;
+
+Record lock, heap no 5 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
+ 0: len 4; hex 80000019; asc     ;;
+ 1: len 6; hex 000000004c2d; asc     L-;;
+ 2: len 7; hex cc0000003d0110; asc     =  ;;
+ 3: len 5; hex 412d476170; asc A-Gap;;
+
+2026-01-20 15:13:51 2388 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
+
+
+```
+
 ### Lua Script
 ```lua
 -- scripts/dir_transactions_sysbench.lua
@@ -322,31 +819,23 @@ DROP TABLE IF EXISTS gap_child;
 DROP TABLE IF EXISTS gap_parent;
 
 ```
-#### trans_insert_gap.sql
+#### trans_A.sql
 ```sql
--- Transaction attempting to insert into a locked gap
+-- Transaction A: Lock gap (10, 20) then try to insert into gap (20, 30)
 BEGIN;
--- Use IGNORE to prevent crash on duplicate, but it will still WAIT if there is a gap lock
-INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'Intruder');
-COMMIT;
-
-```
-#### trans_lock_range.sql
-```sql
--- Transaction locking a range (gap)
-BEGIN;
--- This will lock the gap between 10 and 20 (and the record 20)
 SELECT * FROM gap_parent WHERE id > 10 AND id < 20 FOR UPDATE;
--- Simulate processing time to allow conflict
-SELECT SLEEP(0.05);
+SELECT SLEEP(1);
+INSERT IGNORE INTO gap_parent (id, name) VALUES (25, 'A-Gap');
 COMMIT;
 
 ```
-#### trans_insert_child.sql
+#### trans_B.sql
 ```sql
--- Transaction inserting into child (fk check should also be affected by gap lock)
+-- Transaction B: Lock gap (20, 30) then try to insert into gap (10, 20)
 BEGIN;
-INSERT IGNORE INTO gap_child (id, parent_id, description) VALUES (100, 20, 'Child of locked Node');
+SELECT * FROM gap_parent WHERE id > 20 AND id < 30 FOR UPDATE;
+SELECT SLEEP(1);
+INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'B-Gap');
 COMMIT;
 
 ```
