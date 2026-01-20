@@ -12,9 +12,9 @@ local transaction_count = 0
 
 -- Function to load SQL files from a directory
 function load_transactions()
-    local sql_dir = sysbench.cmdline.option_get("sql-dir")
+    local sql_dir = sysbench.opt.sql_dir
     
-    if sql_dir == "" then
+    if not sql_dir or sql_dir == "" then
         error("You must specify the SQL directory using --sql-dir")
     end
 
@@ -83,6 +83,7 @@ function event()
 
     -- Execute statements sequentially
     for _, stmt in ipairs(statements) do
-        db_query(stmt)
+        -- Wrapped in pcall to avoid script crash on DB errors
+        pcall(function() db_query(stmt) end)
     end
 end

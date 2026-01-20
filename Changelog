@@ -1,6 +1,8 @@
 1.3.10 2026-01-20
 
--
+- feat: Implemented gap locking simulation with parent/child tables and foreign keys
+- docs: Created comprehensive experiment guide for gap locking in MariaDB
+- fix: Updated `dir_transactions_sysbench.lua` for compatibility with sysbench 1.0.20
 
 1.3.9 2026-01-20
 
