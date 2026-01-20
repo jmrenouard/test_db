@@ -1,3 +1,8 @@
+1.5.1 2026-01-20
+ - feat: Added `gap_locking_3` simulation demonstrating gap locking via range `UPDATE`.
+ - docs: Verified deadlock capture in reports without explicit `SELECT FOR UPDATE`.
+ - chore: rerun test-data for verification of new simulation.
+
 1.5.0 2026-01-20
  - feat: Added `teardown.sql` lifecycle support in `db_simulator.py`.
  - feat: Implemented strict `--since` filtering in `db_simulator.py` (1-second buffer).
