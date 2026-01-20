@@ -9,12 +9,12 @@ The project orchestrates several specialized tools to measure different aspects 
 | Tool | Primary Purpose | Key Measured Metrics |
 | :--- | :--- | :--- |
 | **Sysbench (LUA)** | Load testing & Benchmarking | QPS, TPS, Latency (avg, max, 95th) |
-| **DB Simulator** | Generic benchmarking & Reporting | Premium UX, Multi-target, Glassmorphism reports |
-| **Run Dir Bench** | Parallel Directory Testing | Parallel execution of SQL transaction scripts |
-| **SQL Analyzer** | Query-level deep dive | Execution time, `EXPLAIN` plan, Index efficiency |
-| **Verify Data** | Data Integrity | Row counts, Table Checksums |
-| **Perf Threads Reporter** | Scalability Analysis | Performance scaling from 1 to 64 threads |
-| **Interactive Runner** | User Experience | All-in-one execution with live HTML dashboards |
+| **DB Simulator** | Generic benchmarking & Reporting | Premium UX, Deadlock Detection, Environment Capture |
+| **Run Dir Bench** | Parallel Directory Testing | Orchestrates sysbench with directory-based SQL scripts |
+| **SQL Analyzer** | Query-level deep dive | Execution time, `EXPLAIN` plan, Automated Index DDL |
+| **Verify Data** | Data Integrity | Baseline Row counts, Table Checksums |
+| **Perf Threads Reporter** | Scalability Analysis | Performance scaling from 1 to 64 threads (HTML graphs) |
+| **Interactive Runner** | User Experience | Terminal-based orchestration with live status |
 
 ---
 
@@ -33,10 +33,12 @@ When running `make bench` or `make perf-threads`, Sysbench provides several crit
 - **95th Percentile:** 95% of queries were faster than this value. This is a much better indicator of "real-world" performance than the average, as it excludes the best-case scenarios and focuses on the "tail" latency.
 - **Max Latency:** The absolute slowest request. High max latency usually indicates resource contention or background system activity.
 
-### 3. Efficiency
+### 3. Infrastructure Context
 
-- **Events:** The total number of times the test script was executed.
-- **Total Time:** How long the test ran in total.
+- **OS & Kernel**: Identifies specific host operating system details.
+- **CPU & RAM**: Captures core count and memory availability during the test.
+- **Hostname & Container**: Tracks where the database was executing.
+- **DB Version**: Ensures results are compared against the same MariaDB release.
 
 ---
 

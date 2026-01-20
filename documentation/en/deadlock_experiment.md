@@ -10,6 +10,14 @@ This experiment demonstrates how `db_simulator.py` can detect and analyze deadlo
   - **Thread 2**: Updates Row 2, sleeps, then attempts to update Row 1.
   - This creates a circular dependency (Wait-for Graph cycle), triggering a deadlock.
 
+## Automated Detection
+
+The `db_simulator.py` tool automates the detection of these events by:
+
+1. Parsing the Docker container logs for `TRANSACTION DEADLOCK` signatures.
+2. Correlating the timestamp of the event with the simulation time.
+3. Extracting the exact SQL statements involved from the MariaDB error log.
+
 ## Technical Assets
 
 ### 1. MariaDB Configuration

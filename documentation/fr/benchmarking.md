@@ -22,8 +22,10 @@ La suite de tests utilise un script Lua personnalisé (`scripts/employees_sysben
 ## Métriques Capturées
 
 - **QPS (Requêtes par Seconde)** : Mesure le débit brut de la base de données.
-- **Latence** : Temps de réponse moyen en millisecondes.
+- **Latence** : Temps de réponse moyen en millisecondes (inclut l'analyse du 95ème percentile).
 - **Échelonnage des Threads** : Aide à identifier le point de saturation où l'ajout de threads supplémentaires n'améliore plus les performances.
+- **Métadonnées d'Infrastructure** : Capture le système d'exploitation, l'architecture processeur, la RAM et le nom d'hôte pour une reproductibilité totale.
+- **Détection des Deadlocks** : Identifie automatiquement les verrous mortels MariaDB et les met en évidence dans les rapports.
 
 ## Rapports de Sortie
 
@@ -31,4 +33,5 @@ Les résultats sont sauvegardés dans :
 
 - `reports/perf_threads/results_{N}_threads.txt`
 - `reports/simulator_report.md` / `reports/simulator_report.html` (lors de l'utilisation de `db_simulator.py`)
+- **Tableau de Bord Interactif** : Rapports HTML modernes avec graphiques en barres CSS et transparence des commandes.
 - Résumé affiché dans la console du terminal.

@@ -22,8 +22,10 @@ The benchmarking suite leverages a custom Lua script (`scripts/employees_sysbenc
 ## Metrics Captured
 
 - **QPS (Queries Per Second)**: Measures the raw throughput of the database.
-- **Latency**: Average response time in milliseconds.
+- **Latency**: Average response time in milliseconds (includes 95th percentile analysis).
 - **Thread Scaling**: Helps identify the saturation point where adding more threads no longer improves performance.
+- **Infrastructure Metadata**: Captures OS, CPU architecture, RAM, and Hostname for reproducibility.
+- **Deadlock Detection**: Automatically identifies MariaDB deadlocks and highlights them in reports.
 
 ## Report Output
 
@@ -31,4 +33,5 @@ Results are saved in:
 
 - `reports/perf_threads/results_{N}_threads.txt`
 - `reports/simulator_report.md` / `reports/simulator_report.html` (when using `db_simulator.py`)
+- **Interactive Dashboard**: Modern HTML reporting with CSS-based bar graphs and command transparency.
 - Summarized output in the terminal console.

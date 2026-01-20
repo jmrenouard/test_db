@@ -1,3 +1,8 @@
+1.5.4 2026-01-20
+ - feat: Added `gap_locking_5` extreme simulation with 10 transaction types and 4-table schema.
+ - docs: Demonstrated holistic InnoDB locking behavior (READ ONLY, UPDATE, DELETE, INSERT ... SELECT).
+ - feat: Verified deadlock emergence under high concurrency (10 threads) with diverse workloads.
+
 1.5.3 2026-01-20
 
 - feat: Added `gap_locking_4_ext` simulation with a 3-table schema and `ON DELETE CASCADE`.

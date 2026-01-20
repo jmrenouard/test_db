@@ -1,0 +1,12 @@
+{
+    "OS": "Linux 6.6.87.2-microsoft-standard-WSL2",
+    "CPU Cores": 20,
+    "Hostname": "Ligthpath-Main",
+    "Container": "mariadb-11-8",
+    "DB Version": "11.8.5-MariaDB-ubu2404",
+    "Concurrency": "10 Threads",
+    "Experiment Time": "20 Seconds",
+    "Target Storage": "employees",
+    "Host Node": "127.0.0.1",
+    "Total RAM": "15631 MB"
+}

@@ -1,0 +1,5 @@
+-- trans_04: Range DELETE
+BEGIN;
+DELETE FROM products WHERE sku > 'SKU400' AND sku < 'SKU501';
+SELECT SLEEP(0.1);
+COMMIT;

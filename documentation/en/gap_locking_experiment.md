@@ -9,6 +9,14 @@ This experiment demonstrates why creating range locks (Gap Locking) in InnoDB ca
     1. **Locking Transaction**: `SELECT * FROM gap_parent WHERE id > 10 AND id < 20 FOR UPDATE`. This creates a Gap Lock on the space between ID 10 and 20.
     2. **Conflicting Transaction**: `INSERT INTO gap_parent (id, name) VALUES (15, 'Intruder')`. This attempt to insert into the gap will WAIT for the first transaction to commit/rollback.
 
+## Complex Scenarios: Variant 4
+
+In the `gap_locking_4` scenario, we explore a more subtle interaction involving **Unique Constraints and Foreign Keys**.
+
+- **Setup**: A table with a unique non-primary key column referenced by a child table.
+- **DML Interference**: When a transaction performs a `DELETE` or `UPDATE` on the unique column, InnoDB places locks on the surrounding gaps to ensure unique consistency.
+- **Observation**: Concurrent `INSERT` statements into the same child table or related parent keys can trigger deadlocks or long waits, even if the primary keys do not overlap.
+
 ## Technical Assets
 
 ### 1. MariaDB Configuration
@@ -66,5 +74,9 @@ Using `db_simulator.py` with 4 concurrent threads:
 2. Run simulation:
 
    ```bash
+   # Standard gap lock
    python3 scripts/db_simulator.py --sql-dir tests/data/gap_locking/ --container mariadb-11-8 --threads 4 --time 20
+   
+   # Variant 4: Unique Foreign Key contentions
+   python3 scripts/db_simulator.py --sql-dir tests/data/gap_locking_4/ --container mariadb-11-8 --threads 4 --time 20
    ```
