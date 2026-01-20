@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS gap_child;
+DROP TABLE IF EXISTS gap_parent;

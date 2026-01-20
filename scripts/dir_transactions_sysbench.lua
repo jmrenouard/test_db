@@ -31,7 +31,7 @@ function load_transactions()
 
     for file_path in p:lines() do
         -- Skip setup.sql if present in the directory
-        if not string.match(file_path, "setup.sql$") then
+        if not string.match(file_path, "setup.sql$") and not string.match(file_path, "teardown.sql$") then
             local f = io.open(file_path, "r")
             if f then
             local content = f:read("*all")

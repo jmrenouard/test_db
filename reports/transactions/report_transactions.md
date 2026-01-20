@@ -1,5 +1,5 @@
 # 📊 DB Simulation: TRANSACTIONS
-**Generated:** 2026-01-20 15:15:58
+**Generated:** 2026-01-20 16:00:30
 
 ## Connection Info
 - **Host:** `127.0.0.1`
@@ -10,11 +10,11 @@
 ## Key Metrics
 | Metric | Value |
 |---|---|
-| **TPS** | 6296.51 |
-| **QPS** | 18889.54 |
-| **Avg Latency** | 0.63 ms |
-| **95th Latency** | 0.77 ms |
-| **Total Events** | 62988 |
+| **TPS** | 5994.09 |
+| **QPS** | 17982.27 |
+| **Avg Latency** | 0.67 ms |
+| **95th Latency** | 0.83 ms |
+| **Total Events** | 59958 |
 
 ## 🏗️ Infrastructure
 - **OS:** `Linux 6.6.87.2-microsoft-standard-WSL2`
@@ -27,175 +27,6 @@
 - **Target Storage:** `employees`
 - **Host Node:** `127.0.0.1`
 - **Total RAM:** `15631 MB`
-
-
-## ⚠️ Deadlocks Detected
-The simulation triggered 67 deadlock(s).
-
-```text
-*** (1) TRANSACTION:
-
-TRANSACTION 6466, ACTIVE 1 sec starting index read
-mysql tables in use 1, locked 1
-LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s), undo log entries 1
-MariaDB thread id 2227, OS thread handle 137748795619008, query id 578485 127.0.0.1 root Updating
-UPDATE deadlock_test SET val = val + 1 WHERE id = 2
-2026-01-20 14:14:59 2227 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6466 lock_mode X locks rec but not gap waiting
-Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000002; asc     ;;
- 1: len 6; hex 000000001940; asc      @;;
- 2: len 7; hex 6e0000003a01ca; asc n   :  ;;
- 3: len 4; hex 80000015; asc     ;;
-
-2026-01-20 14:14:59 2227 [Note] InnoDB: *** CONFLICTING WITH:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6464 lock_mode X locks rec but not gap
-Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000002; asc     ;;
- 1: len 6; hex 000000001940; asc      @;;
- 2: len 7; hex 6e0000003a01ca; asc n   :  ;;
- 3: len 4; hex 80000015; asc     ;;
-
-2026-01-20 14:14:59 2227 [Note] InnoDB: 
-*** (2) TRANSACTION:
-
-TRANSACTION 6464, ACTIVE 1 sec starting index read
-mysql tables in use 1, locked 1
-LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s), undo log entries 1
-MariaDB thread id 2224, OS thread handle 137748422940352, query id 578484 127.0.0.1 root Updating
-UPDATE deadlock_test SET val = val + 1 WHERE id = 1
-2026-01-20 14:14:59 2227 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6464 lock_mode X locks rec but not gap waiting
-Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000001; asc     ;;
- 1: len 6; hex 000000001942; asc      B;;
- 2: len 7; hex 6f0000002f0110; asc o   /  ;;
- 3: len 4; hex 8000000b; asc     ;;
-
-2026-01-20 14:14:59 2227 [Note] InnoDB: *** CONFLICTING WITH:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6466 lock_mode X locks rec but not gap
-Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000001; asc     ;;
- 1: len 6; hex 000000001942; asc      B;;
- 2: len 7; hex 6f0000002f0110; asc o   /  ;;
- 3: len 4; hex 8000000b; asc     ;;
-
-2026-01-20 14:14:59 2227 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
-```
-
-```text
-*** (1) TRANSACTION:
-
-TRANSACTION 6467, ACTIVE 1 sec starting index read
-mysql tables in use 1, locked 1
-LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s), undo log entries 1
-MariaDB thread id 2225, OS thread handle 137749199206080, query id 578489 127.0.0.1 root Updating
-UPDATE deadlock_test SET val = val + 1 WHERE id = 2
-2026-01-20 14:14:59 2225 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6467 lock_mode X locks rec but not gap waiting
-Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000002; asc     ;;
- 1: len 6; hex 000000001940; asc      @;;
- 2: len 7; hex 6e0000003a01ca; asc n   :  ;;
- 3: len 4; hex 80000015; asc     ;;
-
-2026-01-20 14:14:59 2225 [Note] InnoDB: *** CONFLICTING WITH:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6464 lock_mode X locks rec but not gap
-Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000002; asc     ;;
- 1: len 6; hex 000000001940; asc      @;;
- 2: len 7; hex 6e0000003a01ca; asc n   :  ;;
- 3: len 4; hex 80000015; asc     ;;
-
-2026-01-20 14:14:59 2225 [Note] InnoDB: 
-*** (2) TRANSACTION:
-
-TRANSACTION 6464, ACTIVE 1 sec starting index read
-mysql tables in use 1, locked 1
-LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s), undo log entries 1
-MariaDB thread id 2224, OS thread handle 137748422940352, query id 578484 127.0.0.1 root Updating
-UPDATE deadlock_test SET val = val + 1 WHERE id = 1
-2026-01-20 14:14:59 2225 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6464 lock_mode X locks rec but not gap waiting
-Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000001; asc     ;;
- 1: len 6; hex 000000001943; asc      C;;
- 2: len 7; hex 700000002e0110; asc p   .  ;;
- 3: len 4; hex 8000000b; asc     ;;
-
-2026-01-20 14:14:59 2225 [Note] InnoDB: *** CONFLICTING WITH:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6467 lock_mode X locks rec but not gap
-Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000001; asc     ;;
- 1: len 6; hex 000000001943; asc      C;;
- 2: len 7; hex 700000002e0110; asc p   .  ;;
- 3: len 4; hex 8000000b; asc     ;;
-
-2026-01-20 14:14:59 2225 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
-```
-
-```text
-*** (1) TRANSACTION:
-
-TRANSACTION 6465, ACTIVE 1 sec starting index read
-mysql tables in use 1, locked 1
-LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s), undo log entries 1
-MariaDB thread id 2226, OS thread handle 137749198591680, query id 578498 127.0.0.1 root Updating
-UPDATE deadlock_test SET val = val + 1 WHERE id = 1
-2026-01-20 14:14:59 2226 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6465 lock_mode X locks rec but not gap waiting
-Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000001; asc     ;;
- 1: len 6; hex 000000001945; asc      E;;
- 2: len 7; hex 710000002e0110; asc q   .  ;;
- 3: len 4; hex 8000000c; asc     ;;
-
-2026-01-20 14:14:59 2226 [Note] InnoDB: *** CONFLICTING WITH:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6469 lock_mode X locks rec but not gap
-Record lock, heap no 2 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000001; asc     ;;
- 1: len 6; hex 000000001945; asc      E;;
- 2: len 7; hex 710000002e0110; asc q   .  ;;
- 3: len 4; hex 8000000c; asc     ;;
-
-2026-01-20 14:14:59 2226 [Note] InnoDB: 
-*** (2) TRANSACTION:
-
-TRANSACTION 6469, ACTIVE 0 sec starting index read
-mysql tables in use 1, locked 1
-LOCK WAIT 3 lock struct(s), heap size 1120, 2 row lock(s), undo log entries 1
-MariaDB thread id 2227, OS thread handle 137748795619008, query id 578497 127.0.0.1 root Updating
-UPDATE deadlock_test SET val = val + 1 WHERE id = 2
-2026-01-20 14:14:59 2226 [Note] InnoDB: *** WAITING FOR THIS LOCK TO BE GRANTED:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6469 lock_mode X locks rec but not gap waiting
-Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000002; asc     ;;
- 1: len 6; hex 000000001941; asc      A;;
- 2: len 7; hex 6d0000003d0110; asc m   =  ;;
- 3: len 4; hex 80000016; asc     ;;
-
-2026-01-20 14:14:59 2226 [Note] InnoDB: *** CONFLICTING WITH:
-
-RECORD LOCKS space id 270 page no 3 n bits 320 index PRIMARY of table `employees`.`deadlock_test` trx id 6465 lock_mode X locks rec but not gap
-Record lock, heap no 3 PHYSICAL RECORD: n_fields 4; compact format; info bits 0
- 0: len 4; hex 80000002; asc     ;;
- 1: len 6; hex 000000001941; asc      A;;
- 2: len 7; hex 6d0000003d0110; asc m   =  ;;
- 3: len 4; hex 80000016; asc     ;;
-
-2026-01-20 14:14:59 2226 [Note] InnoDB: *** WE ROLL BACK TRANSACTION (2)
-```
 
 
 ## 🛠️ Reproducibility
@@ -424,7 +255,7 @@ function load_transactions()
 
     for file_path in p:lines() do
         -- Skip setup.sql if present in the directory
-        if not string.match(file_path, "setup.sql$") then
+        if not string.match(file_path, "setup.sql$") and not string.match(file_path, "teardown.sql$") then
             local f = io.open(file_path, "r")
             if f then
             local content = f:read("*all")

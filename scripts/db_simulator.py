@@ -120,10 +120,31 @@ class DBSimulator:
             
             self.fetch_environment_details()
             
+            # Post-simulation: Run teardown.sql if it exists
+            self.run_cleanup()
+            
             return True
         except Exception as e:
             print(f"❌ Error running simulation: {e}")
             return False
+
+    def run_cleanup(self):
+        """Runs teardown.sql if it exists in the test directory."""
+        teardown_script = os.path.join(self.args.sql_dir, "teardown.sql")
+        if os.path.exists(teardown_script):
+            print(f"🧹 Running teardown script: {teardown_script}")
+            cleanup_cmd = [
+                "docker", "exec", "-i", self.args.container or "mariadb-11-8",
+                "mariadb", "-u", self.args.user
+            ]
+            if self.args.password:
+                cleanup_cmd.append(f"-p{self.args.password}")
+            cleanup_cmd.append(self.args.db)
+            try:
+                with open(teardown_script, 'r') as f:
+                    subprocess.run(cleanup_cmd, stdin=f, check=True)
+            except Exception as e:
+                print(f"⚠️  Teardown script failed: {e}")
 
     def clear_container_logs(self):
         """Attempts to clear (truncate) the docker container logs."""
