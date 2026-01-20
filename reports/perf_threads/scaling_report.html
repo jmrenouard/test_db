@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scaling Performance Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .bg-glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 min-h-screen pb-20">
+    <div class="max-w-5xl mx-auto px-6 pt-12">
+        <header class="mb-12 relative">
+            <div class="absolute -top-6 -left-6 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl"></div>
+            
+            <div class="relative flex items-center gap-6 mb-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-200">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">Scaling Performance</h1>
+                    <p class="text-slate-500 font-medium">Detailed analysis of database performance across multiple thread counts</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest mt-6">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    Generated: 2026-01-15 23:53:14
+                </span>
+            </div>
+        </header>
+
+        
+            <section class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 mb-10">
+                <h2 class="text-2xl font-extrabold text-slate-800 mb-6 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-blue-500 rounded-full"></span>
+                    Queries Per Second (QPS)
+                </h2>
+                
+                <div class="mb-8">
+                    
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">1 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 6.753246753246754%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">1.30</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">2 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 13.558441558441558%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">2.61</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">4 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 28.051948051948056%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">5.40</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">8 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 40.15584415584416%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">7.73</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">16 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 64.57142857142857%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">12.43</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">32 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 70.8051948051948%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">13.63</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">64 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-blue-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 100.0%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">19.25</div>
+                </div>
+                
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                    <table class="w-full max-w-md mx-auto text-left">
+                        <thead>
+                            <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                                <th class="px-4 py-2">Threads</th>
+                                <th class="px-4 py-2 text-right">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">1</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">1.30</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">2</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">2.61</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">4</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">5.40</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">8</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">7.73</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">16</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">12.43</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">32</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">13.63</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">64</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">19.25</td>
+                </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 mb-10">
+                <h2 class="text-2xl font-extrabold text-slate-800 mb-6 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-indigo-500 rounded-full"></span>
+                    Transactions Per Second (TPS)
+                </h2>
+                
+                <div class="mb-8">
+                    
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">1 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 6.753246753246754%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">1.30</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">2 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 13.558441558441558%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">2.61</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">4 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 28.051948051948056%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">5.40</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">8 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 40.15584415584416%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">7.73</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">16 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 64.57142857142857%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">12.43</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">32 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 70.8051948051948%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">13.63</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">64 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-indigo-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 100.0%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">19.25</div>
+                </div>
+                
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                    <table class="w-full max-w-md mx-auto text-left">
+                        <thead>
+                            <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                                <th class="px-4 py-2">Threads</th>
+                                <th class="px-4 py-2 text-right">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">1</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">1.30</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">2</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">2.61</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">4</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">5.40</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">8</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">7.73</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">16</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">12.43</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">32</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">13.63</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">64</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">19.25</td>
+                </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 mb-10">
+                <h2 class="text-2xl font-extrabold text-slate-800 mb-6 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
+                    Average Latency (ms)
+                </h2>
+                
+                <div class="mb-8">
+                    
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">1 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 24.194506333648626%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">769.92</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">2 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 24.114059097294017%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">767.36</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">4 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 23.27344832679176%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">740.61</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">8 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 32.517338579163535%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">1034.77</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">16 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 40.44861904148375%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">1287.16</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">32 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 71.09838759855572%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">2262.50</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">64 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-amber-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 100.0%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">3182.21</div>
+                </div>
+                
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                    <table class="w-full max-w-md mx-auto text-left">
+                        <thead>
+                            <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                                <th class="px-4 py-2">Threads</th>
+                                <th class="px-4 py-2 text-right">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">1</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">769.92</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">2</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">767.36</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">4</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">740.61</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">8</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">1034.77</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">16</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">1287.16</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">32</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">2262.50</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">64</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">3182.21</td>
+                </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 mb-10">
+                <h2 class="text-2xl font-extrabold text-slate-800 mb-6 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-orange-500 rounded-full"></span>
+                    95th Percentile Latency (ms)
+                </h2>
+                
+                <div class="mb-8">
+                    
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">1 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 23.25783042727542%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">3095.38</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">2 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 25.448907429419837%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">3386.99</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">4 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 25.91130199309038%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">3448.53</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">8 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 33.94625283079545%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">4517.90</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">16 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 39.20600977685743%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">5217.92</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">32 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 98.21541545633099%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">13071.47</div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 text-right text-xs font-bold text-slate-500">64 T</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-8 overflow-hidden group">
+                        <div class="bg-orange-500 h-full transition-all duration-1000 ease-out group-hover:brightness-110" style="width: 100.0%"></div>
+                    </div>
+                    <div class="w-24 text-sm font-mono font-bold text-slate-700">13308.98</div>
+                </div>
+                
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                    <table class="w-full max-w-md mx-auto text-left">
+                        <thead>
+                            <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                                <th class="px-4 py-2">Threads</th>
+                                <th class="px-4 py-2 text-right">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">1</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">3095.38</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">2</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">3386.99</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">4</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">3448.53</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">8</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">4517.90</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">16</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">5217.92</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">32</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">13071.47</td>
+                </tr>
+                
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="px-4 py-2 font-mono text-sm">64</td>
+                    <td class="px-4 py-2 font-mono text-sm text-right">13308.98</td>
+                </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+
+        <footer class="text-center text-slate-400 text-sm mt-20">
+            <p>© 2026 MariaDB Scaling Performance Suite</p>
+            <div class="mt-4 flex items-center justify-center gap-6 font-bold uppercase tracking-widest text-[10px]">
+                <a href="#" class="hover:text-indigo-600">Documentation</a>
+                <a href="#" class="hover:text-indigo-600">System Info</a>
+                <a href="#" class="hover:text-indigo-600">Raw Data</a>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+        

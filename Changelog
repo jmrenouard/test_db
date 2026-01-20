@@ -1,3 +1,8 @@
+1.4.1 2026-01-20
+
+- feat: Enhanced report transparency by displaying the actual `sysbench` command instead of the wrapper script
+- fix: Synchronized `db_simulator.py` command reconstruction with `run_dir_bench.sh` logic
+
 1.4.0 2026-01-20
 
 - feat: Implemented subdirectory-based test execution and reporting

@@ -1,0 +1,1219 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SQL Analytics - employees</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+        <style>
+            body { font-family: 'Inter', sans-serif; }
+            .font-mono { font-family: 'JetBrains Mono', monospace; }
+            th.sortable { cursor: pointer; position: relative; transition: background 0.2s; }
+            th.sortable:hover { background-color: #f3f4f6; }
+            th.sortable::after { content: '↕'; position: absolute; right: 8px; opacity: 0.3; }
+            th.sort-asc::after { content: '↑'; opacity: 1; color: #4f46e5; }
+            th.sort-desc::after { content: '↓'; opacity: 1; color: #4f46e5; }
+            .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        </style>
+    </head>
+    <body class="bg-[#f8fafc] text-slate-900 min-h-screen pb-20">
+        <div class="max-w-7xl mx-auto pt-10 px-6">
+            <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 whitespace-nowrap">SQL Analytics Dashboard</h1>
+                    </div>
+                    <p class="text-slate-500 font-medium">Database: <span class="text-indigo-600 font-bold px-2 py-0.5 bg-indigo-50 rounded-md border border-indigo-100">employees</span></p>
+                </div>
+                
+                <div class="flex flex-col gap-2 w-full md:w-96">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Live Filter</label>
+                    <div class="relative">
+                        <input type="text" id="tableSearch" placeholder="Filter queries, issues or DDL..." 
+                            class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none">
+                        <div class="absolute left-4 top-3.5 text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="perfTable">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100 text-slate-600 uppercase text-[11px] font-bold tracking-wider">
+                                <th class="p-5 text-center sortable" data-sort="int">ID</th>
+                                <th class="p-5 sortable" data-sort="float">Exec Time</th>
+                                <th class="p-5 sortable" data-sort="int">Rating</th>
+                                <th class="p-5">Analysis Issues</th>
+                                <th class="p-5">Optimization Advice</th>
+                                <th class="p-5">SQL Query</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">1</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.9994137287139893">0.9994s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 1. Simple OLTP lookup by employee number
+SELECT * FROM employees WHERE emp_no = 10001">-- 1. Simple OLTP lookup by employee number
+SELECT * FROM employees WHERE emp_no = 10001</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">2</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.3568246364593506">0.3568s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: hire_date</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_employees_hire_date ON employees(hire_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 2. Filter employees hired after a specific date
+SELECT * FROM employees WHERE hire_date > '1995-01-01' LIMIT 10">-- 2. Filter employees hired after a specific date
+SELECT * FROM employees WHERE hire_date > '1995-01-01' LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">3</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.22666454315185547">0.2267s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: last_name</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_employees_last_name ON employees(last_name);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 3. Search for employees by last name prefix
+SELECT * FROM employees WHERE last_name LIKE 'Fac%' LIMIT 5">-- 3. Search for employees by last name prefix
+SELECT * FROM employees WHERE last_name LIKE 'Fac%' LIMIT 5</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">4</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.4106729030609131">0.4107s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 4. Count total number of employees
+SELECT COUNT(*) FROM employees">-- 4. Count total number of employees
+SELECT COUNT(*) FROM employees</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">5</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.21605968475341797">0.2161s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: birth_date, gender</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_employees_birth_date ON employees(birth_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_employees_gender ON employees(gender);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 5. List employees with a specific gender and birth year
+SELECT * FROM employees WHERE gender = 'F' AND birth_date BETWEEN '1960-01-01' AND '1960-12-31' LIMIT 10">-- 5. List employees with a specific gender and birth year
+SELECT * FROM employees WHERE gender = 'F' AND birth_date BETWEEN '1960-01-01' AND '1960-12-31' LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">6</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2622721195220947">0.2623s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 6. Update an employee's first name (OLTP transaction simulation)
+UPDATE employees SET first_name = 'Jane' WHERE emp_no = 10002">-- 6. Update an employee's first name (OLTP transaction simulation)
+UPDATE employees SET first_name = 'Jane' WHERE emp_no = 10002</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="4">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">7</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2710845470428467">0.2711s</td>
+            <td class="p-4 text-amber-500" data-value="4">⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 7. Retrieve the current salary of a specific employee
+SELECT salary FROM salaries WHERE emp_no = 10001 ORDER BY to_date DESC LIMIT 1">-- 7. Retrieve the current salary of a specific employee
+SELECT salary FROM salaries WHERE emp_no = 10001 ORDER BY to_date DESC LIMIT 1</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">8</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2759096622467041">0.2759s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 8. List all departments ordered by name
+SELECT * FROM departments ORDER BY dept_name">-- 8. List all departments ordered by name
+SELECT * FROM departments ORDER BY dept_name</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">9</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.26253581047058105">0.2625s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_dept_manager_to_date ON dept_manager(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 9. Find employees who are currently managers
+SELECT emp_no FROM dept_manager WHERE to_date = '9999-01-01'">-- 9. Find employees who are currently managers
+SELECT emp_no FROM dept_manager WHERE to_date = '9999-01-01'</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">10</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.6452522277832031">0.6453s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 10. Simple count of employees per gender
+SELECT gender, COUNT(*) FROM employees GROUP BY gender">-- 10. Simple count of employees per gender
+SELECT gender, COUNT(*) FROM employees GROUP BY gender</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">11</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.29177141189575195">0.2918s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_to_date ON de(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_d_to_date ON d(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_to_date ON e(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 11. Join employees with their current department names
+SELECT e.first_name, e.last_name, d.dept_name FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN departments d ON de.dept_no = d.dept_no WHERE de.to_date = '9999-01-01' LIMIT 10">-- 11. Join employees with their current department names
+SELECT e.first_name, e.last_name, d.dept_name FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN departments d ON de.dept_no = d.dept_no WHERE de.to_date = '9999-01-01' LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">12</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.3813455104827881">0.3813s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 12. List all managers with their employee details
+SELECT e.first_name, e.last_name, d.dept_name FROM employees e JOIN dept_manager dm ON e.emp_no = dm.emp_no JOIN departments d ON dm.dept_no = d.dept_no">-- 12. List all managers with their employee details
+SELECT e.first_name, e.last_name, d.dept_name FROM employees e JOIN dept_manager dm ON e.emp_no = dm.emp_no JOIN departments d ON dm.dept_no = d.dept_no</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">13</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="4.31835675239563">4.3184s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 13. Find the average salary across the entire company
+SELECT AVG(salary) FROM salaries">-- 13. Find the average salary across the entire company
+SELECT AVG(salary) FROM salaries</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">14</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.37166285514831543">0.3717s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 14. Join titles and employees to see the history of a specific person
+SELECT e.first_name, t.title, t.from_date FROM employees e JOIN titles t ON e.emp_no = t.emp_no WHERE e.emp_no = 10005">-- 14. Join titles and employees to see the history of a specific person
+SELECT e.first_name, t.title, t.from_date FROM employees e JOIN titles t ON e.emp_no = t.emp_no WHERE e.emp_no = 10005</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">15</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.7702410221099854">0.7702s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 15. List the top 5 highest historical salaries
+SELECT * FROM salaries ORDER BY salary DESC LIMIT 5">-- 15. List the top 5 highest historical salaries
+SELECT * FROM salaries ORDER BY salary DESC LIMIT 5</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">16</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2308349609375">0.2308s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_to_date ON de(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_t_to_date ON t(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_d_to_date ON d(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_to_date ON e(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 16. Triple join to find employees, their department, and their title
+SELECT e.first_name, d.dept_name, t.title FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN departments d ON de.dept_no = d.dept_no JOIN titles t ON e.emp_no = t.emp_no WHERE de.to_date = '9999-01-01' AND t.to_date = '9999-01-01' LIMIT 10">-- 16. Triple join to find employees, their department, and their title
+SELECT e.first_name, d.dept_name, t.title FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN departments d ON de.dept_no = d.dept_no JOIN titles t ON e.emp_no = t.emp_no WHERE de.to_date = '9999-01-01' AND t.to_date = '9999-01-01' LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">17</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.558246374130249">0.5582s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: salary, to_date</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_salary ON salaries(salary);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 17. Use a subquery to find employees earning more than the company average
+SELECT emp_no, salary FROM salaries WHERE salary > (SELECT AVG(salary) FROM salaries) AND to_date = '9999-01-01' LIMIT 10">-- 17. Use a subquery to find employees earning more than the company average
+SELECT emp_no, salary FROM salaries WHERE salary > (SELECT AVG(salary) FROM salaries) AND to_date = '9999-01-01' LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="4">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">18</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.0563735961914062">1.0564s</td>
+            <td class="p-4 text-amber-500" data-value="4">⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 18. Count employees in each department
+SELECT d.dept_name, COUNT(de.emp_no) FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no GROUP BY d.dept_name">-- 18. Count employees in each department
+SELECT d.dept_name, COUNT(de.emp_no) FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no GROUP BY d.dept_name</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">19</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="2.4382855892181396">2.4383s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 19. Find the maximum salary for each department
+SELECT d.dept_name, MAX(s.salary) FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN salaries s ON de.emp_no = s.emp_no GROUP BY d.dept_name">-- 19. Find the maximum salary for each department
+SELECT d.dept_name, MAX(s.salary) FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN salaries s ON de.emp_no = s.emp_no GROUP BY d.dept_name</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">20</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2559537887573242">0.2560s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 20. List departments with more than 10 managers in history
+SELECT dept_no, COUNT(*) FROM dept_manager GROUP BY dept_no HAVING COUNT(*) > 10">-- 20. List departments with more than 10 managers in history
+SELECT dept_no, COUNT(*) FROM dept_manager GROUP BY dept_no HAVING COUNT(*) > 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">21</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.6933465003967285">1.6933s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 21. CTE to calculate average salary per gender
+WITH GenderAvg AS (SELECT gender, AVG(salary) as avg_sal FROM employees e JOIN salaries s ON e.emp_no = s.emp_no GROUP BY gender) SELECT * FROM GenderAvg">-- 21. CTE to calculate average salary per gender
+WITH GenderAvg AS (SELECT gender, AVG(salary) as avg_sal FROM employees e JOIN salaries s ON e.emp_no = s.emp_no GROUP BY gender) SELECT * FROM GenderAvg</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">22</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.8149478435516357">1.8149s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_to_date ON de(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s_to_date ON s(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_to_date ON e(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 22. Window function: Rank employees by salary within their department
+SELECT e.emp_no, de.dept_no, s.salary, RANK() OVER (PARTITION BY de.dept_no ORDER BY s.salary DESC) as sal_rank FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN salaries s ON e.emp_no = s.emp_no WHERE de.to_date = '9999-01-01' AND s.to_date = '9999-01-01' LIMIT 20">-- 22. Window function: Rank employees by salary within their department
+SELECT e.emp_no, de.dept_no, s.salary, RANK() OVER (PARTITION BY de.dept_no ORDER BY s.salary DESC) as sal_rank FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN salaries s ON e.emp_no = s.emp_no WHERE de.to_date = '9999-01-01' AND s.to_date = '9999-01-01' LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">23</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.6815743446350098">0.6816s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 23. Window function: Calculate the running total of salaries
+SELECT emp_no, salary, SUM(salary) OVER (ORDER BY emp_no) as running_total FROM salaries WHERE to_date = '9999-01-01' LIMIT 20">-- 23. Window function: Calculate the running total of salaries
+SELECT emp_no, salary, SUM(salary) OVER (ORDER BY emp_no) as running_total FROM salaries WHERE to_date = '9999-01-01' LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">24</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.6594645977020264">0.6595s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 24. CTE to find employees with multiple titles over time
+WITH MultiTitle AS (SELECT emp_no, COUNT(DISTINCT title) as title_count FROM titles GROUP BY emp_no HAVING title_count > 1) SELECT e.first_name, e.last_name, mt.title_count FROM employees e JOIN MultiTitle mt ON e.emp_no = mt.emp_no LIMIT 10">-- 24. CTE to find employees with multiple titles over time
+WITH MultiTitle AS (SELECT emp_no, COUNT(DISTINCT title) as title_count FROM titles GROUP BY emp_no HAVING title_count > 1) SELECT e.first_name, e.last_name, mt.title_count FROM employees e JOIN MultiTitle mt ON e.emp_no = mt.emp_no LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">25</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="3.9289114475250244">3.9289s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 25. Window function: Get the previous salary for each employee (LAG)
+SELECT emp_no, salary, from_date, LAG(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as prev_salary FROM salaries LIMIT 20">-- 25. Window function: Get the previous salary for each employee (LAG)
+SELECT emp_no, salary, from_date, LAG(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as prev_salary FROM salaries LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">26</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="-1.407979965209961">-1.4080s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 26. Analytics: Percentile rank of salary within the company
+SELECT emp_no, salary, PERCENT_RANK() OVER (ORDER BY salary) as pct_rank FROM salaries WHERE to_date = '9999-01-01' LIMIT 20">-- 26. Analytics: Percentile rank of salary within the company
+SELECT emp_no, salary, PERCENT_RANK() OVER (ORDER BY salary) as pct_rank FROM salaries WHERE to_date = '9999-01-01' LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">27</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.093465805053711">1.0935s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 27. Join with aggregation: Departments with the youngest average employee age
+SELECT d.dept_name, AVG(YEAR(CURDATE()) - YEAR(e.birth_date)) as avg_age FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN employees e ON de.emp_no = e.emp_no GROUP BY d.dept_name ORDER BY avg_age ASC">-- 27. Join with aggregation: Departments with the youngest average employee age
+SELECT d.dept_name, AVG(YEAR(CURDATE()) - YEAR(e.birth_date)) as avg_age FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN employees e ON de.emp_no = e.emp_no GROUP BY d.dept_name ORDER BY avg_age ASC</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">28</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.796095609664917">1.7961s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_t_to_date ON t(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s_to_date ON s(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 28. CTE: Find the highest-paid employee in each title category
+WITH TitleMax AS (SELECT t.title, MAX(s.salary) as max_sal FROM titles t JOIN salaries s ON t.emp_no = s.emp_no WHERE t.to_date = '9999-01-01' AND s.to_date = '9999-01-01' GROUP BY t.title) SELECT * FROM TitleMax">-- 28. CTE: Find the highest-paid employee in each title category
+WITH TitleMax AS (SELECT t.title, MAX(s.salary) as max_sal FROM titles t JOIN salaries s ON t.emp_no = s.emp_no WHERE t.to_date = '9999-01-01' AND s.to_date = '9999-01-01' GROUP BY t.title) SELECT * FROM TitleMax</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">29</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="3.6210765838623047">3.6211s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 29. Window function: Row number for each employee's salary records
+SELECT emp_no, salary, ROW_NUMBER() OVER (PARTITION BY emp_no ORDER BY from_date DESC) as row_num FROM salaries LIMIT 20">-- 29. Window function: Row number for each employee's salary records
+SELECT emp_no, salary, ROW_NUMBER() OVER (PARTITION BY emp_no ORDER BY from_date DESC) as row_num FROM salaries LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">30</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="6.433730363845825">6.4337s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 30. Analytics: Salary difference between current and first salary for each employee
+WITH FirstLast AS (SELECT emp_no, FIRST_VALUE(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as first_sal, LAST_VALUE(salary) OVER (PARTITION BY emp_no ORDER BY from_date RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as last_sal FROM salaries) SELECT DISTINCT emp_no, last_sal - first_sal as salary_growth FROM FirstLast LIMIT 10">-- 30. Analytics: Salary difference between current and first salary for each employee
+WITH FirstLast AS (SELECT emp_no, FIRST_VALUE(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as first_sal, LAST_VALUE(salary) OVER (PARTITION BY emp_no ORDER BY from_date RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as last_sal FROM salaries) SELECT DISTINCT emp_no, last_sal - first_sal as salary_growth FROM FirstLast LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">31</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.3117237091064453">0.3117s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 31. OLTP: Insert a new temporary department (Transaction check)
+INSERT IGNORE INTO departments (dept_no, dept_name) VALUES ('d999', 'Temporary Service')">-- 31. OLTP: Insert a new temporary department (Transaction check)
+INSERT IGNORE INTO departments (dept_no, dept_name) VALUES ('d999', 'Temporary Service')</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">32</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.25784850120544434">0.2578s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 32. Join: Find employees who have never been managers
+SELECT e.first_name, e.last_name FROM employees e LEFT JOIN dept_manager dm ON e.emp_no = dm.emp_no WHERE dm.emp_no IS NULL LIMIT 10">-- 32. Join: Find employees who have never been managers
+SELECT e.first_name, e.last_name FROM employees e LEFT JOIN dept_manager dm ON e.emp_no = dm.emp_no WHERE dm.emp_no IS NULL LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">33</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.48239922523498535">0.4824s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 33. Aggregation: Group by year of hiring
+SELECT YEAR(hire_date) as hire_year, COUNT(*) FROM employees GROUP BY hire_year">-- 33. Aggregation: Group by year of hiring
+SELECT YEAR(hire_date) as hire_year, COUNT(*) FROM employees GROUP BY hire_year</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">34</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="3.7624351978302">3.7624s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 34. Window function: Lead salary (Next salary record)
+SELECT emp_no, salary, from_date, LEAD(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as next_salary FROM salaries LIMIT 10">-- 34. Window function: Lead salary (Next salary record)
+SELECT emp_no, salary, from_date, LEAD(salary) OVER (PARTITION BY emp_no ORDER BY from_date) as next_salary FROM salaries LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">35</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.36158275604248047">0.3616s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 35. CTE: Recursive-like structure for employee seniority brackets
+WITH Seniority AS (SELECT emp_no, CASE WHEN hire_date < '1985-01-01' THEN 'Veteran' WHEN hire_date < '1995-01-01' THEN 'Senior' ELSE 'Junior' END as bracket FROM employees) SELECT bracket, COUNT(*) FROM Seniority GROUP BY bracket">-- 35. CTE: Recursive-like structure for employee seniority brackets
+WITH Seniority AS (SELECT emp_no, CASE WHEN hire_date < '1985-01-01' THEN 'Veteran' WHEN hire_date < '1995-01-01' THEN 'Senior' ELSE 'Junior' END as bracket FROM employees) SELECT bracket, COUNT(*) FROM Seniority GROUP BY bracket</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="4">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">36</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="3.0983965396881104">3.0984s</td>
+            <td class="p-4 text-amber-500" data-value="4">⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 36. Complex Join: Employees, their current manager and their department
+SELECT e.first_name as employee, m.first_name as manager, d.dept_name FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN departments d ON de.dept_no = d.dept_no JOIN dept_manager dm ON d.dept_no = dm.dept_no JOIN employees m ON dm.emp_no = m.emp_no WHERE de.to_date = '9999-01-01' AND dm.to_date = '9999-01-01'">-- 36. Complex Join: Employees, their current manager and their department
+SELECT e.first_name as employee, m.first_name as manager, d.dept_name FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN departments d ON de.dept_no = d.dept_no JOIN dept_manager dm ON d.dept_no = dm.dept_no JOIN employees m ON dm.emp_no = m.emp_no WHERE de.to_date = '9999-01-01' AND dm.to_date = '9999-01-01'</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">37</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="5.8588268756866455">5.8588s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 37. Analytics: Standard deviation of salaries per department
+SELECT d.dept_name, STDDEV(s.salary) as sal_stddev FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN salaries s ON de.emp_no = s.emp_no GROUP BY d.dept_name">-- 37. Analytics: Standard deviation of salaries per department
+SELECT d.dept_name, STDDEV(s.salary) as sal_stddev FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN salaries s ON de.emp_no = s.emp_no GROUP BY d.dept_name</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">38</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.5469939708709717">0.5470s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 38. Window function: Dense Rank of employees by seniority (hire_date)
+SELECT emp_no, hire_date, DENSE_RANK() OVER (ORDER BY hire_date) as seniority_rank FROM employees LIMIT 20">-- 38. Window function: Dense Rank of employees by seniority (hire_date)
+SELECT emp_no, hire_date, DENSE_RANK() OVER (ORDER BY hire_date) as seniority_rank FROM employees LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">39</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.6702673435211182">0.6703s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 39. Subquery: Departments where at least one employee earns > 150000
+SELECT dept_name FROM departments WHERE dept_no IN (SELECT dept_no FROM dept_emp de JOIN salaries s ON de.emp_no = s.emp_no WHERE s.salary > 140000)">-- 39. Subquery: Departments where at least one employee earns > 150000
+SELECT dept_name FROM departments WHERE dept_no IN (SELECT dept_no FROM dept_emp de JOIN salaries s ON de.emp_no = s.emp_no WHERE s.salary > 140000)</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">40</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2866036891937256">0.2866s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 40. Aggregation: Find the month with the most hirings historically
+SELECT MONTH(hire_date) as hire_month, COUNT(*) as count FROM employees GROUP BY hire_month ORDER BY count DESC LIMIT 1">-- 40. Aggregation: Find the month with the most hirings historically
+SELECT MONTH(hire_date) as hire_month, COUNT(*) as count FROM employees GROUP BY hire_month ORDER BY count DESC LIMIT 1</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">41</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="2.4291558265686035">2.4292s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: from_date, FROM, emp_no, JO, M, curr_sal, to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_from_date ON s2(from_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_FROM ON s2(FROM);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_emp_no ON s2(emp_no);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_JO ON s2(JO);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_M ON s2(M);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_curr_sal ON s2(curr_sal);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s2_to_date ON s2(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_from_date ON salaries(from_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_FROM ON salaries(FROM);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_emp_no ON salaries(emp_no);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_JO ON salaries(JO);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_M ON salaries(M);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_curr_sal ON salaries(curr_sal);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 41. CTE with multiple steps: Identify high flyers (salary growth > 50%)
+WITH InitialSal AS (SELECT emp_no, salary as start_sal FROM salaries WHERE from_date = (SELECT MIN(from_date) FROM salaries s2 WHERE s2.emp_no = salaries.emp_no)), CurrentSal AS (SELECT emp_no, salary as curr_sal FROM salaries WHERE to_date = '9999-01-01') SELECT i.emp_no, i.start_sal, c.curr_sal FROM InitialSal i JOIN CurrentSal c ON i.emp_no = c.emp_no WHERE c.curr_sal > i.start_sal * 1.5">-- 41. CTE with multiple steps: Identify high flyers (salary growth > 50%)
+WITH InitialSal AS (SELECT emp_no, salary as start_sal FROM salaries WHERE from_date = (SELECT MIN(from_date) FROM salaries s2 WHERE s2.emp_no = salaries.emp_no)), CurrentSal AS (SELECT emp_no, salary as curr_sal FROM salaries WHERE to_date = '9999-01-01') SELECT i.emp_no, i.start_sal, c.curr_sal FROM InitialSal i JOIN CurrentSal c ON i.emp_no = c.emp_no WHERE c.curr_sal > i.start_sal * 1.5</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">42</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.6970839500427246">0.6971s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 42. Window function: NTile(4) to split employees into 4 salary quartiles
+SELECT emp_no, salary, NTILE(4) OVER (ORDER BY salary) as quartile FROM salaries WHERE to_date = '9999-01-01'">-- 42. Window function: NTile(4) to split employees into 4 salary quartiles
+SELECT emp_no, salary, NTILE(4) OVER (ORDER BY salary) as quartile FROM salaries WHERE to_date = '9999-01-01'</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">43</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.2578608989715576">0.2579s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 43. Join: Employees who switched departments at least once
+SELECT e.emp_no, e.first_name, COUNT(de.dept_no) FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no GROUP BY e.emp_no HAVING COUNT(de.dept_no) > 1 LIMIT 10">-- 43. Join: Employees who switched departments at least once
+SELECT e.emp_no, e.first_name, COUNT(de.dept_no) FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no GROUP BY e.emp_no HAVING COUNT(de.dept_no) > 1 LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">44</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="3.1051743030548096">3.1052s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 44. Analytics: Ratio of average salary in department vs company average
+SELECT d.dept_name, AVG(s.salary) / (SELECT AVG(salary) FROM salaries) as sal_ratio FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN salaries s ON de.emp_no = s.emp_no GROUP BY d.dept_name">-- 44. Analytics: Ratio of average salary in department vs company average
+SELECT d.dept_name, AVG(s.salary) / (SELECT AVG(salary) FROM salaries) as sal_ratio FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN salaries s ON de.emp_no = s.emp_no GROUP BY d.dept_name</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">45</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.38918089866638184">0.3892s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 45. Window function: Cume_Dist of hiring dates
+SELECT emp_no, hire_date, CUME_DIST() OVER (ORDER BY hire_date) as dist FROM employees LIMIT 20">-- 45. Window function: Cume_Dist of hiring dates
+SELECT emp_no, hire_date, CUME_DIST() OVER (ORDER BY hire_date) as dist FROM employees LIMIT 20</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">46</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.25062108039855957">0.2506s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 46. OLTP: Delete the temporary department added earlier
+DELETE FROM departments WHERE dept_no = 'd999'">-- 46. OLTP: Delete the temporary department added earlier
+DELETE FROM departments WHERE dept_no = 'd999'</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">47</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.8327796459197998">0.8328s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: row_id, to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_row_id ON salaries(row_id);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 47. Aggregation: Median-like salary (using ranking as MySQL has no MEDIAN)
+SELECT salary FROM (SELECT salary, ROW_NUMBER() OVER (ORDER BY salary) as row_id, COUNT(*) OVER () as total_count FROM salaries WHERE to_date = '9999-01-01') as t WHERE row_id = FLOOR(total_count/2)">-- 47. Aggregation: Median-like salary (using ranking as MySQL has no MEDIAN)
+SELECT salary FROM (SELECT salary, ROW_NUMBER() OVER (ORDER BY salary) as row_id, COUNT(*) OVER () as total_count FROM salaries WHERE to_date = '9999-01-01') as t WHERE row_id = FLOOR(total_count/2)</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">48</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="2.085252523422241">2.0853s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: birth_date, to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_birth_date ON de(birth_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_to_date ON de(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_m_birth_date ON m(birth_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_m_to_date ON m(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_dm_birth_date ON dm(birth_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_dm_to_date ON dm(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_birth_date ON e(birth_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_to_date ON e(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 48. Join: List employees who are managed by someone younger than them
+SELECT e.first_name, e.birth_date as emp_birth, m.first_name as mgr_name, m.birth_date as mgr_birth FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN dept_manager dm ON de.dept_no = dm.dept_no JOIN employees m ON dm.emp_no = m.emp_no WHERE e.birth_date < m.birth_date AND de.to_date = '9999-01-01' AND dm.to_date = '9999-01-01'">-- 48. Join: List employees who are managed by someone younger than them
+SELECT e.first_name, e.birth_date as emp_birth, m.first_name as mgr_name, m.birth_date as mgr_birth FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no JOIN dept_manager dm ON de.dept_no = dm.dept_no JOIN employees m ON dm.emp_no = m.emp_no WHERE e.birth_date < m.birth_date AND de.to_date = '9999-01-01' AND dm.to_date = '9999-01-01'</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="2">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">49</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.4198586940765381">0.4199s</td>
+            <td class="p-4 text-amber-500" data-value="2">⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: DIST, y</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_employees_DIST ON employees(DIST);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_employees_y ON employees(y);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 49. CTE: Find the 'Gap' years where no one was hired
+WITH Years AS (SELECT DISTINCT YEAR(hire_date) as y FROM employees) SELECT t1.y + 1 FROM Years t1 WHERE NOT EXISTS (SELECT 1 FROM Years t2 WHERE t2.y = t1.y + 1) AND t1.y < (SELECT MAX(y) FROM Years)">-- 49. CTE: Find the 'Gap' years where no one was hired
+WITH Years AS (SELECT DISTINCT YEAR(hire_date) as y FROM employees) SELECT t1.y + 1 FROM Years t1 WHERE NOT EXISTS (SELECT 1 FROM Years t2 WHERE t2.y = t1.y + 1) AND t1.y < (SELECT MAX(y) FROM Years)</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">50</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.779531478881836">1.7795s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: p_rank, to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_p_rank ON de(p_rank);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_to_date ON de(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s_p_rank ON s(p_rank);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s_to_date ON s(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 50. Analytics: Top 1% earners in each department
+WITH Ranked AS (SELECT s.emp_no, dept_no, salary, PERCENT_RANK() OVER (PARTITION BY dept_no ORDER BY salary DESC) as p_rank FROM salaries s JOIN dept_emp de ON s.emp_no = de.emp_no WHERE s.to_date = '9999-01-01' AND de.to_date = '9999-01-01') SELECT * FROM Ranked WHERE p_rank <= 0.01">-- 50. Analytics: Top 1% earners in each department
+WITH Ranked AS (SELECT s.emp_no, dept_no, salary, PERCENT_RANK() OVER (PARTITION BY dept_no ORDER BY salary DESC) as p_rank FROM salaries s JOIN dept_emp de ON s.emp_no = de.emp_no WHERE s.to_date = '9999-01-01' AND de.to_date = '9999-01-01') SELECT * FROM Ranked WHERE p_rank <= 0.01</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">51</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="5.0355446338653564">5.0355s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 51. Window Function: Moving average of salaries (prev 2 records)
+SELECT emp_no, salary, AVG(salary) OVER (PARTITION BY emp_no ORDER BY from_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as moving_avg FROM salaries">-- 51. Window Function: Moving average of salaries (prev 2 records)
+SELECT emp_no, salary, AVG(salary) OVER (PARTITION BY emp_no ORDER BY from_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as moving_avg FROM salaries</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">52</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.28891944885253906">0.2889s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: from_date</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_t_from_date ON t(from_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s_from_date ON s(from_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_from_date ON e(from_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 52. Join: Employees with their very first title and their very first salary
+SELECT e.emp_no, t.title, s.salary FROM employees e JOIN titles t ON e.emp_no = t.emp_no JOIN salaries s ON e.emp_no = s.emp_no WHERE t.from_date = e.hire_date AND s.from_date = e.hire_date LIMIT 10">-- 52. Join: Employees with their very first title and their very first salary
+SELECT e.emp_no, t.title, s.salary FROM employees e JOIN titles t ON e.emp_no = t.emp_no JOIN salaries s ON e.emp_no = s.emp_no WHERE t.from_date = e.hire_date AND s.from_date = e.hire_date LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">53</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.1421639919281006">1.1422s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 53. Aggregation: Total salary budget per year
+SELECT YEAR(from_date) as year, SUM(salary) FROM salaries GROUP BY year">-- 53. Aggregation: Total salary budget per year
+SELECT YEAR(from_date) as year, SUM(salary) FROM salaries GROUP BY year</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="5">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">54</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.5289807319641113">0.5290s</td>
+            <td class="p-4 text-amber-500" data-value="5">⭐⭐⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-green-600 flex items-center'><span class='mr-2'>✅</span>None</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 54. Analytics: Department mobility - employees who worked in > 2 departments
+SELECT emp_no FROM dept_emp GROUP BY emp_no HAVING COUNT(DISTINCT dept_no) > 2">-- 54. Analytics: Department mobility - employees who worked in > 2 departments
+SELECT emp_no FROM dept_emp GROUP BY emp_no HAVING COUNT(DISTINCT dept_no) > 2</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">55</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.6870691776275635">0.6871s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 55. CTE: Daily hiring rate average
+WITH DailyHires AS (SELECT hire_date, COUNT(*) as count FROM employees GROUP BY hire_date) SELECT AVG(count) FROM DailyHires">-- 55. CTE: Daily hiring rate average
+WITH DailyHires AS (SELECT hire_date, COUNT(*) as count FROM employees GROUP BY hire_date) SELECT AVG(count) FROM DailyHires</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">56</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.2668213844299316">1.2668s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_salaries_to_date ON salaries(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 56. Window Function: Find if current salary is the all-time max for that employee
+SELECT emp_no, salary, MAX(salary) OVER (PARTITION BY emp_no) as max_sal, CASE WHEN salary = MAX(salary) OVER (PARTITION BY emp_no) THEN 'YES' ELSE 'NO' END as is_max FROM salaries WHERE to_date = '9999-01-01'">-- 56. Window Function: Find if current salary is the all-time max for that employee
+SELECT emp_no, salary, MAX(salary) OVER (PARTITION BY emp_no) as max_sal, CASE WHEN salary = MAX(salary) OVER (PARTITION BY emp_no) THEN 'YES' ELSE 'NO' END as is_max FROM salaries WHERE to_date = '9999-01-01'</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="3">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">57</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.20310282707214355">0.2031s</td>
+            <td class="p-4 text-amber-500" data-value="3">⭐⭐⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query seems well-optimized.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 57. Join: List all employees who were hired in the same month as their birth month
+SELECT emp_no, first_name, birth_date, hire_date FROM employees WHERE MONTH(birth_date) = MONTH(hire_date) LIMIT 10">-- 57. Join: List all employees who were hired in the same month as their birth month
+SELECT emp_no, first_name, birth_date, hire_date FROM employees WHERE MONTH(birth_date) = MONTH(hire_date) LIMIT 10</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">58</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="0.4185144901275635">0.4185s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 58. Aggregation: Most common last name in the company
+SELECT last_name, COUNT(*) as count FROM employees GROUP BY last_name ORDER BY count DESC LIMIT 1">-- 58. Aggregation: Most common last name in the company
+SELECT last_name, COUNT(*) as count FROM employees GROUP BY last_name ORDER BY count DESC LIMIT 1</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">59</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="1.1335768699645996">1.1336s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: last_hired</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Query is slow, consider partitioning or pre-aggregating data.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_last_hired ON de(last_hired);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_last_hired ON e(last_hired);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 59. Window Function: Last hire in each department (ROW_NUMBER)
+SELECT * FROM (SELECT e.emp_no, de.dept_no, e.hire_date, ROW_NUMBER() OVER (PARTITION BY de.dept_no ORDER BY e.hire_date DESC) as last_hired FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no) t WHERE last_hired = 1">-- 59. Window Function: Last hire in each department (ROW_NUMBER)
+SELECT * FROM (SELECT e.emp_no, de.dept_no, e.hire_date, ROW_NUMBER() OVER (PARTITION BY de.dept_no ORDER BY e.hire_date DESC) as last_hired FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no) t WHERE last_hired = 1</code>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors duration-150 group" data-rating="1">
+            <td class="p-4 text-center font-mono text-gray-500 text-sm">60</td>
+            <td class="p-4 font-mono text-sm font-semibold text-indigo-700" data-value="2.1570699214935303">2.1571s</td>
+            <td class="p-4 text-amber-500" data-value="1">⭐</td>
+            <td class="p-4 text-sm"><ul class="list-none p-0"><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Full Table Scan (ALL) detected.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Temporary table used.</li><li class='text-red-600 mb-1 flex items-center'><span class='mr-2'>⚠️</span>Filesort used (performance impact).</li></ul></td>
+            <td class="p-4 text-sm">
+                <ul class="list-none p-0 mb-3"><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Consider indexing: to_date</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Optimize GROUP BY or DISTINCT to avoid temporary tables.</li><li class='mb-1 flex items-start'><span class='mr-2 font-bold text-indigo-500'>•</span>Add an index on columns used in ORDER BY.</li></ul>
+                <div class="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100 shadow-sm"><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Suggested Indexes</p><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_de_to_date ON de(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_s_to_date ON s(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_d_to_date ON d(to_date);</code></div><div class='flex items-center gap-2 mb-1'><code class='bg-black/5 p-1 rounded text-[10px] flex-1'>CREATE INDEX idx_e_to_date ON e(to_date);</code></div></div>
+            </td>
+            <td class="p-4">
+                <div class="relative group/code">
+                    <code class="block font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-200 truncate max-w-sm cursor-help transition-all group-hover/code:max-w-none group-hover/code:absolute group-hover/code:z-20 group-hover/code:shadow-xl group-hover/code:whitespace-normal group-hover/code:bg-white" title="-- 60. Complex Analytics: Gender salary gap per department
+SELECT d.dept_name, AVG(CASE WHEN e.gender = 'M' THEN s.salary END) as male_avg, AVG(CASE WHEN e.gender = 'F' THEN s.salary END) as female_avg FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN employees e ON de.emp_no = e.emp_no JOIN salaries s ON e.emp_no = s.emp_no WHERE de.to_date = '9999-01-01' AND s.to_date = '9999-01-01' GROUP BY d.dept_name">-- 60. Complex Analytics: Gender salary gap per department
+SELECT d.dept_name, AVG(CASE WHEN e.gender = 'M' THEN s.salary END) as male_avg, AVG(CASE WHEN e.gender = 'F' THEN s.salary END) as female_avg FROM departments d JOIN dept_emp de ON d.dept_no = de.dept_no JOIN employees e ON de.emp_no = e.emp_no JOIN salaries s ON e.emp_no = s.emp_no WHERE de.to_date = '9999-01-01' AND s.to_date = '9999-01-01' GROUP BY d.dept_name</code>
+                </div>
+            </td>
+        </tr>
+        
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noResults" class="hidden p-20 text-center">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-slate-400 font-medium text-lg">No matching queries found</p>
+                </div>
+            </div>
+
+            <footer class="mt-8 flex items-center justify-between text-slate-400 text-xs px-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    <span>Generated on 2026-01-15 22:48:07</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span>Performance Matrix v2.0</span>
+                    <a href="#" class="hover:text-indigo-600 transition-colors uppercase font-bold tracking-widest text-[10px]">Documentation</a>
+                </div>
+            </footer>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchInput = document.getElementById('tableSearch');
+                const table = document.getElementById('perfTable');
+                const rows = table.querySelectorAll('tbody tr');
+                const noResults = document.getElementById('noResults');
+
+                // Filtering Logic
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    let visibleCount = 0;
+
+                    rows.forEach(row => {
+                        const text = row.innerText.toLowerCase();
+                        if (text.includes(term)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    noResults.classList.toggle('hidden', visibleCount > 0);
+                    table.classList.toggle('hidden', visibleCount === 0);
+                });
+
+                // Sorting Logic
+                const getCellValue = (tr, idx) => {
+                    const cell = tr.children[idx];
+                    return cell.getAttribute('data-value') || cell.innerText || cell.textContent;
+                };
+
+                const comparer = (idx, asc) => (a, b) => ((v1, v2) => 
+                    v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+                )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+                document.querySelectorAll('th.sortable').forEach(th => th.addEventListener('click', (() => {
+                    const table = th.closest('table');
+                    const tbody = table.querySelector('tbody');
+                    const headerRow = th.parentElement;
+                    
+                    // Update classes
+                    const isAsc = th.classList.contains('sort-asc');
+                    headerRow.querySelectorAll('th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+                    th.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
+
+                    Array.from(tbody.querySelectorAll('tr'))
+                        .sort(comparer(Array.from(th.parentNode.children).indexOf(th), !isAsc))
+                        .forEach(tr => tbody.appendChild(tr));
+                })));
+            });
+        </script>
+    </body>
+    </html>
+    

@@ -87,7 +87,26 @@ class DBSimulator:
                 return False
             
             self.raw_output = stdout
-            self.env_details['sysbench_cmd'] = " ".join(cmd)
+            
+            # Reconstruct sysbench command for transparency in the report
+            container_name = self.args.container or "mariadb-11-8"
+            # We assume it's running in Docker based on the project environment
+            sb_cmd = [
+                "sysbench",
+                f"--mysql-host={self.args.host}",
+                f"--mysql-user={self.args.user}",
+                f"--mysql-password={self.args.password}" if self.args.password else "--mysql-password=",
+                f"--mysql-db={self.args.db}",
+                "--sql-dir=/tmp/bench_dir/sql/",
+                f"--threads={self.args.threads}",
+                f"--time={self.args.time}",
+                "--events=0",
+                "/tmp/dir_transactions_sysbench.lua run"
+            ]
+            
+            reconstructed_cmd = f"docker exec -i {container_name} " + " ".join(sb_cmd)
+            self.env_details['sysbench_cmd'] = reconstructed_cmd
+            
             self.parse_sysbench_output(stdout)
             
             # Fetch and parse deadlocks if container is specified

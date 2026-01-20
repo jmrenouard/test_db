@@ -1,4 +1,4 @@
-reports/**
-!reports/README.md
 __pycache__/
 *.pyc
+reports/perf_threads/*.txt
+reports/explain_reports/*.txt
