@@ -156,7 +156,7 @@ class DBSimulator:
         try:
             # Use UTC for since_ts as Docker usually logs in UTC
             import datetime as dt
-            since_ts = (self.start_time - dt.timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%S")
+            since_ts = (self.start_time - dt.timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%S")
             cmd = ["docker", "logs", "--since", since_ts, self.args.container]
             process = subprocess.run(cmd, capture_output=True, text=True)
             
@@ -218,7 +218,7 @@ class DBSimulator:
         if self.args.container:
             try:
                 import datetime as dt
-                since_ts = (self.start_time - dt.timedelta(seconds=5)).strftime("%Y-%m-%dT%H:%M:%S")
+                since_ts = (self.start_time - dt.timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%S")
                 cmd = ["docker", "logs", "--since", since_ts, self.args.container]
                 process = subprocess.run(cmd, capture_output=True, text=True)
                 self.env_details['error_log'] = process.stdout + process.stderr

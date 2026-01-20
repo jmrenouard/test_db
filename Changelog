@@ -1,4 +1,17 @@
-1.4.6 2026-01-20
+1.4.9 2026-01-20
+ - Added 5-second inter-test delay in `test_runner.sh`.
+ - Resolved log overlapping issues between consecutive tests using strict `--since` filtering.
+ - chore: rerun test-data with inter-test delay
+
+1.4.8 2026-01-20
+ - Implemented strict `--since` filtering in `db_simulator.py` (1-second buffer).
+ - Enforced precise log capture for `error_log` and `deadlock` sections when truncation is restricted.
+ - chore: rerun test-data with strict filtering
+
+1.4.7 2026-01-20
+ - Verified and re-executed all data tests (deadlock, gap_locking, transactions).
+ - Confirmed robust log parsing fallback when container log truncation is restricted.
+ - chore: rerun test-data target
 
 - feat: Added container log clearing (truncation) before each test in `db_simulator.py`
 - feat: Unified documentation sync across README and benchmarking guides (EN/FR)

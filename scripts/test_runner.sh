@@ -169,6 +169,9 @@ function run_data_tests {
                 --db "$DB_NAME"
                 
             echo -e "${GREEN}✅ Finished $test_name. Reports in reports/$test_name/${NC}"
+            
+            echo -e "${YELLOW}⏳ Waiting 5 seconds before next test (log isolation)...${NC}"
+            sleep 5
         fi
     done
 }
