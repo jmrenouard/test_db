@@ -8,7 +8,7 @@ set -euo pipefail
 CONTAINER_NAME="${CONTAINER_NAME:-mariadb-11-8}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_USER="${DB_USER:-root}"
-DB_PASS="${DB_PASS:-root}"
+DB_PASS="${DB_PASS:-}"
 DB_NAME="${DB_NAME:-employees}"
 THREADS="${THREADS:-4}"
 TIME="${TIME:-60}"

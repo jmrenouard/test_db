@@ -4,7 +4,7 @@ set -euo pipefail
 # Configuration
 CONTAINER_NAME="mariadb-11-8"
 DB_USER="root"
-DB_PASS="root"
+DB_PASS=""
 DB_NAME="employees"
 SCRIPTS_DIR="$(dirname "$0")"
 
@@ -23,8 +23,9 @@ function show_help {
     echo "  analyze   Run performance analysis and EXPLAIN reports"
     echo "  bench     Run sysbench performance test"
     echo "  perf-threads Run sysbench scaling test (1 to 64 threads)"
-    echo "  all       Run all tests"
-    echo "  help      Show this help message"
+    echo "  data-tests   Run tests from tests/data subdirectories"
+    echo "  all          Run all tests"
+    echo "  help         Show this help message"
 }
 
 function run_verify {
@@ -128,6 +129,38 @@ function run_perf_threads {
     
     echo -e "${GREEN}✅ Scaling reports generated in reports/perf_threads/${NC}"
 }
+ 
+function run_data_tests {
+    echo -e "${BLUE}=== Subdirectory Data Tests ===${NC}"
+    local data_dir="tests/data"
+    
+    if [ ! -d "$data_dir" ]; then
+        echo -e "${RED}❌ Error: $data_dir not found.${NC}"
+        return 1
+    fi
+
+    for test_path in "$data_dir"/*; do
+        if [ -d "$test_path" ]; then
+            local test_name=$(basename "$test_path")
+            echo -e "${YELLOW}📂 Running test: $test_name...${NC}"
+            
+            # Run db_simulator.py for each subdirectory
+            python3 scripts/db_simulator.py \
+                --sql-dir "$test_path" \
+                --name "$test_name" \
+                --output-dir "reports/$test_name" \
+                --container "$CONTAINER_NAME" \
+                --threads 4 \
+                --time 10 \
+                --host "127.0.0.1" \
+                --user "$DB_USER" \
+                --password "$DB_PASS" \
+                --db "$DB_NAME"
+                
+            echo -e "${GREEN}✅ Finished $test_name. Reports in reports/$test_name/${NC}"
+        fi
+    done
+}
 
 
 case "${1:-help}" in
@@ -143,11 +176,15 @@ case "${1:-help}" in
     perf-threads)
         run_perf_threads
         ;;
+    data-tests)
+        run_data_tests
+        ;;
     all)
         run_verify
         run_analyze
         run_bench
         run_perf_threads
+        run_data_tests
         ;;
     help|*)
         show_help

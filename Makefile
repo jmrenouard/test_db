@@ -18,6 +18,7 @@ help:
 	@echo "  make bench      - Run sysbench performance tests"
 	@echo "  make perf-threads - Run sysbench scaling test (1 to 64 threads)"
 	@echo "  make analyze    - Run SQL explain and performance analysis"
+	@echo "  make test-data  - Run all tests from tests/data/ subdirectories"
 	@echo "  make test-all   - Run all tests sequentially"
 	@echo "  make interactive - Run tests interactively with HTML report"
 	@echo ""
@@ -40,7 +41,7 @@ inject:
 	@echo "💉 Injecting employees.sql into $(CONTAINER_NAME)..."
 	@docker exec -i $(CONTAINER_NAME) mkdir -p /tmp/employees_data
 	@docker cp employees/. $(CONTAINER_NAME):/tmp/employees_data/
-	@docker exec -i $(CONTAINER_NAME) bash -c "cd /tmp/employees_data && mariadb -u root -proot < employees.sql"
+	@docker exec -i $(CONTAINER_NAME) bash -c "cd /tmp/employees_data && mariadb -u root < employees.sql"
 
 verify:
 	@bash scripts/test_runner.sh verify
@@ -54,6 +55,9 @@ perf-threads:
 analyze:
 	@bash scripts/test_runner.sh analyze
 
+test-data:
+	@bash scripts/test_runner.sh data-tests
+
 test-all:
 	@bash scripts/test_runner.sh all
 
@@ -62,4 +66,4 @@ interactive:
 
 clean:
 	@echo "🧹 Cleaning up reports..."
-	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt reports/perf_threads/*.html reports/perf_threads/*.md
+	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt reports/perf_threads/*.html reports/perf_threads/*.md reports/deadlock reports/gap_locking reports/transactions reports/infrastructure.json

@@ -30,8 +30,10 @@ function load_transactions()
     end
 
     for file_path in p:lines() do
-        local f = io.open(file_path, "r")
-        if f then
+        -- Skip setup.sql if present in the directory
+        if not string.match(file_path, "setup.sql$") then
+            local f = io.open(file_path, "r")
+            if f then
             local content = f:read("*all")
             f:close()
 
@@ -55,6 +57,7 @@ function load_transactions()
 
             if #statements > 0 then
                 table.insert(transactions, statements)
+            end
             end
         end
     end
@@ -81,9 +84,7 @@ function event()
     local idx = math.random(transaction_count)
     local statements = transactions[idx]
 
-    -- Execute statements sequentially
     for _, stmt in ipairs(statements) do
-        -- Wrapped in pcall to avoid script crash on DB errors
-        pcall(function() db_query(stmt) end)
+        db_query(stmt)
     end
 end
