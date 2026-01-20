@@ -1,14 +1,23 @@
+1.5.2 2026-01-20
+
+- doc: Added comprehensive documentation and header to `scripts/dir_transactions_sysbench.lua`.
+- doc: Explained SQL transaction loading, parsing, and execution logic.
+
+1.5.2 2026-01-20
+
+- feat: Added `gap_locking_4` comprehensive simulation (FK on Unique/non-PK, DELETE, UPDATE, INSERT, SELECT).
+- docs: Demonstrated gap locking during `INSERT ... SELECT` shared lock acquisition.
+- fix: Added `INSERT IGNORE` to `gap_locking_4` transaction for stable sysbench looping.
+
 1.5.1 2026-01-20
- - feat: Added `gap_locking_3` simulation demonstrating gap locking via range `UPDATE`.
- - docs: Verified deadlock capture in reports without explicit `SELECT FOR UPDATE`.
- - chore: rerun test-data for verification of new simulation.
 
 1.5.0 2026-01-20
- - feat: Added `teardown.sql` lifecycle support in `db_simulator.py`.
- - feat: Implemented strict `--since` filtering in `db_simulator.py` (1-second buffer).
- - fix: Updated Lua script to ignore `teardown.sql` and `setup.sql` in transaction loading.
- - fix: Added 5-second inter-test delay in `test_runner.sh` for reliable log isolation.
- - chore: rerun all test-data targets with teardown verification.
+
+- feat: Added `teardown.sql` lifecycle support in `db_simulator.py`.
+- feat: Implemented strict `--since` filtering in `db_simulator.py` (1-second buffer).
+- fix: Updated Lua script to ignore `teardown.sql` and `setup.sql` in transaction loading.
+- fix: Added 5-second inter-test delay in `test_runner.sh` for reliable log isolation.
+- chore: rerun all test-data targets with teardown verification.
 
 1.4.6 2026-01-20
 
