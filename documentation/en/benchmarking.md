@@ -12,6 +12,8 @@ The benchmarking suite leverages a custom Lua script (`scripts/employees_sysbenc
   Executes the query set sequentially, repeating the entire set 10 times to measure average throughput.
 - **Threaded Scaling**: `make perf-threads`  
   Runs a scalability test across 1, 2, 4, 8, 16, 32, and 64 threads for 60 seconds each.
+- **Directory-Based Transactions**: `scripts/run_dir_bench.sh`  
+  Executes SQL files from a specified directory in parallel. Each file is treated as a single transaction block.
 
 ## Metrics Captured
 
@@ -24,4 +26,5 @@ The benchmarking suite leverages a custom Lua script (`scripts/employees_sysbenc
 Results are saved in:
 
 - `reports/perf_threads/results_{N}_threads.txt`
+- `reports/simulator_report.md` / `reports/simulator_report.html` (when using `db_simulator.py`)
 - Summarized output in the terminal console.

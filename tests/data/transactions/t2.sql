@@ -1,0 +1,3 @@
+BEGIN;
+SELECT 2;
+COMMIT;

@@ -1,8 +1,16 @@
-1.3.7 2026-01-16
+1.3.9 2026-01-20
 
-- chore: prepare for next development cycle
+- feat: Added `db_simulator.py` for generic MySQL/MariaDB simulation and premium reporting
+- feat: Added `--host` parameter to `run_dir_bench.sh` and `db_simulator.py`
+- ui: Integrated futuristic glassmorphism dashboard for simulation reports
 
- 1.3.6 2026-01-16
+1.3.8 2026-01-20
+
+- feat: Added `dir_transactions_sysbench.lua` to execute transactions from a directory in parallel
+- feat: Support for `--sql-dir` parameter to load multiple `.sql` files
+- feat: Added `run_dir_bench.sh` runner script for easier simulation launching
+
+1.3.6 2026-01-16
 
 - docs: Created comprehensive bilingual Tools & Metrics guides (EN/FR)
 - docs: Added detailed explanations for Sysbench metrics (QPS, TPS, Latency)

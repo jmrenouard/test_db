@@ -9,6 +9,8 @@ Le projet orchestre plusieurs outils spécialisés pour mesurer différents aspe
 | Outil | Objectif Principal | Métriques Clés Mesurées |
 | :--- | :--- | :--- |
 | **Sysbench (LUA)** | Tests de charge & Benchmarking | QPS, TPS, Latence (moyenne, max, 95ème) |
+| **DB Simulator** | Benchmarking générique & Rapports | UX Premium, Multi-cibles, Rapports Glassmorphism |
+| **Run Dir Bench** | Tests par Répertoire Parallèle | Exécution parallèle de scripts de transaction SQL |
 | **SQL Analyzer** | Analyse approfondie des requêtes | Temps d'exécution, plan `EXPLAIN`, efficacité des index |
 | **Verify Data** | Intégrité des Données | Nombre de lignes, Checksums des tables |
 | **Perf Threads Reporter** | Analyse de Scalabilité | Évolution des performances de 1 à 64 threads |

@@ -9,6 +9,8 @@ The project orchestrates several specialized tools to measure different aspects 
 | Tool | Primary Purpose | Key Measured Metrics |
 | :--- | :--- | :--- |
 | **Sysbench (LUA)** | Load testing & Benchmarking | QPS, TPS, Latency (avg, max, 95th) |
+| **DB Simulator** | Generic benchmarking & Reporting | Premium UX, Multi-target, Glassmorphism reports |
+| **Run Dir Bench** | Parallel Directory Testing | Parallel execution of SQL transaction scripts |
 | **SQL Analyzer** | Query-level deep dive | Execution time, `EXPLAIN` plan, Index efficiency |
 | **Verify Data** | Data Integrity | Row counts, Table Checksums |
 | **Perf Threads Reporter** | Scalability Analysis | Performance scaling from 1 to 64 threads |
@@ -75,6 +77,8 @@ The following diagram illustrates how the tools interact with the MariaDB contai
 ```mermaid
 graph TD
     A[Makefile / User] -- Orchestrates --> B{scripts/test_runner.sh}
+    A -- Direct Run --> B2[scripts/run_dir_bench.sh]
+    A -- Premium UI --> B3[scripts/db_simulator.py]
     
     subgraph "Verification"
     B --> C[scripts/verify_data.sh]
@@ -83,6 +87,8 @@ graph TD
     subgraph "Performance"
     B --> D[sysbench + LUA]
     B --> E[scripts/perf_threads_reporter.py]
+    B2 --> D2[dir_transactions_sysbench.lua]
+    B3 --> B2
     end
 
     subgraph "Quality & IQ"
@@ -91,15 +97,18 @@ graph TD
 
     C -- "Queries" --> G[(MariaDB 11.8 Docker)]
     D -- "Loads" --> G
+    D2 -- "Loads" --> G
     F -- "Explain/Schema" --> G
 
     F -- "Produces" --> H[reports/performance_report.html]
     E -- "Produces" --> I[reports/perf_threads/scaling_report.html]
+    B3 -- "Produces" --> K[reports/simulator_report.html]
     C -- "Logs" --> J[STDOUT / Integrity Check]
     
     style G fill:#f96,stroke:#333,stroke-width:4px
     style H fill:#bbf,stroke:#333,stroke-width:2px
     style I fill:#bbf,stroke:#333,stroke-width:2px
+    style K fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ---
