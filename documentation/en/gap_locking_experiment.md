@@ -9,7 +9,41 @@ This experiment demonstrates why creating range locks (Gap Locking) in InnoDB ca
     1. **Locking Transaction**: `SELECT * FROM gap_parent WHERE id > 10 AND id < 20 FOR UPDATE`. This creates a Gap Lock on the space between ID 10 and 20.
     2. **Conflicting Transaction**: `INSERT INTO gap_parent (id, name) VALUES (15, 'Intruder')`. This attempt to insert into the gap will WAIT for the first transaction to commit/rollback.
 
+## Technical Assets
+
+### 1. MariaDB Configuration
+
+Configuration used within the standard MariaDB 11.8 container (default settings). Note that Gap Locking is enabled by default in `REPEATABLE READ` isolation level (MariaDB's default).
+
+### 2. Sysbench Execution
+
+Command orchestrated by `db_simulator.py`:
+
+```bash
+sysbench scripts/dir_transactions_sysbench.lua \
+  --mysql-host=127.0.0.1 \
+  --mysql-user=root \
+  --mysql-password= \
+  --mysql-db=employees \
+  --sql-dir=/tmp/bench_dir/sql/ \
+  --threads=4 \
+  --time=20 \
+  run
+```
+
+### 3. Transaction Logic (SQL)
+
+- **Selection/Locking**: `SELECT * FROM gap_parent WHERE id > 10 AND id < 20 FOR UPDATE;`
+- **Insertion (Gap)**: `INSERT IGNORE INTO gap_parent (id, name) VALUES (15, 'Intruder');`
+- **Insertion (Child)**: `INSERT IGNORE INTO gap_child (id, parent_id, description) VALUES (100, 20, 'Child');`
+
+### 4. Lua script
+
+The [dir_transactions_sysbench.lua](file:///home/jmren/GIT_REPOS/test_db/scripts/dir_transactions_sysbench.lua) script is used to load and execute these SQL statements in parallel, exposing index gaps contention.
+
 ## Observed Results
+
+...
 
 Using `db_simulator.py` with 4 concurrent threads:
 
