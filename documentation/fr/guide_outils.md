@@ -9,12 +9,12 @@ Le projet orchestre plusieurs outils spécialisés pour mesurer différents aspe
 | Outil | Objectif Principal | Métriques Clés Mesurées |
 | :--- | :--- | :--- |
 | **Sysbench (LUA)** | Tests de charge & Benchmarking | QPS, TPS, Latence (moyenne, max, 95ème) |
-| **DB Simulator** | Benchmarking générique & Rapports | UX Premium, Multi-cibles, Rapports Glassmorphism |
-| **Run Dir Bench** | Tests par Répertoire Parallèle | Exécution parallèle de scripts de transaction SQL |
-| **SQL Analyzer** | Analyse approfondie des requêtes | Temps d'exécution, plan `EXPLAIN`, efficacité des index |
-| **Verify Data** | Intégrité des Données | Nombre de lignes, Checksums des tables |
-| **Perf Threads Reporter** | Analyse de Scalabilité | Évolution des performances de 1 à 64 threads |
-| **Interactive Runner** | Expérience Utilisateur | Exécution assistée avec tableaux de bord HTML en direct |
+| **DB Simulator** | Benchmarking générique & Rapports | UX Premium, Détection de Deadlock, Capture d'Environnement |
+| **Run Dir Bench** | Tests par Répertoire Parallèle | Orchestre sysbench avec des scripts SQL par répertoire |
+| **SQL Analyzer** | Analyse approfondie des requêtes | Temps d'exécution, Plan `EXPLAIN`, DDL d'indexation auto |
+| **Verify Data** | Intégrité des Données | Nombre de lignes baseline, Checksums des tables |
+| **Perf Threads Reporter** | Analyse de Scalabilité | Évolution des performances de 1 à 64 threads (graphiques HTML) |
+| **Interactive Runner** | Expérience Utilisateur | Orchestration en terminal avec statut en direct |
 
 ---
 
@@ -33,10 +33,12 @@ Lors de l'exécution de `make bench` ou `make perf-threads`, Sysbench fournit pl
 - **95ème Centile (95th Percentile) :** 95 % des requêtes ont été plus rapides que cette valeur. C'est un bien meilleur indicateur de la performance "réelle" que la moyenne, car il exclut les cas idéaux et se concentre sur les latences de "queue".
 - **Latence Max :** La requête la plus lente. Une latence max élevée indique généralement une saturation des ressources ou une activité système en arrière-plan.
 
-### 3. Efficacité
+### 3. Contexte d'Infrastructure
 
-- **Events :** Le nombre total de fois où le script de test a été exécuté.
-- **Total Time :** La durée totale du test.
+- **OS & Kernel** : Identifie les détails spécifiques du système d'exploitation hôte.
+- **CPU & RAM** : Capture le nombre de cœurs et la mémoire disponible pendant le test.
+- **Hostname & Container** : Suit l'endroit où la base de données s'exécutait.
+- **Version DB** : Garantit que les résultats sont comparés à la même version de MariaDB.
 
 ---
 

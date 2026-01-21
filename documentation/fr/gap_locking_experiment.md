@@ -9,6 +9,14 @@ Cette expérience démontre pourquoi la création de verrous sur des plages d'in
     1. **Transaction de Verrouillage** : `SELECT * FROM gap_parent WHERE id > 10 AND id < 20 FOR UPDATE`. Cela crée un verrou de type "Gap Lock" sur l'espace compris entre les ID 10 et 20.
     2. **Transaction Conflictuelle** : `INSERT INTO gap_parent (id, name) VALUES (15, 'Intruder')`. Cette tentative d'insertion dans le "gap" ATTENDRA la validation (commit) ou l'annulation (rollback) de la première transaction.
 
+## Scénarios Complexes : Variante 4
+
+Dans le scénario `gap_locking_4`, nous explorons une interaction plus subtile impliquant les **Contraintes d'Unicité et les Clés Étrangères**.
+
+- **Configuration** : Une table avec une colonne à clé unique non primaire référencée par une table enfant.
+- **Interférence DML** : Lorsqu'une transaction effectue un `DELETE` ou un `UPDATE` sur la colonne unique, InnoDB place des verrous sur les intervalles environnants (gaps) pour garantir la cohérence de l'unicité.
+- **Observation** : Des insertions concomitantes dans la même table enfant ou sur des clés parent liées peuvent déclencher des verrous mortels (deadlocks) ou de longues attentes, même si les clés primaires ne se chevauchent pas.
+
 ## Actifs Techniques
 
 ### 1. Configuration MariaDB
@@ -66,5 +74,9 @@ Utilisation de `db_simulator.py` avec 4 threads concurrents :
 2. Lancer la simulation :
 
    ```bash
+   # Verrou d'intervalle standard
    python3 scripts/db_simulator.py --sql-dir tests/data/gap_locking/ --container mariadb-11-8 --threads 4 --time 20
+   
+   # Variante 4 : Contentions sur clés étrangères uniques
+   python3 scripts/db_simulator.py --sql-dir tests/data/gap_locking_4/ --container mariadb-11-8 --threads 4 --time 20
    ```

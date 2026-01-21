@@ -1,7 +1,13 @@
+1.5.5 2026-01-21
+
+- docs: Synchronized French documentation with new Infrastructure Metadata features.
+- docs: Refined `guide_outils.md`, `deadlock_experiment.md`, and `gap_locking_experiment.md` in French.
+
 1.5.4 2026-01-20
- - feat: Added `gap_locking_5` extreme simulation with 10 transaction types and 4-table schema.
- - docs: Demonstrated holistic InnoDB locking behavior (READ ONLY, UPDATE, DELETE, INSERT ... SELECT).
- - feat: Verified deadlock emergence under high concurrency (10 threads) with diverse workloads.
+
+- feat: Added `gap_locking_5` extreme simulation with 10 transaction types and 4-table schema.
+- docs: Demonstrated holistic InnoDB locking behavior (READ ONLY, UPDATE, DELETE, INSERT ... SELECT).
+- feat: Verified deadlock emergence under high concurrency (10 threads) with diverse workloads.
 
 1.5.3 2026-01-20
 
