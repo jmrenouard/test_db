@@ -604,6 +604,10 @@ class DBSimulator:
             </div>
         </section>
         """
+        # HTML Header with metrics highlights
+        script_display = self.args.script if self.args.script else "Directory Based"
+        if len(script_display) > 30:
+            script_display = "..." + script_display[-27:]
 
         html_template = f"""
 <!DOCTYPE html>
@@ -611,72 +615,74 @@ class DBSimulator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DB Simulation Report</title>
+    <title>DB Simulation Report - {self.args.name}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: #070b14; color: #f8fafc; }}
-        .glass {{ background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }}
-        .gradient-text {{ background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-        .custom-scrollbar::-webkit-scrollbar {{ width: 6px; }}
-        .custom-scrollbar::-webkit-scrollbar-track {{ background: rgba(255, 255, 255, 0.02); }}
-        .custom-scrollbar::-webkit-scrollbar-thumb {{ background: rgba(255, 255, 255, 0.08); border-radius: 10px; }}
-        pre {{ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }}
+        :root {{
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #f43f5e;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+        }}
+        body {{ font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #f8fafc; }}
+        .glass {{ background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }}
+        .stat-card {{ @apply glass p-6 rounded-2xl flex flex-col justify-center items-center text-center; }}
+        .stat-label {{ @apply text-slate-400 text-xs font-bold uppercase tracking-widest mb-1; }}
+        .stat-value {{ @apply text-3xl font-bold text-white; }}
+        .chart-container {{ @apply glass p-6 rounded-2xl mb-8; }}
+        .mono {{ font-family: 'JetBrains Mono', monospace; }}
     </style>
 </head>
-<body class="min-h-screen p-8 md:p-16">
-    <div class="max-w-5xl mx-auto">
-        <header class="mb-16">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                <div>
-                    <h1 class="text-6xl font-extrabold tracking-tight mb-4 gradient-text">{self.args.name.upper()}</h1>
-                    <p class="text-slate-400 text-lg font-medium max-w-xl leading-relaxed">Performance audit for {self.results['host']} / {self.results['db']}</p>
+<body class="p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+                <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-4 border border-indigo-500/20">
+                    Simulation Analytics
+                </span>
+                <h1 class="text-5xl md:text-6xl font-bold tracking-tight mb-2">
+                    {self.args.name}
+                </h1>
+                <p class="text-slate-400 max-w-2xl text-lg">
+                    Comprehensive performance report generated on <span class="text-white font-semibold">{self.timestamp}</span>.
+                </p>
+            </div>
+            <div class="flex gap-4">
+                <div class="px-6 py-3 rounded-2xl bg-slate-800/50 border border-slate-700/50">
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1">Target Engine</p>
+                    <p class="text-white font-semibold">MariaDB</p>
                 </div>
-                <div class="text-right">
-                    <div class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-3 justify-end mb-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Audit Completed
-                    </div>
-                    <div class="text-slate-300 font-mono text-sm">{self.timestamp}</div>
+                <div class="px-6 py-3 rounded-2xl bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-500/20">
+                    {qps} QPS
                 </div>
             </div>
-        </header>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div class="glass rounded-3xl p-8 border-blue-500/20">
-                <h3 class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-4">Throughput</h3>
-                <div class="flex items-baseline gap-2 mb-1">
-                    <span class="text-4xl font-black text-white">{self.results['tps']:.2f}</span>
-                    <span class="text-blue-400 text-xs font-bold">TPS</span>
-                </div>
-                <div class="text-slate-500 text-sm font-medium">{self.results['qps']:.1f} queries/sec</div>
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
+            <div class="stat-card">
+                <div class="stat-label">Script</div>
+                <div class="stat-value text-lg mono truncate w-full" title="{self.args.script if self.args.script else 'SQL Directory'}">{script_display}</div>
             </div>
-            <div class="glass rounded-3xl p-8 border-amber-500/20">
-                <h3 class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-4">Latency AVG</h3>
-                <div class="flex items-baseline gap-2 mb-1">
-                    <span class="text-4xl font-black text-amber-400">{self.results['avg_lat']:.2f}</span>
-                    <span class="text-slate-500 text-xs font-bold">ms</span>
-                </div>
-                <div class="w-full bg-slate-800/50 rounded-full h-1 mt-2">
-                    <div class="bg-amber-400 h-full rounded-full" style="width: 45%"></div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Threads</div>
+                <div class="stat-value">{self.args.threads}</div>
             </div>
-            <div class="glass rounded-3xl p-8 border-orange-500/20">
-                <h3 class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-4">Latency P95</h3>
-                <div class="flex items-baseline gap-2 mb-1">
-                    <span class="text-4xl font-black text-orange-500">{self.results['p95_lat']:.2f}</span>
-                    <span class="text-slate-500 text-xs font-bold">ms</span>
-                </div>
-                <div class="w-full bg-slate-800/50 rounded-full h-1 mt-2">
-                    <div class="bg-orange-500 h-full rounded-full" style="width: 65%"></div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Duration</div>
+                <div class="stat-value">{self.args.time}s</div>
             </div>
-            <div class="glass rounded-3xl p-8 border-emerald-500/20">
-                <h3 class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-4">Efficiency</h3>
-                <div class="flex items-baseline gap-2 mb-1">
-                    <span class="text-4xl font-black text-emerald-400">{self.results['total_events']}</span>
-                </div>
-                <div class="text-slate-500 text-sm font-medium">Total events processed</div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Latency</div>
+                <div class="stat-value text-amber-400">{avg_lat}ms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">95th Latency</div>
+                <div class="stat-value text-rose-400">{lat_95}ms</div>
             </div>
         </div>
 
@@ -684,7 +690,6 @@ class DBSimulator:
 
         {deadlock_html}
         {repro_html}
-
 
         <footer class="flex items-center justify-between border-t border-slate-800 pt-12 text-slate-600 text-[10px] font-bold uppercase tracking-[0.3em]">
             <span>&copy; {datetime.now().year} MT-Reporter &bull; DB Simulation Suite</span>

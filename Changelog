@@ -3,10 +3,13 @@
 - feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
 - feat: Added support for centralized local configuration.
 
+1.6.4 2026-01-31
+- feat: added `TIME` parameter support to `Makefile` and standard OLTP tests.
+- feat: improved HTML report metadata with "Script Used", "Threads", and "Duration" cards.
+- feat: precise report directory naming (e.g. `reports/oltp_read_only_8t_60s`).
+- docs: updated EN/FR documentation with advanced OLTP parameters.
+
 1.6.3 2026-01-31
-- feat: integrated HTML reporting for standard OLTP tests via `db_simulator.py`.
-- feat: added support for `--tables` and `--table-size` in simulation reports.
-- fix: resolved unbound variable issues in `run_dir_bench.sh`.
 
 1.6.2 2026-01-31
 

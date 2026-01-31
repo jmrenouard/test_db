@@ -88,20 +88,28 @@ function run_std_oltp {
         return 1
     fi
 
+    # Default values for advanced parameters
+    local threads="${THREADS:-4}"
+    local time="${TIME:-60}"
+
     local script_path="/usr/share/sysbench/oltp_${type}.lua"
     echo -e "${BLUE}=== Standard OLTP Test: $type ($action) ===${NC}"
 
     if [ "$action" == "run" ]; then
         # For 'run', we use db_simulator.py to get premium HTML reporting
+        # Precise naming for the output directory
+        local out_dir="reports/oltp_${type}_${threads}t_${time}s"
+        
         local sim_cmd=(python3 scripts/db_simulator.py \
             --script "$script_path" \
             --name "Standard OLTP: $type" \
-            --output-dir "reports/oltp_$type" \
+            --output-dir "$out_dir" \
+            --threads "$threads" \
+            --time "$time" \
             --user "$DB_USER" \
             --password "$DB_PASS" \
             --db "$DB_NAME")
         
-        if [ -n "${THREADS:-}" ]; then sim_cmd+=(--threads "$THREADS"); fi
         if [ -n "${TABLES:-}" ]; then sim_cmd+=(--tables "$TABLES"); fi
         if [ -n "${SIZE:-}" ]; then sim_cmd+=(--table-size "$SIZE"); fi
         
@@ -121,9 +129,10 @@ function run_std_oltp {
             --mysql-host="$DB_HOST" \
             --mysql-user="$DB_USER" \
             --mysql-password="$DB_PASS" \
-            --mysql-db="$DB_NAME")
+            --mysql-db="$DB_NAME" \
+            --threads="$threads" \
+            --time="$time")
 
-        if [ -n "${THREADS:-}" ]; then sb_cmd+=(--threads="$THREADS"); fi
         if [ -n "${TABLES:-}" ]; then sb_cmd+=(--tables="$TABLES"); fi
         if [ -n "${SIZE:-}" ]; then sb_cmd+=(--table-size="$SIZE"); fi
 

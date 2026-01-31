@@ -61,7 +61,7 @@ analyze:
 	@bash scripts/test_runner.sh analyze
 
 oltp:
-	@THREADS=$(THREADS) TABLES=$(TABLES) SIZE=$(SIZE) bash scripts/test_runner.sh std-oltp $(TYPE) $(ACTION)
+	@THREADS=$(THREADS) TABLES=$(TABLES) SIZE=$(SIZE) TIME=$(TIME) bash scripts/test_runner.sh std-oltp $(TYPE) $(ACTION)
 
 test-data:
 	@bash scripts/test_runner.sh data-tests $(TEST)

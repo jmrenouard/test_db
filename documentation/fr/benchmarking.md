@@ -58,12 +58,19 @@ bash scripts/run_dir_bench.sh --script /usr/share/sysbench/oltp_read_only.lua --
 
 ### Paramètres OLTP Avancés
 
-Vous pouvez contrôler l'échelle des tests OLTP standard en utilisant les variables `THREADS`, `TABLES`, et `SIZE` (nombre de lignes par table) :
+Vous pouvez contrôler l'échelle des tests OLTP standard en utilisant les variables `THREADS`, `TABLES`, `SIZE`, et `TIME` (durée en secondes) :
 
 ```bash
 make oltp TYPE=read_write ACTION=prepare TABLES=10 SIZE=100000
-make oltp TYPE=read_write THREADS=16
+make oltp TYPE=read_write THREADS=16 TIME=120
 ```
+
+### Rapports Précis
+
+Les tests OLTP standard génèrent automatiquement des rapports HTML dans des dossiers dédiés et précis :
+
+- **Format du dossier** : `reports/oltp_{TYPE}_{THREADS}t_{TIME}s/`
+- **Métadonnées** : Les rapports affichent le script utilisé, le nombre de threads et la durée.
 
 ## Métriques Capturées
 
