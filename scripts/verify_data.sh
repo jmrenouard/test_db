@@ -28,15 +28,16 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}🔍 Verifying data integrity for database: ${DB_NAME} in container: ${CONTAINER_NAME}${NC}"
-
-# Check if container is running
-if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo -e "${RED}❌ Error: Container ${CONTAINER_NAME} is not running.${NC}"
-    exit 1
+# Selection of Execution Mode
+USE_CONTAINER=false
+if [ -n "$CONTAINER_NAME" ] && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    USE_CONTAINER=true
+    echo -e "${GREEN}ℹ️ Verifying data in container: ${CONTAINER_NAME}${NC}"
+    MYSQL_CMD="docker exec -i ${CONTAINER_NAME} mariadb -u ${DB_USER} -p${DB_PASS} -BN"
+else
+    echo -e "${YELLOW}⚠️ Container '${CONTAINER_NAME}' not found. Using local mariadb client.${NC}"
+    MYSQL_CMD="mariadb -u ${DB_USER} -p${DB_PASS} -h 127.0.0.1 -BN"
 fi
-
-MYSQL_CMD="docker exec -i ${CONTAINER_NAME} mariadb -u ${DB_USER} -p${DB_PASS} -BN"
 
 EXPECTED=(
     "departments:9:3407387832"

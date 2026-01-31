@@ -1,7 +1,11 @@
-1.5.5 2026-01-21
+1.5.6 2026-01-31
 
-- docs: Synchronized French documentation with new Infrastructure Metadata features.
-- docs: Refined `guide_outils.md`, `deadlock_experiment.md`, and `gap_locking_experiment.md` in French.
+- feat: Refactored `test_runner.sh` to support environment variable overrides (`DB_USER`, `DB_PASS`, etc.).
+- feat: Implemented automatic fallback to local execution when Docker container is unavailable.
+- feat: Added container health checks to `test_runner.sh` and `verify_data.sh`.
+- fix: Standardized database connection parameters across all test runner commands.
+
+1.5.5 2026-01-21
 
 1.5.4 2026-01-20
 
