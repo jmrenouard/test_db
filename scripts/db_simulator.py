@@ -426,6 +426,15 @@ class DBSimulator:
         os.makedirs(self.output_dir, exist_ok=True)
         self._generate_markdown()
         self._generate_html()
+        self._save_raw_results()
+
+    def _save_raw_results(self):
+        """Save raw sysbench output to a text file."""
+        if self.raw_output:
+            raw_path = os.path.join(self.output_dir, "result_sysbench.txt")
+            with open(raw_path, 'w') as f:
+                f.write(self.raw_output)
+            print(f"📄 Raw results saved to {raw_path}")
 
     def _generate_markdown(self):
         lines = [

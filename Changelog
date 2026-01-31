@@ -1,7 +1,5 @@
-1.5.9 2026-01-31
-
-- feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
-- feat: Added support for centralized local configuration.
+1.6.9 2026-01-31
+- feat: dedicated export of raw sysbench output to `result_sysbench.txt`.
 
 1.6.8 2026-01-31
 
