@@ -18,6 +18,9 @@ help:
 	@echo "  make bench      - Run sysbench performance tests"
 	@echo "  make perf-threads - Run sysbench scaling test (1 to 64 threads)"
 	@echo "  make analyze    - Run SQL explain and performance analysis"
+	@echo "  make oltp TYPE=.. ACTION=.. - Run standard OLTP tests"
+	@echo "                    (Types: read_only, read_write, update_index, ...)"
+	@echo "                    (Actions: prepare, run, cleanup)"
 	@echo "  make test-data  - Run all tests from tests/data/ subdirectories"
 	@echo "  make test-all   - Run all tests sequentially"
 	@echo "  make interactive - Run tests interactively with HTML report"
@@ -54,6 +57,9 @@ perf-threads:
 
 analyze:
 	@bash scripts/test_runner.sh analyze
+
+oltp:
+	@bash scripts/test_runner.sh std-oltp $(TYPE) $(ACTION)
 
 test-data:
 	@bash scripts/test_runner.sh data-tests $(TEST)

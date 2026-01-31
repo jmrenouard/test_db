@@ -56,9 +56,42 @@ function show_help {
     echo "  analyze   Run performance analysis and EXPLAIN reports"
     echo "  bench     Run sysbench performance test"
     echo "  perf-threads Run sysbench scaling test (1 to 64 threads)"
+    echo "  std-oltp [type] [action]  Run standard OLTP tests"
+    echo "            Types: read_only, read_write, update_index,"
+    echo "                   update_non_index, write_only"
+    echo "            Actions: prepare, run, cleanup"
     echo "  data-tests   Run tests from tests/data subdirectories"
     echo "  all          Run all tests"
     echo "  help         Show this help message"
+}
+
+function run_std_oltp {
+    local type="${1:-}"
+    local action="${2:-run}"
+    
+    if [ -z "$type" ]; then
+        echo -e "${RED}❌ Error: OLTP type required (read_only, read_write, etc.)${NC}"
+        return 1
+    fi
+
+    local script_path="/usr/share/sysbench/oltp_${type}.lua"
+    echo -e "${BLUE}=== Standard OLTP Test: $type ($action) ===${NC}"
+
+    local sb_cmd=(sysbench \
+        --mysql-host="$DB_HOST" \
+        --mysql-user="$DB_USER" \
+        --mysql-password="$DB_PASS" \
+        --mysql-db="$DB_NAME" \
+        "$script_path" "$action")
+
+    if [ "$USE_CONTAINER" = true ]; then
+        # When in container, we assume the path exists there too
+        echo -e "${YELLOW}⚡ Executing in container: $CONTAINER_NAME${NC}"
+        docker exec -i "$CONTAINER_NAME" "${sb_cmd[@]}"
+    else
+        echo -e "${YELLOW}⚡ Executing locally...${NC}"
+        "${sb_cmd[@]}"
+    fi
 }
 
 function run_verify {
@@ -266,6 +299,9 @@ case "${1:-help}" in
         ;;
     perf-threads)
         run_perf_threads
+        ;;
+    std-oltp)
+        run_std_oltp "${2:-}" "${3:-run}"
         ;;
     data-tests)
         run_data_tests "${2:-}"

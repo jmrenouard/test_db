@@ -1,3 +1,12 @@
+1.5.8 2026-01-31
+
+- feat: Updated `Makefile` with `oltp` target to orchestrate standard sysbench tests via `TYPE` and `ACTION` variables.
+
+1.5.7 2026-01-31
+
+- feat: Integrated standard sysbench OLTP tests (`read_only`, `read_write`, `update_index`, `update_non_index`, `write_only`).
+- feat: Added `std-oltp` command to `test_runner.sh` with `prepare`/`run`/`cleanup` support.
+
 1.5.6 2026-01-31
 
 - feat: Refactored `test_runner.sh` to support environment variable overrides (`DB_USER`, `DB_PASS`, etc.).
