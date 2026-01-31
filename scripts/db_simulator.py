@@ -151,6 +151,11 @@ class DBSimulator:
                 f"--time={self.args.time}",
                 "--events=0"
             ]
+
+            if getattr(self.args, 'tables', None):
+                sb_cmd.append(f"--tables={self.args.tables}")
+            if getattr(self.args, 'table_size', None):
+                sb_cmd.append(f"--table-size={self.args.table_size}")
             
             if self.args.sql_dir:
                 sb_cmd.insert(5, "--sql-dir=/tmp/bench_dir/sql/")
@@ -711,6 +716,8 @@ def main():
     parser.add_argument("--container", help="Optional Docker container name")
     parser.add_argument("--name", default="Generic Test", help="Nature of the test (e.g. Deadlock, Gap Locking)")
     parser.add_argument("--output-dir", help="Directory where reports will be saved")
+    parser.add_argument("--tables", type=int, help="Number of tables for sysbench")
+    parser.add_argument("--table-size", type=int, help="Number of rows per table for sysbench")
     
     args = parser.parse_args()
     

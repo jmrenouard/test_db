@@ -91,30 +91,55 @@ function run_std_oltp {
     local script_path="/usr/share/sysbench/oltp_${type}.lua"
     echo -e "${BLUE}=== Standard OLTP Test: $type ($action) ===${NC}"
 
-    local sb_cmd=(sysbench \
-        --mysql-host="$DB_HOST" \
-        --mysql-user="$DB_USER" \
-        --mysql-password="$DB_PASS" \
-        --mysql-db="$DB_NAME")
-
-    # Map standard env vars to sysbench flags
-    if [ -n "${THREADS:-}" ]; then sb_cmd+=(--threads="$THREADS"); fi
-    if [ -n "${TABLES:-}" ]; then sb_cmd+=(--tables="$TABLES"); fi
-    if [ -n "${SIZE:-}" ]; then sb_cmd+=(--table-size="$SIZE"); fi
-
-    sb_cmd+=("$script_path" "$action" "$@")
-
-    set +e
-    if [ "$USE_CONTAINER" = true ]; then
-        echo -e "${YELLOW}⚡ Executing in container: $CONTAINER_NAME${NC}"
-        docker exec -i "$CONTAINER_NAME" "${sb_cmd[@]}"
+    if [ "$action" == "run" ]; then
+        # For 'run', we use db_simulator.py to get premium HTML reporting
+        local sim_cmd=(python3 scripts/db_simulator.py \
+            --script "$script_path" \
+            --name "Standard OLTP: $type" \
+            --output-dir "reports/oltp_$type" \
+            --user "$DB_USER" \
+            --password "$DB_PASS" \
+            --db "$DB_NAME")
+        
+        if [ -n "${THREADS:-}" ]; then sim_cmd+=(--threads "$THREADS"); fi
+        if [ -n "${TABLES:-}" ]; then sim_cmd+=(--tables "$TABLES"); fi
+        if [ -n "${SIZE:-}" ]; then sim_cmd+=(--table-size "$SIZE"); fi
+        
+        if [ "$USE_CONTAINER" = true ]; then
+            sim_cmd+=(--container "$CONTAINER_NAME" --host "127.0.0.1")
+        else
+            sim_cmd+=(--host "$DB_HOST")
+        fi
+        
+        set +e
+        "${sim_cmd[@]}"
         local exit_code=$?
+        set -e
     else
-        echo -e "${YELLOW}⚡ Executing locally...${NC}"
-        "${sb_cmd[@]}"
+        # For 'prepare' and 'cleanup', we use raw sysbench
+        local sb_cmd=(sysbench \
+            --mysql-host="$DB_HOST" \
+            --mysql-user="$DB_USER" \
+            --mysql-password="$DB_PASS" \
+            --mysql-db="$DB_NAME")
+
+        if [ -n "${THREADS:-}" ]; then sb_cmd+=(--threads="$THREADS"); fi
+        if [ -n "${TABLES:-}" ]; then sb_cmd+=(--tables="$TABLES"); fi
+        if [ -n "${SIZE:-}" ]; then sb_cmd+=(--table-size="$SIZE"); fi
+
+        sb_cmd+=("$script_path" "$action" "$@")
+
+        set +e
+        if [ "$USE_CONTAINER" = true ]; then
+            echo -e "${YELLOW}⚡ Executing $action in container: $CONTAINER_NAME${NC}"
+            docker exec -i "$CONTAINER_NAME" "${sb_cmd[@]}"
+        else
+            echo -e "${YELLOW}⚡ Executing $action locally...${NC}"
+            "${sb_cmd[@]}"
+        fi
         local exit_code=$?
+        set -e
     fi
-    set -e
 
     if [ $exit_code -ne 0 ]; then
         echo -e "${RED}❌ OLTP $action failed with exit code $exit_code.${NC}"

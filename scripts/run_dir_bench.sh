@@ -21,6 +21,10 @@
 
 set -euo pipefail
 
+# Colors
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
 # Load environment variables from .env if it exists
 if [ -f .env ]; then
     set -a

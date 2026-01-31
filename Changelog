@@ -3,6 +3,11 @@
 - feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
 - feat: Added support for centralized local configuration.
 
+1.6.3 2026-01-31
+- feat: integrated HTML reporting for standard OLTP tests via `db_simulator.py`.
+- feat: added support for `--tables` and `--table-size` in simulation reports.
+- fix: resolved unbound variable issues in `run_dir_bench.sh`.
+
 1.6.2 2026-01-31
 
 - feat: added support for `THREADS`, `TABLES`, and `SIZE` parameters in standard OLTP tests.
