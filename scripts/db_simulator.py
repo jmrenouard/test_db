@@ -401,8 +401,14 @@ class DBSimulator:
             'time': self.args.time,
             'host': self.args.host,
             'db': self.args.db,
-            'tps': self._extract(r'transactions:.*?\((\d+\.\d+) per sec\.\)', output),
-            'qps': self._extract(r'queries:.*?\((\d+\.\d+) per sec\.\)', output),
+            'tps_count': self._extract(r'transactions:\s+(\d+)', output),
+            'tps_rate': self._extract(r'transactions:.*?\((\d+\.\d+) per sec\.\)', output),
+            'qps_count': self._extract(r'queries:\s+(\d+)', output),
+            'qps_rate': self._extract(r'queries:.*?\((\d+\.\d+) per sec\.\)', output),
+            'errors_count': self._extract(r'ignored errors:\s+(\d+)', output),
+            'errors_rate': self._extract(r'ignored errors:.*?\((\d+\.\d+) per sec\.\)', output),
+            'reconnects_count': self._extract(r'reconnects:\s+(\d+)', output),
+            'reconnects_rate': self._extract(r'reconnects:.*?\((\d+\.\d+) per sec\.\)', output),
             'avg_lat': self._extract(r'avg:\s+(\d+\.\d+)', output),
             'p95_lat': self._extract(r'95th percentile:\s+(\d+\.\d+)', output),
             'max_lat': self._extract(r'max:\s+(\d+\.\d+)', output),
@@ -417,6 +423,9 @@ class DBSimulator:
             'execution_avg': self._extract(r'execution time \(avg/stddev\):\s+(\d+\.\d+)', output),
             'execution_stddev': self._extract(r'execution time \(avg/stddev\):.*?/(\d+\.\d+)', output),
         }
+        # Backward compatibility for existing template variables
+        self.results['tps'] = self.results['tps_rate']
+        self.results['qps'] = self.results['qps_rate']
 
     def _extract(self, pattern, content):
         match = re.search(pattern, content)
@@ -563,6 +572,48 @@ class DBSimulator:
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {infra_items}
+            </div>
+        </section>
+        """
+
+        # 1.5 Prepare Rates Section
+        rates_html = f"""
+        <section class="mb-12">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Throughput Rates
+            </h2>
+            <div class="glass rounded-3xl p-8 border border-indigo-500/10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Transactions</div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-bold mono text-white">{self.results.get('tps_count', 0)}</span>
+                            <span class="text-xs text-indigo-400 mono">({self.results.get('tps_rate', 0):.2f}/sec)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Queries</div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-bold mono text-white">{self.results.get('qps_count', 0)}</span>
+                            <span class="text-xs text-emerald-400 mono">({self.results.get('qps_rate', 0):.2f}/sec)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Ignored Errors</div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-bold mono text-white">{self.results.get('errors_count', 0)}</span>
+                            <span class="text-xs text-rose-400 mono">({self.results.get('errors_rate', 0):.2f}/sec)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Reconnects</div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-bold mono text-white">{self.results.get('reconnects_count', 0)}</span>
+                            <span class="text-xs text-amber-400 mono">({self.results.get('reconnects_rate', 0):.2f}/sec)</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         """
@@ -809,9 +860,6 @@ class DBSimulator:
                     <p class="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1">Target Engine</p>
                     <p class="text-white font-semibold">MariaDB</p>
                 </div>
-                <div class="px-6 py-3 rounded-2xl bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-500/20">
-                    {qps} QPS
-                </div>
             </div>
         </div>
 
@@ -840,6 +888,7 @@ class DBSimulator:
         </div>
 
         {infra_html}
+        {rates_html}
         {metrics_html}
 
         {deadlock_html}

@@ -1,3 +1,9 @@
+1.7.6 2026-01-31
+
+- ux: added dedicated "Throughput Rates" section to HTML report with detailed counts and rates.
+- ux: removed redundant QPS head block from report header.
+- feat: captured extra metrics (ignored errors, reconnects) from sysbench output.
+
 1.7.5 2026-01-31
 
 - docs: added comprehensive sysbench metrics glossary (meanings and units) in English and French.
