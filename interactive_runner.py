@@ -23,7 +23,7 @@ STEPS = [
         "id": "inject",
         "name": "Inject Data",
         "description": "Injects the employees dataset into the database.",
-        "command": "make inject"
+        "command": "bash scripts/test_runner.sh inject"
     },
     {
         "id": "verify",
@@ -50,6 +50,19 @@ STEPS = [
         "command": "make perf-threads"
     }
 ]
+
+# Detect USE_CONTAINER mode
+USE_CONTAINER_ENV = os.environ.get('USE_CONTAINER', 'true').lower()
+USE_CONTAINER = USE_CONTAINER_ENV not in ('false', '0', 'no', 'off', 'disable')
+
+if not USE_CONTAINER:
+    # Filter and adjust steps for local mode
+    STEPS = [s for s in STEPS if s['id'] not in ('start', 'stop')]
+    for step in STEPS:
+        if step['id'] == "status":
+            step['name'] = "Check Local Status"
+            step['description'] = "Checks if MariaDB is running locally."
+            step['command'] = "mariadb-admin ping"
 
 REPORT_FILE = "reports/run_report.html"
 

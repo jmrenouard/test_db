@@ -2,6 +2,8 @@
 
 CONTAINER_NAME = mariadb-11-8
 
+-include .env
+
 .PHONY: help start stop status inject verify bench perf-threads analyze test-all clean
 
 help:

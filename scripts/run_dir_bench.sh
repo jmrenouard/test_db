@@ -21,6 +21,13 @@
 
 set -euo pipefail
 
+# Load environment variables from .env if it exists
+if [ -f .env ]; then
+    set -a
+    . ./.env
+    set +a
+fi
+
 # Configuration with defaults from environment or hardcoded values
 CONTAINER_NAME="${CONTAINER_NAME:-mariadb-11-8}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
@@ -30,12 +37,14 @@ DB_NAME="${DB_NAME:-employees}"
 THREADS="${THREADS:-4}"
 TIME="${TIME:-60}"
 SQL_DIR=""
+SCRIPT_PATH=""
 
 show_usage() {
     echo "Usage: $0 --sql-dir <directory> [options]"
     echo ""
     echo "Options:"
-    echo "  --sql-dir PATH      Directory containing .sql files (mandatory)"
+    echo "  --sql-dir PATH      Directory containing .sql files"
+    echo "  --script PATH       Direct Lua script path (e.g. /usr/share/sysbench/oltp_read_only.lua)"
     echo "  --threads N         Number of threads (default: $THREADS)"
     echo "  --time N            Duration in seconds (default: $TIME)"
     echo "  --host IP/NAME      Database host (default: $DB_HOST)"
@@ -50,6 +59,7 @@ show_usage() {
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --sql-dir) SQL_DIR="$2"; shift 2 ;;
+        --script) SCRIPT_PATH="$2"; shift 2 ;;
         --threads) THREADS="$2"; shift 2 ;;
         --time) TIME="$2"; shift 2 ;;
         --host) DB_HOST="$2"; shift 2 ;;
@@ -63,13 +73,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Mandatory Parameter Check
-if [[ -z "$SQL_DIR" ]]; then
-    echo "Error: --sql-dir is mandatory."
+if [[ -z "$SQL_DIR" ]] && [[ -z "$SCRIPT_PATH" ]]; then
+    echo "Error: Either --sql-dir or --script must be provided."
     show_usage
     exit 1
 fi
 
-if [[ ! -d "$SQL_DIR" ]]; then
+if [[ -n "$SQL_DIR" ]] && [[ ! -d "$SQL_DIR" ]]; then
     echo "Error: Directory $SQL_DIR does not exist."
     exit 1
 fi
@@ -78,52 +88,87 @@ fi
 SCRIPTS_DIR="$(dirname "$0")"
 LUA_SCRIPT="$SCRIPTS_DIR/dir_transactions_sysbench.lua"
 
-if [[ ! -f "$LUA_SCRIPT" ]]; then
+if [[ -n "$SQL_DIR" ]] && [[ ! -f "$LUA_SCRIPT" ]]; then
     echo "Error: $LUA_SCRIPT not found."
     exit 1
 fi
 
+if [[ -n "$SCRIPT_PATH" ]]; then
+    LUA_SCRIPT="$SCRIPT_PATH"
+fi
+
 echo "🚀 Preparing simulation..."
-echo "📂 SQL Directory: $SQL_DIR"
+if [[ -n "$SQL_DIR" ]]; then
+    echo "📂 SQL Directory: $SQL_DIR"
+else
+    echo "📜 Script Path: $SCRIPT_PATH"
+fi
 echo "🧵 Threads: $THREADS"
 echo "⏱️ Time: ${TIME}s"
 
-# STRATEGY: Check if container exists to decide between Docker or Local execution
-if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "🐳 Running inside Docker container: $CONTAINER_NAME"
+# Selection of Execution Mode
+if [[ "${USE_CONTAINER:-true}" =~ ^(false|0|no|off|disable)$ ]]; then
+    USE_CONTAINER=false
+    echo -e "${YELLOW}ℹ️ USE_CONTAINER disabled by environment. Using local execution.${NC}"
+else
+    if [ -n "$CONTAINER_NAME" ] && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        USE_CONTAINER=true
+        echo "🐳 Running inside Docker container: $CONTAINER_NAME"
+    else
+        USE_CONTAINER=false
+        echo "⚠️ Container '$CONTAINER_NAME' not found or stopped. Falling back to local execution."
+    fi
+fi
+
+if [ "$USE_CONTAINER" = true ]; then
     
     # 1. Prepare container environment
     docker exec -i "$CONTAINER_NAME" mkdir -p /tmp/bench_dir
-    docker cp "$LUA_SCRIPT" "$CONTAINER_NAME:/tmp/dir_transactions_sysbench.lua"
     
-    # 2. Synchronize SQL transactions
-    # We clear the remote directory first to avoid mixing different test scenarios.
-    docker exec -i "$CONTAINER_NAME" rm -rf /tmp/bench_dir/sql
-    docker exec -i "$CONTAINER_NAME" mkdir -p /tmp/bench_dir/sql
-    docker cp "$SQL_DIR/." "$CONTAINER_NAME:/tmp/bench_dir/sql/"
+    if [[ -n "$SQL_DIR" ]]; then
+        docker cp "$LUA_SCRIPT" "$CONTAINER_NAME:/tmp/dir_transactions_sysbench.lua"
+        
+        # 2. Synchronize SQL transactions
+        # We clear the remote directory first to avoid mixing different test scenarios.
+        docker exec -i "$CONTAINER_NAME" rm -rf /tmp/bench_dir/sql
+        docker exec -i "$CONTAINER_NAME" mkdir -p /tmp/bench_dir/sql
+        docker cp "$SQL_DIR/." "$CONTAINER_NAME:/tmp/bench_dir/sql/"
+    fi
 
     # 3. Execute sysbench inside the container scope
-    docker exec -i "$CONTAINER_NAME" sysbench \
+    sb_container_cmd=(sysbench \
         --mysql-host="$DB_HOST" \
         --mysql-user="$DB_USER" \
         --mysql-password="$DB_PASS" \
         --mysql-db="$DB_NAME" \
-        --sql-dir="/tmp/bench_dir/sql/" \
         --threads="$THREADS" \
         --time="$TIME" \
-        --events=0 \
-        /tmp/dir_transactions_sysbench.lua run
+        --events=0)
+    
+    if [[ -n "$SQL_DIR" ]]; then
+        sb_container_cmd+=(--sql-dir="/tmp/bench_dir/sql/" "/tmp/dir_transactions_sysbench.lua")
+    else
+        sb_container_cmd+=("$SCRIPT_PATH")
+    fi
+    
+    docker exec -i "$CONTAINER_NAME" "${sb_container_cmd[@]}" run
 else
     # FALLBACK: Local execution (useful for standalone DBs or non-docker labs)
     echo "💻 Running locally (sysbench must be installed)"
-    sysbench \
+    sb_local_cmd=(sysbench \
         --mysql-host="$DB_HOST" \
         --mysql-user="$DB_USER" \
         --mysql-password="$DB_PASS" \
         --mysql-db="$DB_NAME" \
-        --sql-dir="$SQL_DIR" \
         --threads="$THREADS" \
         --time="$TIME" \
-        --events=0 \
-        "$LUA_SCRIPT" run
+        --events=0)
+
+    if [[ -n "$SQL_DIR" ]]; then
+        sb_local_cmd+=(--sql-dir="$SQL_DIR" "$LUA_SCRIPT")
+    else
+        sb_local_cmd+=("$SCRIPT_PATH")
+    fi
+
+    "${sb_local_cmd[@]}" run
 fi

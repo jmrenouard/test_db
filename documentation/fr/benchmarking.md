@@ -19,6 +19,43 @@ La suite de tests utilise un script Lua personnalisé (`scripts/employees_sysben
 - **Exécuteur Manuel**: `scripts/run_dir_bench.sh`  
   Lanceur CLI direct pour des répertoires SQL personnalisés.
 
+## Environnement d'Exécution
+
+La suite de performance supporte à la fois les modes d'exécution basés sur Docker et les modes locaux.
+
+### 1. Changement de Mode (`USE_CONTAINER`)
+
+Par défaut, le système détecte si le conteneur MariaDB est en cours d'exécution et l'utilise. Vous pouvez forcer le mode d'exécution à l'aide de la variable d'environnement `USE_CONTAINER` :
+
+- **Forcer Docker** : (Par défaut si le conteneur existe)
+- **Forcer le mode Local** : `export USE_CONTAINER=0`
+  - Dans ce mode, les scripts tenteront de se connecter à une instance MariaDB locale et utiliseront les binaires `sysbench` locaux.
+
+### 2. Paramètres de Connexion
+
+Tous les scripts respectent les variables d'environnement standard pour la connectivité à la base de données :
+
+- `DB_USER` (Défaut : root)
+- `DB_PASS` (Défaut : vide)
+- `DB_NAME` (Défaut : employees)
+- `DB_HOST` (Défaut : 127.0.0.1)
+
+## Scripts Sysbench Standard
+
+En plus des tests SQL basés sur des répertoires, vous pouvez désormais exécuter des scripts sysbench standard (par exemple, à partir de `/usr/share/sysbench/`) :
+
+### Utilisation de `db_simulator.py`
+
+```bash
+python3 scripts/db_simulator.py --script /usr/share/sysbench/oltp_read_only.lua --name "Test OLTP"
+```
+
+### Utilisation de `run_dir_bench.sh`
+
+```bash
+bash scripts/run_dir_bench.sh --script /usr/share/sysbench/oltp_read_only.lua --threads 8
+```
+
 ## Métriques Capturées
 
 - **QPS (Requêtes par Seconde)** : Mesure le débit brut de la base de données.

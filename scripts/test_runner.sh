@@ -17,6 +17,13 @@
 
 set -euo pipefail
 
+# Load environment variables from .env if it exists
+if [ -f .env ]; then
+    set -a
+    . ./.env
+    set +a
+fi
+
 # Configuration (Environment Variable Overrides)
 CONTAINER_NAME="${CONTAINER_NAME:-mariadb-11-8}"
 DB_USER="${DB_USER:-root}"
@@ -33,12 +40,17 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Execution Mode Selection
-USE_CONTAINER=false
-if [ -n "$CONTAINER_NAME" ] && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    USE_CONTAINER=true
-    echo -e "${GREEN}ℹ️ Using Docker container: $CONTAINER_NAME${NC}"
+if [[ "${USE_CONTAINER:-true}" =~ ^(false|0|no|off|disable)$ ]]; then
+    USE_CONTAINER=false
+    echo -e "${YELLOW}ℹ️ USE_CONTAINER disabled by environment. Using local execution.${NC}"
 else
-    echo -e "${YELLOW}⚠️ Container '$CONTAINER_NAME' not found or stopped. Falling back to local execution.${NC}"
+    if [ -n "$CONTAINER_NAME" ] && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        USE_CONTAINER=true
+        echo -e "${GREEN}ℹ️ Using Docker container: $CONTAINER_NAME${NC}"
+    else
+        USE_CONTAINER=false
+        echo -e "${YELLOW}⚠️ Container '$CONTAINER_NAME' not found or stopped. Falling back to local execution.${NC}"
+    fi
 fi
 
 function show_help {
@@ -52,6 +64,7 @@ function show_help {
     echo "  DB_HOST       Default: 127.0.0.1"
     echo ""
     echo "Commands:"
+    echo "  inject    Inject employees dataset"
     echo "  verify    Verify data integrity (count and checksum)"
     echo "  analyze   Run performance analysis and EXPLAIN reports"
     echo "  bench     Run sysbench performance test"
@@ -91,6 +104,21 @@ function run_std_oltp {
     else
         echo -e "${YELLOW}⚡ Executing locally...${NC}"
         "${sb_cmd[@]}"
+    fi
+}
+
+function run_inject {
+    echo -e "${BLUE}=== Data Injection ===${NC}"
+    if [ "$USE_CONTAINER" = true ]; then
+        echo -e "${YELLOW}💉 Injecting into container: $CONTAINER_NAME${NC}"
+        docker exec -i "$CONTAINER_NAME" mkdir -p /tmp/employees_data
+        docker cp employees/. "$CONTAINER_NAME:/tmp/employees_data/"
+        docker exec -i "$CONTAINER_NAME" bash -c "cd /tmp/employees_data && mariadb -u root < employees.sql"
+    else
+        echo -e "${YELLOW}💉 Injecting locally...${NC}"
+        local pass_arg=""
+        if [ -n "$DB_PASS" ]; then pass_arg="-p$DB_PASS"; fi
+        (cd employees && mariadb -h "$DB_HOST" -u "$DB_USER" $pass_arg < employees.sql)
     fi
 }
 
@@ -288,6 +316,9 @@ function run_data_tests {
 
 
 case "${1:-help}" in
+    inject)
+        run_inject
+        ;;
     verify)
         run_verify
         ;;

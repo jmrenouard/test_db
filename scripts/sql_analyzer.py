@@ -27,6 +27,10 @@ import sys
 import re
 import json
 
+# Detect USE_CONTAINER mode
+USE_CONTAINER_ENV = os.environ.get('USE_CONTAINER', 'true').lower()
+USE_CONTAINER_GLOBAL = USE_CONTAINER_ENV not in ('false', '0', 'no', 'off', 'disable')
+
 def run_command(cmd_list):
     """Executes a shell command and captures its standard output and errors."""
     try:
@@ -367,6 +371,10 @@ def main():
     parser.add_argument("--stdout", action="store_true", help="Print report to stdout (recommended for single query)")
 
     args = parser.parse_args()
+
+    # Standardize container usage
+    if not USE_CONTAINER_GLOBAL:
+        args.container = None
 
     if args.query:
         queries = [args.query]

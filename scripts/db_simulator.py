@@ -35,10 +35,17 @@ import multiprocessing
 import shutil
 from datetime import datetime
 
+# Detect USE_CONTAINER mode
+USE_CONTAINER_ENV = os.environ.get('USE_CONTAINER', 'true').lower()
+USE_CONTAINER_GLOBAL = USE_CONTAINER_ENV not in ('false', '0', 'no', 'off', 'disable')
+
 class DBSimulator:
     def __init__(self, args):
         """Initializes the simulator with CLI arguments and sets up reporting paths."""
         self.args = args
+        # Standardize container usage based on global env if not explicitly disabled in args
+        if not USE_CONTAINER_GLOBAL:
+            self.args.container = None
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.ts_slug = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.test_name = self.args.name.lower().replace(" ", "_")
@@ -86,7 +93,6 @@ class DBSimulator:
         # Wrapper command that invokes our custom Lua script
         cmd = [
             "bash", "scripts/run_dir_bench.sh",
-            "--sql-dir", self.args.sql_dir,
             "--threads", str(self.args.threads),
             "--time", str(self.args.time),
             "--host", self.args.host,
@@ -94,26 +100,32 @@ class DBSimulator:
             "--password", self.args.password,
             "--db", self.args.db
         ]
-        
+
+        if self.args.script:
+            cmd.extend(["--script", self.args.script])
+        else:
+            cmd.extend(["--sql-dir", self.args.sql_dir])
+
         if self.args.container:
             cmd.extend(["--container", self.args.container])
 
         # Pre-simulation: Run setup.sql if it exists (e.g. for creating state/tables)
-        setup_script = os.path.join(self.args.sql_dir, "setup.sql")
-        if os.path.exists(setup_script):
-            print(f"🔧 Running setup script: {setup_script}")
-            setup_cmd = [
-                "docker", "exec", "-i", self.args.container or "mariadb-11-8",
-                "mariadb", "-u", self.args.user
-            ]
-            if self.args.password:
-                setup_cmd.append(f"-p{self.args.password}")
-            setup_cmd.append(self.args.db)
-            try:
-                with open(setup_script, 'r') as f:
-                    subprocess.run(setup_cmd, stdin=f, check=True)
-            except Exception as e:
-                print(f"⚠️  Setup script failed: {e}")
+        if self.args.sql_dir:
+            setup_script = os.path.join(self.args.sql_dir, "setup.sql")
+            if os.path.exists(setup_script):
+                print(f"🔧 Running setup script: {setup_script}")
+                setup_cmd = [
+                    "docker", "exec", "-i", self.args.container or "mariadb-11-8",
+                    "mariadb", "-u", self.args.user
+                ]
+                if self.args.password:
+                    setup_cmd.append(f"-p{self.args.password}")
+                setup_cmd.append(self.args.db)
+                try:
+                    with open(setup_script, 'r') as f:
+                        subprocess.run(setup_cmd, stdin=f, check=True)
+                except Exception as e:
+                    print(f"⚠️  Setup script failed: {e}")
 
         try:
             # Execute simulation via subprocess
@@ -127,21 +139,30 @@ class DBSimulator:
             self.raw_output = stdout
             
             # Reconstruct sysbench command for transparency in the report
-            container_name = self.args.container or "mariadb-11-8"
+            # The actual execution happens inside run_dir_bench.sh, which handles the container logic.
+            # We match the reconstruction to what was actually executed.
             sb_cmd = [
                 "sysbench",
                 f"--mysql-host={self.args.host}",
                 f"--mysql-user={self.args.user}",
                 f"--mysql-password={self.args.password}" if self.args.password else "--mysql-password=",
                 f"--mysql-db={self.args.db}",
-                "--sql-dir=/tmp/bench_dir/sql/",
                 f"--threads={self.args.threads}",
                 f"--time={self.args.time}",
-                "--events=0",
-                "/tmp/dir_transactions_sysbench.lua run"
+                "--events=0"
             ]
             
-            reconstructed_cmd = f"docker exec -i {container_name} " + " ".join(sb_cmd)
+            if self.args.sql_dir:
+                sb_cmd.insert(5, "--sql-dir=/tmp/bench_dir/sql/")
+                sb_cmd.append("/tmp/dir_transactions_sysbench.lua run")
+            else:
+                sb_cmd.append(f"{self.args.script} run")
+            
+            if self.args.container:
+                reconstructed_cmd = f"docker exec -i {self.args.container} " + " ".join(sb_cmd)
+            else:
+                reconstructed_cmd = " ".join(sb_cmd)
+                
             self.env_details['sysbench_cmd'] = reconstructed_cmd
             
             # Parse metrics from stdout
@@ -164,6 +185,9 @@ class DBSimulator:
 
     def run_cleanup(self):
         """Runs teardown.sql if it exists in the test directory."""
+        if not self.args.sql_dir:
+            return
+            
         teardown_script = os.path.join(self.args.sql_dir, "teardown.sql")
         if os.path.exists(teardown_script):
             print(f"🧹 Running teardown script: {teardown_script}")
@@ -293,7 +317,7 @@ class DBSimulator:
                 self.env_details['lua_script'] = f.read()
 
         # 3. SQL Scripts
-        if os.path.exists(self.args.sql_dir):
+        if self.args.sql_dir and os.path.exists(self.args.sql_dir):
             for filename in os.listdir(self.args.sql_dir):
                 if filename.endswith(".sql"):
                     path = os.path.join(self.args.sql_dir, filename)
@@ -428,7 +452,7 @@ class DBSimulator:
             lines.append(f"\n### MariaDB Error Log (Tail)")
             lines.append(f"```text\n{self.env_details['error_log']}\n```")
 
-        if self.env_details['lua_script']:
+        if self.env_details['lua_script'] and self.args.sql_dir:
             lines.append(f"\n### Lua Script")
             lines.append(f"```lua\n{self.env_details['lua_script']}\n```")
 
@@ -674,7 +698,10 @@ class DBSimulator:
 
 def main():
     parser = argparse.ArgumentParser(description="Generic DB Simulator and Reporter")
-    parser.add_argument("--sql-dir", required=True, help="Directory containing .sql transaction files")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--sql-dir", help="Directory containing .sql transaction files")
+    group.add_argument("--script", help="Path to a direct sysbench Lua script")
+    
     parser.add_argument("--host", default="127.0.0.1", help="Database host")
     parser.add_argument("--user", default="root", help="Database user")
     parser.add_argument("--password", default="", help="Database password")

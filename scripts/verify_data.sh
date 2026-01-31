@@ -16,7 +16,14 @@
 
 set -euo pipefail
 
-# Default Configuration
+# Load environment variables from .env if it exists
+if [ -f .env ]; then
+    set -a
+    . ./.env
+    set +a
+fi
+
+# Configuration with defaults from environment or hardcoded values
 CONTAINER_NAME="${1:-mariadb-11-8}"
 DB_USER="${2:-root}"
 DB_PASS="${3:-root}"
@@ -29,14 +36,20 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Selection of Execution Mode
-USE_CONTAINER=false
-if [ -n "$CONTAINER_NAME" ] && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    USE_CONTAINER=true
-    echo -e "${GREEN}ℹ️ Verifying data in container: ${CONTAINER_NAME}${NC}"
-    MYSQL_CMD="docker exec -i ${CONTAINER_NAME} mariadb -u ${DB_USER} -p${DB_PASS} -BN"
+if [[ "${USE_CONTAINER:-true}" =~ ^(false|0|no|off|disable)$ ]]; then
+    USE_CONTAINER=false
+    echo -e "${YELLOW}ℹ️ USE_CONTAINER disabled by environment. Using local mariadb client.${NC}"
+    MYSQL_CMD="mariadb -u ${DB_USER} $([ -n "${DB_PASS}" ] && echo "-p${DB_PASS}") -h 127.0.0.1 -BN"
 else
-    echo -e "${YELLOW}⚠️ Container '${CONTAINER_NAME}' not found. Using local mariadb client.${NC}"
-    MYSQL_CMD="mariadb -u ${DB_USER} -p${DB_PASS} -h 127.0.0.1 -BN"
+    if [ -n "$CONTAINER_NAME" ] && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        USE_CONTAINER=true
+        echo -e "${GREEN}ℹ️ Verifying data in container: ${CONTAINER_NAME}${NC}"
+        MYSQL_CMD="docker exec -i ${CONTAINER_NAME} mariadb -u ${DB_USER} $([ -n "${DB_PASS}" ] && echo "-p${DB_PASS}") -BN"
+    else
+        USE_CONTAINER=false
+        echo -e "${YELLOW}⚠️ Container '${CONTAINER_NAME}' not found. Using local mariadb client.${NC}"
+        MYSQL_CMD="mariadb -u ${DB_USER} $([ -n "${DB_PASS}" ] && echo "-p${DB_PASS}") -h 127.0.0.1 -BN"
+    fi
 fi
 
 EXPECTED=(

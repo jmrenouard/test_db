@@ -1,6 +1,26 @@
-1.5.8 2026-01-31
+1.5.9 2026-01-31
 
-- feat: Updated `Makefile` with `oltp` target to orchestrate standard sysbench tests via `TYPE` and `ACTION` variables.
+- feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
+- feat: Added support for centralized local configuration.
+
+# 📜 STATE MEMORY & HISTORY
+
+1.6.0 2026-01-31
+
+- feat: support standard sysbench scripts (e.g. /usr/share/sysbench/*.lua).
+- feat: add --script parameter to run_dir_bench.sh and db_simulator.py.
+- feat: system-wide support for USE_CONTAINER environment variable.
+- docs: updated documentation (EN/FR) with test instructions and environment overrides.
+- fix: corrected syntax and indentation in python/shell scripts.
+
+1.5.9 2026-01-31
+
+- feat: Supported `USE_CONTAINER` environment variable to force local execution (`USE_CONTAINER=0`).
+- feat: Added `inject` command to `test_runner.sh` for unified local/container data loading.
+- feat: Dynamically adjusted `interactive_runner.py` dashboard for local mode (renamed status, omitted container lifecyle).
+- fix: Standardized `USE_CONTAINER` detection logic across `test_runner.sh`, `verify_data.sh`, and `interactive_runner.py`.
+
+1.5.8 2026-01-31
 
 1.5.7 2026-01-31
 
