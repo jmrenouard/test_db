@@ -520,9 +520,9 @@ class DBSimulator:
 
     def _generate_html(self):
         # 0. Define metrics for template
-        qps = f"{self.results['qps']:.2f}"
-        avg_lat = f"{self.results['avg_lat']:.2f}"
-        lat_95 = f"{self.results['p95_lat']:.2f}"
+        qps = f"{self.results.get('qps', 0):.2f}"
+        avg_lat = f"{self.results.get('avg_lat', 0):.2f}"
+        lat_95 = f"{self.results.get('p95_lat', 0):.2f}"
 
         # 1. Prepare Infra Section
         infra_items = ""
@@ -545,107 +545,7 @@ class DBSimulator:
         </section>
         """
 
-        # 2. Prepare Deadlock Section
-        deadlock_html = ""
-        if hasattr(self, 'deadlocks') and self.deadlocks:
-            events = ""
-            for d in self.deadlocks[:10]:
-                events += f"""
-                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
-                    <pre class="whitespace-pre-wrap text-[10px] text-red-300 font-mono">{html.escape(d)}</pre>
-                </div>"""
-            
-            deadlock_html = f"""
-            <section class="glass rounded-3xl p-8 mb-12 border-red-500/20">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-3 text-red-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    Deadlock Analysis ({len(self.deadlocks)} detected)
-                </h2>
-                <div class="max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
-                    {events}
-                </div>
-            </section>
-            """
-
-        # 2. Prepare Config Section (Relevant variables)
-        config_text = ""
-        if self.env_details['db_config']:
-            sorted_keys = sorted(self.env_details['db_config'].keys())
-            max_key_len = max(len(k) for k in sorted_keys) if sorted_keys else 0
-            for k in sorted_keys:
-                config_text += f"{k.ljust(max_key_len)} = {self.env_details['db_config'][k]}\n"
-
-        # 3. Prepare Scripts Section
-        sql_blocks = ""
-        for name, content in self.env_details['sql_scripts'].items():
-            sql_blocks += f"""
-            <div class="mb-6 last:mb-0">
-                <div class="flex items-center gap-2 mb-2 text-slate-500">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">{name}</span>
-                </div>
-                <div class="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-                    <pre class="text-[11px] text-emerald-400 font-mono overflow-x-auto whitespace-pre-wrap">{html.escape(content)}</pre>
-                </div>
-            </div>"""
-
-        repro_html = f"""
-        <section class="glass rounded-3xl p-8 mb-12">
-            <h2 class="text-xl font-bold mb-8 flex items-center gap-3">
-                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                Reproducibility Lab
-            </h2>
-
-            <div class="space-y-8">
-                <!-- Command -->
-                <div>
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span class="w-1 h-1 rounded-full bg-purple-500"></span>
-                        Execution Command
-                    </h3>
-                    <div class="bg-slate-950 border border-purple-500/20 rounded-2xl p-6 font-mono text-xs text-purple-300 leading-relaxed break-all">
-                        {html.escape(self.env_details['sysbench_cmd'])}
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Config -->
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-1 rounded-full bg-blue-500"></span>
-                            MariaDB Configuration
-                        </h3>
-                        <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 h-[332px] overflow-y-auto custom-scrollbar">
-                            <pre class="text-[11px] text-blue-300 font-mono leading-relaxed">{html.escape(config_text)}</pre>
-                        </div>
-                    </div>
-
-                    <!-- Lua Script -->
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
-                            Sysbench Lua Driver
-                        </h3>
-                        <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 h-[332px] overflow-y-auto custom-scrollbar">
-                            <pre class="text-[11px] text-emerald-400 font-mono leading-relaxed">{html.escape(self.env_details['lua_script'])}</pre>
-                        </div>
-                    </div>
-
-        # 2. Prepare Error Log Section (Conditional)
-        error_log_html = ""
-        if self.env_details['error_log'] and self.env_details['error_log'].strip():
-            error_log_html = f"""
-            <div class="lg:col-span-2">
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span class="w-1 h-1 rounded-full bg-red-500"></span>
-                    MariaDB Error Log (Captured during test)
-                </h3>
-                <div class="bg-black/40 border border-red-500/10 rounded-2xl p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
-                    <pre class="text-[10px] text-red-300 font-mono leading-tight whitespace-pre-wrap">{html.escape(self.env_details['error_log'])}</pre>
-                </div>
-            </div>"""
-
-        # 3. Prepare Detailed Metrics Section
+        # 2. Prepare Detailed Metrics Section
         metrics_html = f"""
         <section class="mb-12">
             <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -696,7 +596,67 @@ class DBSimulator:
                 </div>
             </div>
         </section>
+        """
 
+        # 3. Prepare Deadlock Section
+        deadlock_html = ""
+        if hasattr(self, 'deadlocks') and self.deadlocks:
+            events = ""
+            for d in self.deadlocks[:10]:
+                events += f"""
+                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4">
+                    <pre class="whitespace-pre-wrap text-[10px] text-red-300 font-mono">{html.escape(d)}</pre>
+                </div>"""
+            
+            deadlock_html = f"""
+            <section class="glass rounded-3xl p-8 mb-12 border-red-500/20">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-3 text-red-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Deadlock Analysis ({len(self.deadlocks)} detected)
+                </h2>
+                <div class="max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                    {events}
+                </div>
+            </section>
+            """
+
+        # 4. Prepare Config Section
+        config_text = ""
+        if self.env_details['db_config']:
+            sorted_keys = sorted(self.env_details['db_config'].keys())
+            max_key_len = max(len(k) for k in sorted_keys) if sorted_keys else 0
+            for k in sorted_keys:
+                config_text += f"{k.ljust(max_key_len)} = {self.env_details['db_config'][k]}\n"
+
+        # 5. Prepare Error Log Section (Conditional)
+        error_log_html = ""
+        if self.env_details['error_log'] and self.env_details['error_log'].strip():
+            error_log_html = f"""
+            <div class="lg:col-span-2">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-1 h-1 rounded-full bg-red-500"></span>
+                    MariaDB Error Log (Captured during test)
+                </h3>
+                <div class="bg-black/40 border border-red-500/10 rounded-2xl p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    <pre class="text-[10px] text-red-300 font-mono leading-tight whitespace-pre-wrap">{html.escape(self.env_details['error_log'])}</pre>
+                </div>
+            </div>"""
+
+        # 6. Prepare Scripts Section
+        sql_blocks = ""
+        for name, content in self.env_details['sql_scripts'].items():
+            sql_blocks += f"""
+            <div class="mb-6 last:mb-0">
+                <div class="flex items-center gap-2 mb-2 text-slate-500">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span class="text-[10px] font-bold uppercase tracking-wider">{name}</span>
+                </div>
+                <div class="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+                    <pre class="text-[11px] text-emerald-400 font-mono overflow-x-auto whitespace-pre-wrap">{html.escape(content)}</pre>
+                </div>
+            </div>"""
+
+        repro_html = f"""
         <section class="glass rounded-3xl p-8 mb-12">
             <h2 class="text-xl font-bold mb-8 flex items-center gap-3">
                 <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
@@ -754,7 +714,23 @@ class DBSimulator:
             </div>
         </section>
         """
-        # HTML Header with metrics highlights
+
+        # 7. Prepare Raw Output Section
+        raw_html = ""
+        if self.raw_output:
+            raw_html = f"""
+            <section class="mb-12">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Raw Sysbench Output
+                </h2>
+                <div class="bg-black/40 border border-slate-700/30 rounded-2xl p-6 max-h-[500px] overflow-y-auto custom-scrollbar">
+                    <pre class="text-[10px] text-slate-400 font-mono leading-tight whitespace-pre-wrap">{html.escape(self.raw_output)}</pre>
+                </div>
+            </section>
+            """
+
+        # Final Template assembly
         script_display = self.args.script if self.args.script else "Directory Based"
         if len(script_display) > 30:
             script_display = "..." + script_display[-27:]
@@ -784,6 +760,9 @@ class DBSimulator:
         .stat-value {{ @apply text-3xl font-bold text-white; }}
         .chart-container {{ @apply glass p-6 rounded-2xl mb-8; }}
         .mono {{ font-family: 'JetBrains Mono', monospace; }}
+        .custom-scrollbar::-webkit-scrollbar {{ width: 6px; }}
+        .custom-scrollbar::-webkit-scrollbar-track {{ background: transparent; }}
+        .custom-scrollbar::-webkit-scrollbar-thumb {{ background: rgba(255,255,255,0.1); border-radius: 10px; }}
     </style>
 </head>
 <body class="p-8">
