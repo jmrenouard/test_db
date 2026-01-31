@@ -289,26 +289,44 @@ class DBSimulator:
         """Captures MariaDB config, Lua script, and SQL files for reproducibility."""
         print("🔍 Fetching environment details...")
         
-        # 1. Database Configuration (if container)
-        if self.args.container:
-            try:
+        # 1. Database Configuration (Container or Local)
+        try:
+            if self.args.container:
                 cmd = [
                     "docker", "exec", self.args.container, 
                     "mariadb", "-u", self.args.user
                 ]
-                if self.args.password:
-                    cmd.append(f"-p{self.args.password}")
-                cmd.extend(["-e", "SHOW GLOBAL VARIABLES;"])
+            else:
+                # Local execution
+                cmd = [
+                    "mariadb", "-h", self.args.host, "-u", self.args.user
+                ]
+
+            if self.args.password:
+                cmd.append(f"-p{self.args.password}")
+            
+            cmd.extend(["-e", "SHOW GLOBAL VARIABLES;"])
+            process = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if process.returncode == 0:
+                for line in process.stdout.splitlines():
+                    parts = line.split('\t')
+                    if len(parts) == 2:
+                        name, val = parts[0], parts[1]
+                        # Capture all variables as requested
+                        self.env_details['db_config'][name] = val
+            elif not self.args.container:
+                # Try mysql if mariadb is not available locally
+                cmd[0] = "mysql"
                 process = subprocess.run(cmd, capture_output=True, text=True)
                 if process.returncode == 0:
                     for line in process.stdout.splitlines():
                         parts = line.split('\t')
                         if len(parts) == 2:
                             name, val = parts[0], parts[1]
-                            # Capture all variables as requested
                             self.env_details['db_config'][name] = val
-            except Exception as e:
-                print(f"⚠️  Could not fetch DB variables: {e}")
+        except Exception as e:
+            print(f"⚠️  Could not fetch DB variables: {e}")
 
         # 2. MariaDB Error Log snippet (if container)
         if self.args.container:
@@ -419,6 +437,7 @@ class DBSimulator:
         self._generate_markdown()
         self._generate_html()
         self._save_raw_results()
+        self._save_config_artifact()
 
     def _save_raw_results(self):
         """Save raw sysbench output to a text file."""
@@ -427,6 +446,17 @@ class DBSimulator:
             with open(raw_path, 'w') as f:
                 f.write(self.raw_output)
             print(f"📄 Raw results saved to {raw_path}")
+
+    def _save_config_artifact(self):
+        """Save the full MariaDB configuration to a text file."""
+        if self.env_details['db_config']:
+            config_path = os.path.join(self.output_dir, "mariadb_config.txt")
+            with open(config_path, 'w') as f:
+                sorted_keys = sorted(self.env_details['db_config'].keys())
+                max_key_len = max(len(k) for k in sorted_keys) if sorted_keys else 0
+                for k in sorted_keys:
+                    f.write(f"{k.ljust(max_key_len)} = {self.env_details['db_config'][k]}\n")
+            print(f"📄 Full configuration saved to {config_path}")
 
     def _generate_markdown(self):
         lines = [
