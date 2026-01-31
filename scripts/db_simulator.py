@@ -400,6 +400,12 @@ class DBSimulator:
             'read': self._extract(r'read:\s+(\d+)', output),
             'write': self._extract(r'write:\s+(\d+)', output),
             'other': self._extract(r'other:\s+(\d+)', output),
+            'min_lat': self._extract(r'min:\s+(\d+\.\d+)', output),
+            'sum_lat': self._extract(r'sum:\s+(\d+\.\d+)', output),
+            'events_avg': self._extract(r'events \(avg/stddev\):\s+(\d+\.\d+)', output),
+            'events_stddev': self._extract(r'events \(avg/stddev\):.*?/(\d+\.\d+)', output),
+            'execution_avg': self._extract(r'execution time \(avg/stddev\):\s+(\d+\.\d+)', output),
+            'execution_stddev': self._extract(r'execution time \(avg/stddev\):.*?/(\d+\.\d+)', output),
         }
 
     def _extract(self, pattern, content):
@@ -433,11 +439,25 @@ class DBSimulator:
             f"\n## Key Metrics",
             f"| Metric | Value |",
             f"|---|---|",
-            f"| **TPS** | {self.results['tps']:.2f} |",
-            f"| **QPS** | {self.results['qps']:.2f} |",
-            f"| **Avg Latency** | {self.results['avg_lat']:.2f} ms |",
-            f"| **95th Latency** | {self.results['p95_lat']:.2f} ms |",
-            f"| **Total Events** | {self.results['total_events']} |",
+            f"| **TPS** | {self.results.get('tps', 0):.2f} |",
+            f"| **QPS** | {self.results.get('qps', 0):.2f} |",
+            f"| **Avg Latency** | {self.results.get('avg_lat', 0):.2f} ms |",
+            f"| **95th Latency** | {self.results.get('p95_lat', 0):.2f} ms |",
+            f"| **Total Events** | {self.results.get('total_events', 0)} |",
+            f"\n## 📊 Detailed Metrics",
+            f"### SQL Statistics",
+            f"- **Read:** `{self.results.get('read', 0)}`",
+            f"- **Write:** `{self.results.get('write', 0)}`",
+            f"- **Other:** `{self.results.get('other', 0)}`",
+            f"\n### Latency Details (ms)",
+            f"- **Min:** `{self.results.get('min_lat', 0):.2f}`",
+            f"- **Avg:** `{self.results.get('avg_lat', 0):.2f}`",
+            f"- **Max:** `{self.results.get('max_lat', 0):.2f}`",
+            f"- **95th:** `{self.results.get('p95_lat', 0):.2f}`",
+            f"- **Sum:** `{self.results.get('sum_lat', 0):.2f}`",
+            f"\n### Threads Fairness",
+            f"- **Events (avg/stddev):** `{self.results.get('events_avg', 0)} / {self.results.get('events_stddev', 0)}`",
+            f"- **Execution time (avg/stddev):** `{self.results.get('execution_avg', 0)} / {self.results.get('execution_stddev', 0)}`",
             f"\n## 🏗️ Infrastructure",
         ]
         
@@ -467,7 +487,7 @@ class DBSimulator:
             for k in sorted(self.env_details['db_config'].keys()):
                 lines.append(f"| `{k}` | `{self.env_details['db_config'][k]}` |")
 
-        if self.env_details['error_log']:
+        if self.env_details['error_log'] and self.env_details['error_log'].strip():
             lines.append(f"\n### MariaDB Error Log (Tail)")
             lines.append(f"```text\n{self.env_details['error_log']}\n```")
 
@@ -602,16 +622,114 @@ class DBSimulator:
                         </div>
                     </div>
 
-                    <!-- Error Log -->
-                    <div class="lg:col-span-2">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-1 rounded-full bg-red-500"></span>
-                            MariaDB Error Log (Captured during test)
-                        </h3>
-                        <div class="bg-black/40 border border-red-500/10 rounded-2xl p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
-                            <pre class="text-[10px] text-red-300 font-mono leading-tight whitespace-pre-wrap">{html.escape(self.env_details['error_log'])}</pre>
+        # 2. Prepare Error Log Section (Conditional)
+        error_log_html = ""
+        if self.env_details['error_log'] and self.env_details['error_log'].strip():
+            error_log_html = f"""
+            <div class="lg:col-span-2">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-1 h-1 rounded-full bg-red-500"></span>
+                    MariaDB Error Log (Captured during test)
+                </h3>
+                <div class="bg-black/40 border border-red-500/10 rounded-2xl p-6 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    <pre class="text-[10px] text-red-300 font-mono leading-tight whitespace-pre-wrap">{html.escape(self.env_details['error_log'])}</pre>
+                </div>
+            </div>"""
+
+        # 3. Prepare Detailed Metrics Section
+        metrics_html = f"""
+        <section class="mb-12">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Detailed Performance Metrics
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">SQL Operations</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Read</span><span class="font-mono text-emerald-400">{self.results.get('read', 0)}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Write</span><span class="font-mono text-amber-400">{self.results.get('write', 0)}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Other</span><span class="font-mono text-slate-400">{self.results.get('other', 0)}</span>
                         </div>
                     </div>
+                </div>
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Latency Details (ms)</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Min</span><span class="font-mono">{self.results.get('min_lat', 0):.2f}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Max</span><span class="font-mono text-rose-400">{self.results.get('max_lat', 0):.2f}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Sum</span><span class="font-mono">{self.results.get('sum_lat', 0):.2f}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Thread Fairness</h3>
+                    <div class="space-y-3">
+                        <div class="flex flex-col border-b border-slate-800 pb-2">
+                            <span class="text-[10px] text-slate-500 uppercase mb-1">Events (Avg/Std)</span>
+                            <span class="font-mono text-indigo-400">{self.results.get('events_avg', 0)} / {self.results.get('events_stddev', 0)}</span>
+                        </div>
+                        <div class="flex flex-col border-b border-slate-800 pb-2">
+                            <span class="text-[10px] text-slate-500 uppercase mb-1">Execution (Avg/Std)</span>
+                            <span class="font-mono text-indigo-400">{self.results.get('execution_avg', 0)} / {self.results.get('execution_stddev', 0)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass rounded-3xl p-8 mb-12">
+            <h2 class="text-xl font-bold mb-8 flex items-center gap-3">
+                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                Reproducibility Lab
+            </h2>
+
+            <div class="space-y-8">
+                <!-- Command -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-1 h-1 rounded-full bg-purple-500"></span>
+                        Execution Command
+                    </h3>
+                    <div class="bg-slate-950 border border-purple-500/20 rounded-2xl p-6 font-mono text-xs text-purple-300 leading-relaxed break-all">
+                        {html.escape(self.env_details['sysbench_cmd'])}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Config -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-1 rounded-full bg-blue-500"></span>
+                            MariaDB Configuration
+                        </h3>
+                        <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 h-[332px] overflow-y-auto custom-scrollbar">
+                            <pre class="text-[11px] text-blue-300 font-mono leading-relaxed">{html.escape(config_text)}</pre>
+                        </div>
+                    </div>
+
+                    <!-- Lua Script -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
+                            Sysbench Lua Driver
+                        </h3>
+                        <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 h-[332px] overflow-y-auto custom-scrollbar">
+                            <pre class="text-[11px] text-emerald-400 font-mono leading-relaxed">{html.escape(self.env_details['lua_script'])}</pre>
+                        </div>
+                    </div>
+
+                    {error_log_html}
                 </div>
 
                 <!-- SQL Scripts -->
@@ -708,6 +826,7 @@ class DBSimulator:
         </div>
 
         {infra_html}
+        {metrics_html}
 
         {deadlock_html}
         {repro_html}

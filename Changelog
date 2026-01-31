@@ -3,6 +3,12 @@
 - feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
 - feat: Added support for centralized local configuration.
 
+1.6.8 2026-01-31
+
+- feat: integrated comprehensive sysbench results (SQL stats, Latency details, Fairness).
+- feat: added "Detailed Performance Metrics" section to HTML report.
+- ux: hide Error Log section if the capture is empty.
+
 1.6.7 2026-01-31
 
 - feat: captured database configuration using `SHOW GLOBAL VARIABLES` for accurate global state reporting.
