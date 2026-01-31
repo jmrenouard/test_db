@@ -301,20 +301,12 @@ class DBSimulator:
                 cmd.extend(["-e", "SHOW GLOBAL VARIABLES;"])
                 process = subprocess.run(cmd, capture_output=True, text=True)
                 if process.returncode == 0:
-                    relevant_patterns = [
-                        r'^innodb_', r'^query_cache_', r'^join_buffer_', 
-                        r'^sort_buffer_', r'^read_buffer_', r'^tmp_table_', 
-                        r'^max_heap_table_', r'^max_connections', r'^thread_pool',
-                        r'^wait_timeout', r'^interactive_timeout', r'^log_bin',
-                        r'^sync_binlog', r'^slow_query_log', r'^long_query_time',
-                        r'^version', r'^datadir', r'^character_set_server', r'^collation_server'
-                    ]
                     for line in process.stdout.splitlines():
                         parts = line.split('\t')
                         if len(parts) == 2:
                             name, val = parts[0], parts[1]
-                            if any(re.match(p, name) for p in relevant_patterns):
-                                self.env_details['db_config'][name] = val
+                            # Capture all variables as requested
+                            self.env_details['db_config'][name] = val
             except Exception as e:
                 print(f"⚠️  Could not fetch DB variables: {e}")
 
@@ -490,7 +482,7 @@ class DBSimulator:
         ])
 
         if self.env_details['db_config']:
-            lines.append(f"\n### Database Configuration (Sample)")
+            lines.append(f"\n### Database Configuration (SHOW GLOBAL VARIABLES)")
             lines.append(f"| Variable | Value |")
             lines.append(f"|---|---|")
             for k in sorted(self.env_details['db_config'].keys()):
