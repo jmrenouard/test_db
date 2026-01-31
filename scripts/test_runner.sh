@@ -81,6 +81,7 @@ function show_help {
 function run_std_oltp {
     local type="${1:-}"
     local action="${2:-run}"
+    shift 2 || true
     
     if [ -z "$type" ]; then
         echo -e "${RED}❌ Error: OLTP type required (read_only, read_write, etc.)${NC}"
@@ -95,15 +96,27 @@ function run_std_oltp {
         --mysql-user="$DB_USER" \
         --mysql-password="$DB_PASS" \
         --mysql-db="$DB_NAME" \
-        "$script_path" "$action")
+        "$script_path" "$action" "$@")
 
+    set +e
     if [ "$USE_CONTAINER" = true ]; then
-        # When in container, we assume the path exists there too
         echo -e "${YELLOW}⚡ Executing in container: $CONTAINER_NAME${NC}"
         docker exec -i "$CONTAINER_NAME" "${sb_cmd[@]}"
+        local exit_code=$?
     else
         echo -e "${YELLOW}⚡ Executing locally...${NC}"
         "${sb_cmd[@]}"
+        local exit_code=$?
+    fi
+    set -e
+
+    if [ $exit_code -ne 0 ]; then
+        echo -e "${RED}❌ OLTP $action failed with exit code $exit_code.${NC}"
+        if [ "$action" == "run" ]; then
+            echo -e "${YELLOW}💡 HINT: If tables are missing, try running the prepare step first:${NC}"
+            echo -e "   make oltp TYPE=$type ACTION=prepare"
+        fi
+        return $exit_code
     fi
 }
 
