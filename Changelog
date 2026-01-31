@@ -1,3 +1,11 @@
+1.7.2 2026-01-31
+- ux: hide "Transaction SQL Files" section in HTML report if no SQL scripts are captured.
+
+1.7.1 2026-01-31
+- feat: integrated comprehensive sysbench results (SQL stats, Latency details, Fairness).
+- feat: added "Detailed Performance Metrics" section to HTML report.
+- ux: hide Error Log section if the capture is empty.
+
 1.7.0 2026-01-31
 - fix: resolved `IndentationError` in HTML report generation.
 - fix: restored "Avg Latency" card in premium HTML report.

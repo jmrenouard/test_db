@@ -642,19 +642,32 @@ class DBSimulator:
                 </div>
             </div>"""
 
-        # 6. Prepare Scripts Section
-        sql_blocks = ""
-        for name, content in self.env_details['sql_scripts'].items():
-            sql_blocks += f"""
-            <div class="mb-6 last:mb-0">
-                <div class="flex items-center gap-2 mb-2 text-slate-500">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">{name}</span>
-                </div>
-                <div class="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
-                    <pre class="text-[11px] text-emerald-400 font-mono overflow-x-auto whitespace-pre-wrap">{html.escape(content)}</pre>
-                </div>
-            </div>"""
+        # 6. Prepare Scripts Section (Conditional)
+        sql_scripts_section = ""
+        if self.env_details['sql_scripts']:
+            sql_blocks = ""
+            for name, content in self.env_details['sql_scripts'].items():
+                sql_blocks += f"""
+                <div class="mb-6 last:mb-0">
+                    <div class="flex items-center gap-2 mb-2 text-slate-500">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">{name}</span>
+                    </div>
+                    <div class="bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+                        <pre class="text-[11px] text-emerald-400 font-mono overflow-x-auto whitespace-pre-wrap">{html.escape(content)}</pre>
+                    </div>
+                </div>"""
+            
+            sql_scripts_section = f"""
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-1 h-1 rounded-full bg-amber-500"></span>
+                        Transaction SQL Files
+                    </h3>
+                    <div class="glass rounded-2xl p-8">
+                        {sql_blocks}
+                    </div>
+                </div>"""
 
         repro_html = f"""
         <section class="glass rounded-3xl p-8 mb-12">
@@ -702,15 +715,7 @@ class DBSimulator:
                 </div>
 
                 <!-- SQL Scripts -->
-                <div>
-                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span class="w-1 h-1 rounded-full bg-amber-500"></span>
-                        Transaction SQL Files
-                    </h3>
-                    <div class="glass rounded-2xl p-8">
-                        {sql_blocks}
-                    </div>
-                </div>
+                {sql_scripts_section}
             </div>
         </section>
         """
