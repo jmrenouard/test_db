@@ -3,9 +3,11 @@
 - feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
 - feat: Added support for centralized local configuration.
 
+1.6.6 2026-01-31
+- feat: embedded the full raw sysbench output in Markdown and HTML reports.
+- fix: restored fragmented HTML layout in stat-cards.
+
 1.6.5 2026-01-31
-- fix: resolved `NameError` in HTML report generation.
-- feat: added detailed configuration summary at the start of simulation.
 
 1.6.4 2026-01-31
 

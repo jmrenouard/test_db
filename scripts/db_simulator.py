@@ -481,6 +481,10 @@ class DBSimulator:
                 lines.append(f"#### {name}")
                 lines.append(f"```sql\n{content}\n```")
 
+        if self.raw_output:
+            lines.append(f"\n## 📄 Raw Sysbench Output")
+            lines.append(f"```text\n{self.raw_output}\n```")
+
         with open(self.output_md, 'w') as f:
             f.write('\n'.join(lines))
         print(f"✅ Markdown report: {self.output_md}")
@@ -697,8 +701,6 @@ class DBSimulator:
             </div>
             <div class="stat-card">
                 <div class="stat-label">Avg Latency</div>
-                <div class="stat-value text-amber-400">{avg_lat}ms</div>
-            </div>
             <div class="stat-card">
                 <div class="stat-label">95th Latency</div>
                 <div class="stat-value text-rose-400">{lat_95}ms</div>
@@ -709,6 +711,9 @@ class DBSimulator:
 
         {deadlock_html}
         {repro_html}
+
+        <!-- 4. Prepare Raw Output Section -->
+        {raw_html}
 
         <footer class="flex items-center justify-between border-t border-slate-800 pt-12 text-slate-600 text-[10px] font-bold uppercase tracking-[0.3em]">
             <span>&copy; {datetime.now().year} MT-Reporter &bull; DB Simulation Suite</span>
