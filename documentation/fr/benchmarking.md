@@ -72,13 +72,59 @@ Les tests OLTP standard génèrent automatiquement des rapports HTML dans des do
 - **Format du dossier** : `reports/oltp_{TYPE}_{THREADS}t_{TIME}s/`
 - **Métadonnées** : Les rapports affichent le script utilisé, le nombre de threads et la durée.
 
-## Métriques Capturées
+## Métriques Capturées et Glossaire
 
-- **QPS (Requêtes par Seconde)** : Mesure le débit brut de la base de données.
-- **Latence** : Temps de réponse moyen en millisecondes (inclut l'analyse du 95ème percentile).
-- **Échelonnage des Threads** : Aide à identifier le point de saturation où l'ajout de threads supplémentaires n'améliore plus les performances.
-- **Métadonnées d'Infrastructure** : Capture le système d'exploitation, l'architecture processeur, la RAM et le nom d'hôte pour une reproductibilité totale.
-- **Détection des Deadlocks** : Identifie automatiquement les verrous mortels MariaDB et les met en évidence dans les rapports.
+La suite de simulation capture et analyse diverses métriques provenant de `sysbench`. Voici un glossaire expliquant chaque paramètre et son unité.
+
+### 1. Métriques de Débit
+
+- **TPS (Transactions par Seconde)** : Le nombre de transactions réussies exécutées par seconde. Une transaction est une unité logique de travail (ex: un script OLTP de lecture/écriture).
+- **QPS (Requêtes par Seconde)** : Le nombre total de requêtes SQL (SELECT, INSERT, UPDATE, etc.) exécutées par seconde. Cela comptabilise les opérations SQL individuelles.
+
+### 2. Métriques de Latence (Mesurées en Millisecondes, ms)
+
+- **Latence Min** : Le temps d'exécution le plus court enregistré pour un événement/transaction.
+- **Latence Moyenne** : La moyenne arithmétique des temps d'exécution de tous les événements.
+- **Latence Max** : Le temps d'exécution le plus long enregistré pour un événement/transaction.
+- **95ème Percentile** : Une métrique clé indiquant que 95 % de tous les événements ont été complétés dans ce laps de temps ou moins. Il représente la performance dans "le pire des cas" pour la grande majorité des utilisateurs.
+- **Somme des Latences** : Le temps d'exécution cumulé de tous les événements à travers tous les threads.
+
+### 3. Opérations de Base de Données (Comptages)
+
+- **Lecture** : Nombre total de requêtes de lecture (ex: SELECT).
+- **Écriture** : Nombre total de requêtes d'écriture (ex: INSERT, UPDATE, DELETE).
+- **Autre** : Nombre total de requêtes administratives (ex: COMMIT, BEGIN, etc.).
+- **Total des Événements** : Le nombre total de transactions ou d'itérations de script effectuées pendant le test.
+
+### 4. Statistiques d'Équité des Threads
+
+Métriques utilisées pour déterminer si le travail a été réparti uniformément sur tous les threads.
+
+- **Événements (Moyenne/Écart-type)** :
+  - **Moyenne** : Nombre moyen d'événements gérés par thread.
+  - **Écart-type (Stddev)** : Mesure la variation par rapport à la moyenne. Une valeur faible indique une répartition uniforme ; une valeur élevée suggère des threads "bruyants" ou une contention.
+- **Temps d'Exécution (Moyenne/Écart-type)** :
+  - **Moyenne** : Temps total moyen passé par chaque thread.
+  - **Écart-type** : La variation du temps d'exécution total entre les threads. Un écart-type élevé indique que certains threads ont été bloqués plus longtemps que d'autres.
+
+---
+
+## Métadonnées d'Infrastructure
+
+Capture le contexte de l'environnement pour la reproductibilité :
+
+- **OS** : Version du système d'exploitation et noyau (ex: Linux 6.5.0-26-generic).
+- **Cœurs CPU** : Nombre total de processeurs logiques détectés.
+- **RAM Totale** : Quantité de mémoire système (MB).
+- **Version DB** : Version complète de MariaDB (ex: 11.8.1-MariaDB).
+- **Concurrence/Threads** : Le nombre d'ouvriers parallèles utilisés pour le test.
+- **Durée** : Le temps total d'exécution en secondes.
+
+---
+
+## Détection des Deadlocks
+
+Identifie automatiquement les verrous mortels MariaDB et les met en évidence dans les rapports.
 
 ## Rapports de Sortie
 

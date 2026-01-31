@@ -1,19 +1,25 @@
+1.7.5 2026-01-31
+
+- docs: added comprehensive sysbench metrics glossary (meanings and units) in English and French.
+
 1.7.4 2026-01-31
+
 - feat: support MariaDB configuration capture in local mode (`USE_CONTAINER=0`).
 - feat: automatically export full MariaDB configuration to `mariadb_config.txt` artifact.
 - fix: resolved empty configuration frame issue for local executions.
 
 1.7.3 2026-01-31
 
-- feat: integrated comprehensive sysbench results (SQL stats, Latency details, Fairness).
-- feat: added "Detailed Performance Metrics" section to HTML report.
-- ux: hide Error Log section if the capture is empty.
+- feat: captured and displayed full `SHOW GLOBAL VARIABLES` results in the MariaDB configuration section.
 
 1.7.2 2026-01-31
 
-- feat: integrated comprehensive sysbench results (SQL stats, Latency details, Fairness).
-- feat: added "Detailed Performance Metrics" section to HTML report.
-- ux: hide Error Log section if the capture is empty.
+- ux: hide "Transaction SQL Files" section in HTML report if no SQL scripts are captured.
+
+1.7.1 2026-01-31
+
+- fix: improved legibility (Tailwind CDN compatibility) and fixed layout in HTML report.
+- ux: improved script name display using `os.path.basename` to avoid path truncation.
 
 1.7.0 2026-01-31
 
@@ -22,6 +28,10 @@
 - refactor: full reconstruction of `_generate_html` for structural stability.
 
 1.6.9 2026-01-31
+
+- feat: dedicated export of raw sysbench output to `result_sysbench.txt`.
+
+1.6.8 2026-01-31
 
 - feat: integrated comprehensive sysbench results (SQL stats, Latency details, Fairness).
 - feat: added "Detailed Performance Metrics" section to HTML report.

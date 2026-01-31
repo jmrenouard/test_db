@@ -72,13 +72,59 @@ Standard OLTP tests automatically generate HTML reports in dedicated, timestamp-
 - **Directory Format**: `reports/oltp_{TYPE}_{THREADS}t_{TIME}s/`
 - **Metadata**: Reports include the exact script used, thread count, and duration.
 
-## Metrics Captured
+## Metrics Captured and Glossary
 
-- **QPS (Queries Per Second)**: Measures the raw throughput of the database.
-- **Latency**: Average response time in milliseconds (includes 95th percentile analysis).
-- **Thread Scaling**: Helps identify the saturation point where adding more threads no longer improves performance.
-- **Infrastructure Metadata**: Captures OS, CPU architecture, RAM, and Hostname for reproducibility.
-- **Deadlock Detection**: Automatically identifies MariaDB deadlocks and highlights them in reports.
+The simulation suite captures and parses various metrics from `sysbench`. Below is a glossary explaining each parameter and its unit.
+
+### 1. Throughput Metrics
+
+- **TPS (Transactions Per Second)**: The number of successful transactions executed per second. A transaction is a logical unit of work (e.g., an OLTP read/write script).
+- **QPS (Queries Per Second)**: The total number of SQL queries (SELECT, INSERT, UPDATE, etc.) executed per second. This counts individual SQL operations.
+
+### 2. Latency Metrics (Measured in Milliseconds, ms)
+
+- **Min Latency**: The smallest execution time recorded for a single event/transaction.
+- **Avg Latency**: The arithmetic mean of all event execution times.
+- **Max Latency**: The longest execution time recorded for a single event/transaction.
+- **95th Percentile**: A key benchmark metric indicating that 95% of all events were completed within this time or less. It represents the "worst-case" performance for the vast majority of users.
+- **Sum Latency**: The cumulative execution time of all events across all threads.
+
+### 3. Database Operations (Counts)
+
+- **Read**: Total number of read queries (e.g., SELECT).
+- **Write**: Total number of write queries (e.g., INSERT, UPDATE, DELETE).
+- **Other**: Total number of administrative or non-data-mutating queries (e.g., COMMIT, BEGIN, etc.).
+- **Total Events**: The total number of transactions or script iterations performed during the test.
+
+### 4. Thread Fairness Statistics
+
+Metrics used to determine if work was distributed evenly across all execution threads.
+
+- **Events (Avg/Stddev)**:
+  - **Avg**: Average number of events handled per thread.
+  - **Stddev (Standard Deviation)**: Measures the variation from the average. A low value indicates even distribution; a high value suggests "noisy" threads or contention.
+- **Execution Time (Avg/Stddev)**:
+  - **Avg**: Average total time spent by each thread.
+  - **Stddev**: The variation in total execution time across threads. High standard deviation indicates that some threads were stalled longer than others.
+
+---
+
+## Infrastructure Metadata
+
+Captures the environment context for reproducibility:
+
+- **OS**: Operating system version and kernel (e.g., Linux 6.5.0-26-generic).
+- **CPU Cores**: Total number of logical processors detected.
+- **Total RAM**: Amount of system memory (MB).
+- **DB Version**: Full MariaDB version string (e.g., 11.8.1-MariaDB).
+- **Concurrency/Threads**: The number of parallel workers used for the test.
+- **Duration**: The total run time in seconds.
+
+---
+
+## Deadlock Detection
+
+Automatically identifies MariaDB deadlocks and highlights them in reports.
 
 ## Report Output
 
