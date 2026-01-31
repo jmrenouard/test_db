@@ -88,8 +88,22 @@ class DBSimulator:
             
         # Capture start time to filter logs later
         self.start_time = datetime.now()
-        print(f"🚀 Starting simulation on {self.args.host}...")
         
+        # Display Configuration Summary
+        print(f"🚀 Starting simulation on {self.args.host}...")
+        print(f"   ├─ Nature:   {self.args.name}")
+        print(f"   ├─ Threads:  {self.args.threads}")
+        print(f"   ├─ Duration: {self.args.time}s")
+        if self.args.script:
+            print(f"   ├─ Script:   {self.args.script}")
+        if self.args.tables:
+            print(f"   ├─ Tables:   {self.args.tables}")
+        if self.args.table_size:
+            print(f"   └─ Size:     {self.args.table_size}")
+        else:
+            print(f"   └─ Target:   {self.args.db}")
+        print("")
+
         # Wrapper command that invokes our custom Lua script
         cmd = [
             "bash", "scripts/run_dir_bench.sh",
@@ -472,6 +486,11 @@ class DBSimulator:
         print(f"✅ Markdown report: {self.output_md}")
 
     def _generate_html(self):
+        # 0. Define metrics for template
+        qps = f"{self.results['qps']:.2f}"
+        avg_lat = f"{self.results['avg_lat']:.2f}"
+        lat_95 = f"{self.results['p95_lat']:.2f}"
+
         # 1. Prepare Infra Section
         infra_items = ""
         for k, v in self.env_details['infra'].items():

@@ -3,11 +3,11 @@
 - feat: Implemented universal `.env` loading across all shell scripts and `Makefile`.
 - feat: Added support for centralized local configuration.
 
+1.6.5 2026-01-31
+- fix: resolved `NameError` in HTML report generation.
+- feat: added detailed configuration summary at the start of simulation.
+
 1.6.4 2026-01-31
-- feat: added `TIME` parameter support to `Makefile` and standard OLTP tests.
-- feat: improved HTML report metadata with "Script Used", "Threads", and "Duration" cards.
-- feat: precise report directory naming (e.g. `reports/oltp_read_only_8t_60s`).
-- docs: updated EN/FR documentation with advanced OLTP parameters.
 
 1.6.3 2026-01-31
 
