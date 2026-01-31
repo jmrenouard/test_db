@@ -731,9 +731,10 @@ class DBSimulator:
             """
 
         # Final Template assembly
-        script_display = self.args.script if self.args.script else "Directory Based"
-        if len(script_display) > 30:
-            script_display = "..." + script_display[-27:]
+        if self.args.script:
+            script_display = os.path.basename(self.args.script)
+        else:
+            script_display = "SQL Files"
 
         html_template = f"""
 <!DOCTYPE html>
@@ -755,10 +756,6 @@ class DBSimulator:
         }}
         body {{ font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #f8fafc; }}
         .glass {{ background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }}
-        .stat-card {{ @apply glass p-6 rounded-2xl flex flex-col justify-center items-center text-center; }}
-        .stat-label {{ @apply text-slate-400 text-xs font-bold uppercase tracking-widest mb-1; }}
-        .stat-value {{ @apply text-3xl font-bold text-white; }}
-        .chart-container {{ @apply glass p-6 rounded-2xl mb-8; }}
         .mono {{ font-family: 'JetBrains Mono', monospace; }}
         .custom-scrollbar::-webkit-scrollbar {{ width: 6px; }}
         .custom-scrollbar::-webkit-scrollbar-track {{ background: transparent; }}
@@ -793,23 +790,25 @@ class DBSimulator:
 
         <!-- Quick Stats -->
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
-            <div class="stat-card">
-                <div class="stat-label">Script</div>
-                <div class="stat-value text-lg mono truncate w-full" title="{self.args.script if self.args.script else 'SQL Directory'}">{script_display}</div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Script</div>
+                <div class="text-white text-lg font-bold mono truncate w-full" title="{self.args.script if self.args.script else 'SQL Directory'}">{script_display}</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Threads</div>
-                <div class="stat-value">{self.args.threads}</div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Threads</div>
+                <div class="text-white text-3xl font-bold">{self.args.threads}</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Duration</div>
-                <div class="stat-value">{self.args.time}s</div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Duration</div>
+                <div class="text-white text-3xl font-bold">{self.args.time}s</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Avg Latency</div>
-            <div class="stat-card">
-                <div class="stat-label">95th Latency</div>
-                <div class="stat-value text-rose-400">{lat_95}ms</div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Avg Latency</div>
+                <div class="text-amber-400 text-3xl font-bold">{avg_lat}ms</div>
+            </div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-center items-center text-center">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">95th Latency</div>
+                <div class="text-rose-400 text-3xl font-bold">{lat_95}ms</div>
             </div>
         </div>
 
