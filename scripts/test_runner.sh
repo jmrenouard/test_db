@@ -95,8 +95,14 @@ function run_std_oltp {
         --mysql-host="$DB_HOST" \
         --mysql-user="$DB_USER" \
         --mysql-password="$DB_PASS" \
-        --mysql-db="$DB_NAME" \
-        "$script_path" "$action" "$@")
+        --mysql-db="$DB_NAME")
+
+    # Map standard env vars to sysbench flags
+    if [ -n "${THREADS:-}" ]; then sb_cmd+=(--threads="$THREADS"); fi
+    if [ -n "${TABLES:-}" ]; then sb_cmd+=(--tables="$TABLES"); fi
+    if [ -n "${SIZE:-}" ]; then sb_cmd+=(--table-size="$SIZE"); fi
+
+    sb_cmd+=("$script_path" "$action" "$@")
 
     set +e
     if [ "$USE_CONTAINER" = true ]; then

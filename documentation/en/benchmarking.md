@@ -56,6 +56,15 @@ python3 scripts/db_simulator.py --script /usr/share/sysbench/oltp_read_only.lua 
 bash scripts/run_dir_bench.sh --script /usr/share/sysbench/oltp_read_only.lua --threads 8
 ```
 
+### Advanced OLTP Parameters
+
+You can control the scale of standard OLTP tests using `THREADS`, `TABLES`, and `SIZE` (table row count):
+
+```bash
+make oltp TYPE=read_write ACTION=prepare TABLES=10 SIZE=100000
+make oltp TYPE=read_write THREADS=16
+```
+
 ## Metrics Captured
 
 - **QPS (Queries Per Second)**: Measures the raw throughput of the database.
