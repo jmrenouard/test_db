@@ -298,7 +298,7 @@ class DBSimulator:
                 ]
                 if self.args.password:
                     cmd.append(f"-p{self.args.password}")
-                cmd.extend(["-e", "SHOW VARIABLES;"])
+                cmd.extend(["-e", "SHOW GLOBAL VARIABLES;"])
                 process = subprocess.run(cmd, capture_output=True, text=True)
                 if process.returncode == 0:
                     relevant_patterns = [
