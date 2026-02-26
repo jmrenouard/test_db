@@ -1,3 +1,6 @@
+[🏠 Home](index.md) | [⬅️ Previous](sql_analyzer.md) | [➡️ Next](gap_locking_experiment.md)
+***
+
 # Deadlock Experiment in MariaDB
 
 This experiment demonstrates how `db_simulator.py` can detect and analyze deadlocks by monitoring the MariaDB error log.
@@ -79,3 +82,6 @@ The HTML report now visually highlights these events, providing the exact transa
    ```bash
    python3 scripts/db_simulator.py --sql-dir tests/data/deadlock/ --container mariadb-11-8 --threads 8 --time 10
    ```
+
+***
+[🏠 Home](index.md) | [⬅️ Previous](sql_analyzer.md) | [➡️ Next](gap_locking_experiment.md)

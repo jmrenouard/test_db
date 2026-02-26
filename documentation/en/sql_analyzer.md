@@ -1,3 +1,6 @@
+[🏠 Home](index.md) | [⬅️ Previous](benchmarking.md) | [➡️ Next](deadlock_experiment.md)
+***
+
 # SQL Analyzer Script
 
 The `sql_analyzer.py` script is a powerful tool for analyzing SQL query performance and quality.
@@ -36,3 +39,6 @@ python3 scripts/sql_analyzer.py --container mariadb-11-8 --query "SELECT * FROM 
 | `--stdout` | False | Print results directly to the terminal. |
 | `--html-file` | `reports/performance_report.html` | Path for the generated HTML dashboard. |
 | `[Other DB params]` | - | `--host`, `--port`, `--user`, `--password` for non-Docker connections. |
+
+***
+[🏠 Home](index.md) | [⬅️ Previous](benchmarking.md) | [➡️ Next](deadlock_experiment.md)

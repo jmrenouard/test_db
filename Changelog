@@ -1,3 +1,18 @@
+1.7.9 2026-01-31
+
+- perf: removed real-time report updates to strictly limit disk I/O to one write per step completion.
+
+1.7.8 2026-01-31
+
+- perf: halved disk I/O operations by removing redundant initial "RUNNING" status report writes.
+
+1.7.7 2026-01-31
+
+- feat: implemented multi-threaded output streaming for simultaneous capture of stdout and stderr.
+- feat: added configurable timeout mechanism (default 3 minutes) to prevent command hangs.
+- feat: added `--run-all` CLI option for fully automated non-interactive testing.
+- fix: improved signal handling and process group termination during command execution.
+
 1.7.6 2026-01-31
 
 - ux: added dedicated "Throughput Rates" section to HTML report with detailed counts and rates.

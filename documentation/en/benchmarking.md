@@ -1,3 +1,6 @@
+[🏠 Home](index.md) | [⬅️ Previous](interactive_reporting.md) | [➡️ Next](sql_analyzer.md)
+***
+
 # Performance Benchmarking with Sysbench
 
 The project includes automated performance tests for high-concurrency simulation and stress testing using `sysbench`.
@@ -107,7 +110,7 @@ Metrics used to determine if work was distributed evenly across all execution th
   - **Avg**: Average total time spent by each thread.
   - **Stddev**: The variation in total execution time across threads. High standard deviation indicates that some threads were stalled longer than others.
 
----
+***
 
 ## Infrastructure Metadata
 
@@ -120,7 +123,7 @@ Captures the environment context for reproducibility:
 - **Concurrency/Threads**: The number of parallel workers used for the test.
 - **Duration**: The total run time in seconds.
 
----
+***
 
 ## Deadlock Detection
 
@@ -134,3 +137,6 @@ Results are saved in:
 - `reports/simulator_report.md` / `reports/simulator_report.html` (when using `db_simulator.py`)
 - **Interactive Dashboard**: Modern HTML reporting with CSS-based bar graphs and command transparency.
 - Summarized output in the terminal console.
+
+***
+[🏠 Home](index.md) | [⬅️ Previous](interactive_reporting.md) | [➡️ Next](sql_analyzer.md)

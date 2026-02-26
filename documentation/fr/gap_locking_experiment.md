@@ -1,3 +1,6 @@
+[🏠 Accueil](index.md) | [⬅️ Précédent](deadlock_experiment.md) | [➡️ Suivant](index.md)
+***
+
 # Expérience sur le Gap Locking dans MariaDB
 
 Cette expérience démontre pourquoi la création de verrous sur des plages d'index (Gap Locking) dans InnoDB peut provoquer une dégradation des performances et des blocages d'insertion, en particulier lorsque des clés étrangères sont impliquées.
@@ -80,3 +83,6 @@ Utilisation de `db_simulator.py` avec 4 threads concurrents :
    # Variante 4 : Contentions sur clés étrangères uniques
    python3 scripts/db_simulator.py --sql-dir tests/data/gap_locking_4/ --container mariadb-11-8 --threads 4 --time 20
    ```
+
+***
+[🏠 Accueil](index.md) | [⬅️ Précédent](deadlock_experiment.md) | [➡️ Suivant](index.md)

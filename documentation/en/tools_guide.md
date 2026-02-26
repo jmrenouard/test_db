@@ -1,3 +1,6 @@
+[🏠 Home](index.md) | [⬅️ Previous](mariadb_management.md) | [➡️ Next](interactive_reporting.md)
+***
+
 # 🛠️ Database Performance & Analysis Tools Guide
 
 This guide provides a comprehensive overview of the tools available in this repository for Mariadb performance testing, data verification, and query analysis.
@@ -16,7 +19,7 @@ The project orchestrates several specialized tools to measure different aspects 
 | **Perf Threads Reporter** | Scalability Analysis | Performance scaling from 1 to 64 threads (HTML graphs) |
 | **Interactive Runner** | User Experience | Terminal-based orchestration with live status |
 
----
+***
 
 ## 🏎️ Sysbench Metrics: Understanding the Numbers
 
@@ -40,7 +43,7 @@ When running `make bench` or `make perf-threads`, Sysbench provides several crit
 - **Hostname & Container**: Tracks where the database was executing.
 - **DB Version**: Ensures results are compared against the same MariaDB release.
 
----
+***
 
 ## 📈 Scalability & Thread Comparison
 
@@ -52,7 +55,7 @@ Using `make perf-threads`, you can measure how MariaDB scales as more users (thr
 - **The "Knee" (Saturation Point):** The point where adding more threads no longer increases QPS, or even decreases it. This usually identifies the CPU core count limit or I/O bottleneck.
 - **Latency Increase:** As threads increase, "Wait" time increases. Monitoring the gap between Average and 95th percentile latency helps identify lock contention.
 
----
+***
 
 ## 🔍 SQL Query Analysis & Analytics
 
@@ -70,7 +73,7 @@ The `scripts/sql_analyzer.py` tool (run via `make analyze`) provides a deep clin
 
 The tool automatically scans the `information_schema` to identify missing indexes on columns used in `WHERE`, `GROUP BY`, and `ORDER BY` clauses. It generates the exact `CREATE INDEX` SQL needed to fix the issue.
 
----
+***
 
 ## 🏗️ Technical Architecture
 
@@ -113,8 +116,11 @@ graph TD
     style K fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
----
+***
 
 ## 🎓 Educational Note
 
 This environment is designed for **Training and Learning**. By observing the difference between a query with an index and one without, or seeing how the 95th percentile latency spikes as threads increase, you gain a practical understanding of database internals that goes beyond theory.
+
+***
+[🏠 Home](index.md) | [⬅️ Previous](mariadb_management.md) | [➡️ Next](interactive_reporting.md)

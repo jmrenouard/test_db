@@ -1,3 +1,6 @@
+[🏠 Accueil](index.md) | [⬅️ Précédent](benchmarking.md) | [➡️ Suivant](deadlock_experiment.md)
+***
+
 # Script d'Analyse SQL
 
 Le script `sql_analyzer.py` est un outil puissant pour analyser les performances et la qualité des requêtes SQL.

@@ -2,7 +2,10 @@ import subprocess
 import os
 import json
 import sys
+import time
+import signal
 import argparse
+import threading
 from datetime import datetime
 
 # Configuration
@@ -298,8 +301,8 @@ OUTPUT_TEMPLATE = """
         </div>
 """
 
-def run_command(command, update_func=None):
-    print(f"\n📦 Executing: {command}")
+def run_command(command, update_func=None, timeout=180):
+    print(f"\n📦 Executing: {command} (Timeout: {timeout}s)")
     print("-" * 40)
     process = subprocess.Popen(
         command,
@@ -308,34 +311,67 @@ def run_command(command, update_func=None):
         stderr=subprocess.PIPE,
         text=True,
         bufsize=1,
-        universal_newlines=True
+        universal_newlines=True,
+        start_new_session=True
     )
     
     stdout_lines = []
     stderr_lines = []
 
-    # Read stdout in real-time
-    while True:
-        line = process.stdout.readline()
-        if not line and process.poll() is not None:
-            break
-        if line:
-            print(line, end="")
-            stdout_lines.append(line)
-            # Update report every 5 lines of output to avoid too many writes
+    def stream_reader(pipe, lines_list, is_stderr=False):
+        try:
+            for line in iter(pipe.readline, ''):
+                if is_stderr:
+                    print(f"❌ STDERR: {line}", end="")
+                else:
+                    print(line, end="")
+                lines_list.append(line)
+        except Exception:
+            pass
+        finally:
+            pipe.close()
+
+    t_out = threading.Thread(target=stream_reader, args=(process.stdout, stdout_lines, False))
+    t_err = threading.Thread(target=stream_reader, args=(process.stderr, stderr_lines, True))
+
+    t_out.start()
+    t_err.start()
+    
+    start_time = time.time()
+    timed_out = False
+    
+    try:
+        while t_out.is_alive() or t_err.is_alive():
+            if time.time() - start_time > timeout:
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                print(f"\n❌ TIMEOUT: Command exceeded {timeout} seconds.")
+                stdout_lines.append(f"\n[TIMEOUT] Execution exceeded {timeout} seconds.\n")
+                timed_out = True
+                break
+            
             if update_func and len(stdout_lines) % 5 == 0:
                 update_func("".join(stdout_lines), "".join(stderr_lines))
+            time.sleep(0.1)
             
-    # Capture remaining stderr
-    stderr_content = process.stderr.read()
-    if stderr_content:
-        print(f"\n❌ STDERR:\n{stderr_content}")
-        stderr_lines.append(stderr_content)
-        if update_func:
-            update_func("".join(stdout_lines), "".join(stderr_lines))
+        t_out.join(timeout=1)
+        t_err.join(timeout=1)
+        process.wait()
+    except Exception as e:
+        print(f"\n❌ ERROR during execution: {e}")
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+        except:
+            pass
+        return -1, "".join(stdout_lines), str(e)
+
+    if update_func:
+        update_func("".join(stdout_lines), "".join(stderr_lines))
 
     print("-" * 40)
-    return process.returncode, "".join(stdout_lines), "".join(stderr_lines)
+    return -1 if timed_out else process.returncode, "".join(stdout_lines), "".join(stderr_lines)
 
 def generate_report(results, finished=False):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -410,14 +446,17 @@ def generate_report(results, finished=False):
 def main():
     parser = argparse.ArgumentParser(description="Interactive and Automated Test Runner for test_db")
     parser.add_argument("-a", "--auto", action="store_true", help="Run in automated mode (no prompts)")
+    parser.add_argument("--run-all", action="store_true", help="Run all tests automatically without prompts")
     parser.add_argument("-i", "--interactive", action="store_true", help="Run in interactive mode (prompts for each step)")
     args = parser.parse_args()
 
     print("\n🚀 Test Runner Dashboard")
     print("========================")
     
-    if args.auto:
+    if args.auto or args.run_all:
         mode = 'a'
+        if args.run_all:
+            print("Run mode set to [a]uto via --run-all flag.")
     elif args.interactive:
         mode = 'i'
     else:
@@ -447,16 +486,8 @@ def main():
                 should_run = False
         
         if should_run:
-            # Mark current as RUNNING in report
-            def on_update(curr_stdout, curr_stderr):
-                curr_report = results + [{**step, "status": "RUNNING", "stdout": curr_stdout, "stderr": curr_stderr}] + [
-                    {**s, "status": "PENDING", "stdout": "", "stderr": ""}
-                    for s in STEPS[len(results)+1:]
-                ]
-                generate_report(curr_report)
-
-            on_update("", "") # Initial running status
-            returncode, stdout, stderr = run_command(step['command'], update_func=on_update)
+            # Execution mode: optimized I/O (no initial report write)
+            returncode, stdout, stderr = run_command(step['command'])
             status = "SUCCESS" if returncode == 0 else "FAILED"
             results.append({
                 **step,

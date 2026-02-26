@@ -1,3 +1,6 @@
+[🏠 Accueil](index.md) | [⬅️ Précédent](mariadb_management.md) | [➡️ Suivant](interactive_reporting.md)
+***
+
 # 🛠️ Guide des Outils de Performance et d'Analyse de Base de Données
 
 Ce guide offre une vue d'ensemble complète des outils disponibles dans ce dépôt pour les tests de performance MariaDB, la vérification des données et l'analyse des requêtes.
@@ -16,7 +19,7 @@ Le projet orchestre plusieurs outils spécialisés pour mesurer différents aspe
 | **Perf Threads Reporter** | Analyse de Scalabilité | Évolution des performances de 1 à 64 threads (graphiques HTML) |
 | **Interactive Runner** | Expérience Utilisateur | Orchestration en terminal avec statut en direct |
 
----
+***
 
 ## 🏎️ Métriques Sysbench : Comprendre les Chiffres
 
@@ -40,7 +43,7 @@ Lors de l'exécution de `make bench` ou `make perf-threads`, Sysbench fournit pl
 - **Hostname & Container** : Suit l'endroit où la base de données s'exécutait.
 - **Version DB** : Garantit que les résultats sont comparés à la même version de MariaDB.
 
----
+***
 
 ## 📈 Comparaison des Threads et Scalabilité
 
@@ -52,7 +55,7 @@ Avec `make perf-threads`, vous pouvez mesurer comment MariaDB réagit lorsque pl
 - **Le "Genou" (Point de Saturation) :** Le point où l'ajout de nouveaux threads n'augmente plus les QPS, voire les diminue. Cela identifie généralement la limite du nombre de cœurs CPU ou un goulot d'étranglement E/S.
 - **Augmentation de la Latence :** À mesure que les threads augmentent, le temps d'attente augmente. Surveiller l'écart entre la latence moyenne et le 95ème centile aide à identifier les conflits de verrouillage (lock contention).
 
----
+***
 
 ## 🔍 Analyse des Requêtes SQL
 
@@ -70,7 +73,7 @@ L'outil `scripts/sql_analyzer.py` (via `make analyze`) fournit un examen cliniqu
 
 L'outil analyse automatiquement le schéma (`information_schema`) pour identifier les index manquants sur les colonnes utilisées dans les clauses `WHERE`, `GROUP BY`, et `ORDER BY`. Il génère le SQL `CREATE INDEX` exact pour corriger le problème.
 
----
+***
 
 ## 🏗️ Architecture Technique
 
@@ -106,8 +109,11 @@ graph TD
     style I fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
----
+***
 
 ## 🎓 Note Pédagogique
 
 Cet environnement est conçu pour la **Formation et l'Apprentissage**. En observant la différence entre une requête avec index et une sans, ou en voyant comment le 95ème centile de latence explose avec l'augmentation des threads, vous acquérez une compréhension pratique des mécanismes internes des bases de données qui dépasse la simple théorie.
+
+***
+[🏠 Accueil](index.md) | [⬅️ Précédent](mariadb_management.md) | [➡️ Suivant](interactive_reporting.md)

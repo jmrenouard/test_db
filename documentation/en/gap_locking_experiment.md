@@ -1,3 +1,6 @@
+[🏠 Home](index.md) | [⬅️ Previous](deadlock_experiment.md) | [➡️ Next](index.md)
+***
+
 # Gap Locking Experiment in MariaDB
 
 This experiment demonstrates why creating range locks (Gap Locking) in InnoDB can cause performance degradation and insertion stalls, especially when foreign keys are involved.

@@ -42,10 +42,12 @@ Deep-dive documentation for specific components is available in the `documentati
 
 | Topic | Documentation (EN) | Documentation (FR) |
 | :--- | :--- | :--- |
+| **All Technical Documentation** | [index.md](documentation/en/index.md) | [index.md](documentation/fr/index.md) |
 | **SQL Analysis** | [sql_analyzer.md](documentation/en/sql_analyzer.md) | [sql_analyzer.md](documentation/fr/sql_analyzer.md) |
 | **MariaDB/Docker** | [mariadb_management.md](documentation/en/mariadb_management.md) | [mariadb_management.md](documentation/fr/mariadb_management.md) |
 | **Benchmarking** | [benchmarking.md](documentation/en/benchmarking.md) | [benchmarking.md](documentation/fr/benchmarking.md) |
-| **Tools & Metrics** | [tools_guide.md](documentation/en/tools_guide.md) | [guide_outils.md](documentation/fr/guide_outils.md) |
+| **Tools Guide** | [tools_guide.md](documentation/en/tools_guide.md) | [guide_outils.md](documentation/fr/guide_outils.md) |
+| **Interactive Reporting** | [interactive_reporting.md](documentation/en/interactive_reporting.md) | [interactive_reporting.md](documentation/fr/interactive_reporting.md) |
 
 ---
 

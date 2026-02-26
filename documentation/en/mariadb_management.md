@@ -1,3 +1,6 @@
+[🏠 Home](index.md) | [⬅️ Previous](index.md) | [➡️ Next](tools_guide.md)
+***
+
 # MariaDB 11.8 Management
 
 This project uses MariaDB 11.8 in a Dockerized environment to ensure reproducibility and performance consistency.
@@ -24,3 +27,6 @@ Queries and data are injected using the `make inject` target, which:
 1. Creates a temporary directory in the container.
 2. Copies the dataset (e.g., `employees`) to `/tmp`.
 3. Executes the SQL initialization script via `mariadb` standard input.
+
+***
+[🏠 Home](index.md) | [⬅️ Previous](index.md) | [➡️ Next](tools_guide.md)
