@@ -56,7 +56,7 @@ Conçues pour entrer en collision :
 
 ### 4. Automatisation Lua
 
-Le script [dir_transactions_sysbench.lua](file:///home/jmren/GIT_REPOS/test_db/scripts/dir_transactions_sysbench.lua) sélectionne aléatoirement ces fichiers SQL et les exécute via `db_query()`, enveloppé dans un `pcall` pour garantir que la simulation continue après l'annulation d'un deadlock.
+Le script [dir_transactions_sysbench.lua](file:///test_db/scripts/dir_transactions_sysbench.lua) sélectionne aléatoirement ces fichiers SQL et les exécute via `db_query()`, enveloppé dans un `pcall` pour garantir que la simulation continue après l'annulation d'un deadlock.
 
 ## Résultats Observés
 

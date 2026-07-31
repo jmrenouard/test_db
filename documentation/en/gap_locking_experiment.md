@@ -50,7 +50,7 @@ sysbench scripts/dir_transactions_sysbench.lua \
 
 ### 4. Lua script
 
-The [dir_transactions_sysbench.lua](file:///home/jmren/GIT_REPOS/test_db/scripts/dir_transactions_sysbench.lua) script is used to load and execute these SQL statements in parallel, exposing index gaps contention.
+The [dir_transactions_sysbench.lua](file:///test_db/scripts/dir_transactions_sysbench.lua) script is used to load and execute these SQL statements in parallel, exposing index gaps contention.
 
 ## Observed Results
 

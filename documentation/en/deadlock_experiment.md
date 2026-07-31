@@ -56,7 +56,7 @@ Designed to collide:
 
 ### 4. Lua Automation
 
-The [dir_transactions_sysbench.lua](file:///home/jmren/GIT_REPOS/test_db/scripts/dir_transactions_sysbench.lua) script randomly selects these SQL files and executes them using `db_query()`, wrapped in `pcall` to ensure the simulation continues after a deadlock rollback.
+The [dir_transactions_sysbench.lua](file:///test_db/scripts/dir_transactions_sysbench.lua) script randomly selects these SQL files and executes them using `db_query()`, wrapped in `pcall` to ensure the simulation continues after a deadlock rollback.
 
 ## Observed Results
 

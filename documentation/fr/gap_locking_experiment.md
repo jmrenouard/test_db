@@ -50,7 +50,7 @@ sysbench scripts/dir_transactions_sysbench.lua \
 
 ### 4. Script Lua
 
-Le script [dir_transactions_sysbench.lua](file:///home/jmren/GIT_REPOS/test_db/scripts/dir_transactions_sysbench.lua) est utilisé pour charger et exécuter ces requêtes SQL en parallèle, exposant ainsi la contention sur les intervalles d'index.
+Le script [dir_transactions_sysbench.lua](file:///test_db/scripts/dir_transactions_sysbench.lua) est utilisé pour charger et exécuter ces requêtes SQL en parallèle, exposant ainsi la contention sur les intervalles d'index.
 
 ## Résultats Observés
 
