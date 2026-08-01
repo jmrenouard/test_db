@@ -1,3 +1,7 @@
+1.8.0 2026-08-01
+
+- feat: merged latest updates from datacharmer/test_db master (PostgreSQL support, MySQL 9.x compatibility, SHA-256 test suite, CI workflows).
+
 1.7.9 2026-01-31
 
 - perf: removed real-time report updates to strictly limit disk I/O to one write per step completion.
