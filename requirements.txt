@@ -11,8 +11,9 @@ bash >= 5.0
 make >= 4.0
 
 # Python environment
-# No external pip packages required as of now (standard library only)
 python >= 3.8
+faker >= 18.0.0
+
 
 # Data Files
 # - employees dataset: included in /employees folder

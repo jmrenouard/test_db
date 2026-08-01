@@ -1,3 +1,9 @@
+1.8.1 2026-08-01
+
+- feat: added synthetic employee data injection mechanism (`scripts/inject_fake_employees.py`) using Python Faker with built-in fallback generator.
+- feat: added `make inject-fake` Makefile target supporting configurable employee count (`COUNT=N`).
+- test: added automated test suite `tests/test_inject_fake.sh` for synthetic data generation validation.
+
 1.8.0 2026-08-01
 
 - feat: merged latest updates from datacharmer/test_db master (PostgreSQL support, MySQL 9.x compatibility, SHA-256 test suite, CI workflows).

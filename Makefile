@@ -4,7 +4,9 @@ CONTAINER_NAME = mariadb-11-8
 
 -include .env
 
-.PHONY: help start stop status inject verify bench perf-threads analyze test-all clean
+.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean
+
+COUNT ?= 10
 
 help:
 	@echo "🛠️ test_db Management"
@@ -14,7 +16,9 @@ help:
 	@echo "  make stop       - Stop MariaDB container"
 	@echo "  make status     - Show container status"
 	@echo "  make inject     - Inject employees dataset"
+	@echo "  make inject-fake - Inject synthetic employees using Faker (default COUNT=10)"
 	@echo ""
+
 	@echo "Test Commands:"
 	@echo "  make verify     - Verify data integrity (counts/checksums)"
 	@echo "  make bench      - Run sysbench performance tests"
@@ -47,6 +51,10 @@ inject:
 	@docker exec -i $(CONTAINER_NAME) mkdir -p /tmp/employees_data
 	@docker cp employees/. $(CONTAINER_NAME):/tmp/employees_data/
 	@docker exec -i $(CONTAINER_NAME) bash -c "cd /tmp/employees_data && mariadb -u root < employees.sql"
+
+inject-fake:
+	@echo "🎲 Generating and injecting $(COUNT) synthetic employees..."
+	@python3 scripts/inject_fake_employees.py --count $(COUNT) --container $(CONTAINER_NAME)
 
 verify:
 	@bash scripts/test_runner.sh verify
