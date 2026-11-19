@@ -2,6 +2,12 @@
 
 Production-grade Python 3.12 and PostgreSQL 17 pipeline to ingest, normalize (3NF), enrich, and continuously synchronize the French INSEE Sirene business registry from `data.gouv.fr` Parquet and zipped CSV resources.
 
+## Documentation
+
+- [Interactive HTML Reference](../documentation/sirene_documentation.html) — Visual ER diagram, 13-table 3NF schema & index explorer, ETL script/CLI guide, and filterable 15-query SQL catalog.
+- [Technical Platform Guide (English)](../documentation/en/sirene_platform.md) — Architecture, Mermaid ER diagram, full data dictionary, CLI/Docker operations, and 15 SQL queries.
+- [Technical Platform Guide (French)](../documentation/fr/sirene_platform.md) — French translation covering the 3NF data model, ETL scripts, Docker workflow, and 15 SQL queries.
+
 ## Architecture
 
 ```mermaid
@@ -21,7 +27,7 @@ flowchart LR
 
 - `sirene/sql/01_schema_3nf.sql`: Idempotent PostgreSQL 17 DDL (`pg_trgm` extension, 7 referential tables with sentinels, `unites_legales`, `etablissements`, `etablissements_historique_etat`, `personnes`, `roles_entreprises`, and `etl_logs`).
 - `sirene/sql/02_indexes.sql`: B-Tree indexes on foreign keys and selective filters, partial composite active-establishment index, and three `pg_trgm` GIN indexes (`fastupdate = on`).
-- `sirene/sql/03_sample_queries.sql`: Six read-only analytical, fuzzy-search, regional density, closure-audit, and ETL freshness queries.
+- `sirene/sql/03_sample_queries.sql`: Fifteen read-only analytical, spatial, governance, fuzzy-search, quality-audit, and ETL freshness queries.
 - `sirene/src/sirene_etl/`: Core ETL library (`config`, `logging_utils`, `db`, `downloader`, `referentials`, `transforms`, `full_import`, `incremental_import`, `watcher`).
 - `sirene/full_import.py`, `sirene/incremental_import.py`, `sirene/watcher.py`: CLI entrypoints.
 - `sirene/tests/`: Unit, live PostgreSQL 17 integration, SQL validation, and governance compliance `pytest` suite.
@@ -52,7 +58,10 @@ make sirene-incremental
 # 5. Start the autonomous watcher daemon (Compose profile: daemon)
 make sirene-watch
 
-# 6. Stop containers
+# 6. Show documentation entrypoints (interactive HTML & EN/FR Markdown guides)
+make sirene-docs
+
+# 7. Stop containers
 make sirene-down
 ```
 
@@ -82,17 +91,11 @@ docker compose -f sirene/docker-compose.yml --profile daemon up -d sirene-watche
 
 ## Sample Analytical Queries
 
-Execute all six reference queries in `sirene/sql/03_sample_queries.sql` against the running container:
+Execute all 15 reference queries in `sirene/sql/03_sample_queries.sql` against the running container:
 
 ```bash
 docker compose -f sirene/docker-compose.yml exec -T sirene-postgres \
   psql -U sirene -d sirene < sirene/sql/03_sample_queries.sql
 ```
 
-Included queries cover:
-1. Active establishments by NAF division in target regions joined with corporate officers and sole proprietors.
-2. Fuzzy `pg_trgm` (`%` and `similarity()`) search across `unites_legales`, `etablissements`, and `personnes`.
-3. Regional and departmental active/closed establishment density with minimum headcount aggregation.
-4. Establishment administrative closure audit (`etablissements_historique_etat` `'A' -> 'F'` transitions).
-5. Enterprise size category (`PME`, `ETI`, `GE`), legal category, ESS, and mission-driven company breakdown.
-6. ETL run freshness, SHA-256 checksum audit, and throughput summary from `etl_logs`.
+Included queries cover exact SIREN/SIRET lookup, active NAF division + officers, unified `pg_trgm` fuzzy search, officer/shareholder portfolios, sole proprietors directory, WGS84 radius/bounding-box geo search, NAF 5-level rollup, regional density & headcount, `PME`/`ETI`/`GE` + ESS/mission breakdown, multi-establishment networks, `'A' -> 'F'` closure churn audit, creation cohorts, foreign establishments, `[ND]` & `HIST` quality audit, and `etl_logs` / `pg_stat_user_tables` operational health. See [sirene_documentation.html](../documentation/sirene_documentation.html) for interactive filtering and copy-ready SQL cards.

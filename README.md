@@ -80,6 +80,8 @@ Deep-dive documentation for specific components is available in the `documentati
 | **Benchmarking** | [benchmarking.md](documentation/en/benchmarking.md) | [benchmarking.md](documentation/fr/benchmarking.md) |
 | **Tools Guide** | [tools_guide.md](documentation/en/tools_guide.md) | [guide_outils.md](documentation/fr/guide_outils.md) |
 | **Interactive Reporting** | [interactive_reporting.md](documentation/en/interactive_reporting.md) | [interactive_reporting.md](documentation/fr/interactive_reporting.md) |
+| **Sirene PostgreSQL 3NF ETL** | [sirene_platform.md](documentation/en/sirene_platform.md) | [sirene_platform.md](documentation/fr/sirene_platform.md) |
+| **Sirene Interactive Reference (HTML)** | [sirene_documentation.html](documentation/sirene_documentation.html) | [sirene_documentation.html](documentation/sirene_documentation.html) |
 
 ---
 
@@ -98,6 +100,7 @@ For users working with AI agents or seeking automated maintenance, we provide sp
 
 - `employees/`: Core dataset, schema definitions, and 60+ sample queries.
 - `postgresql/`: PostgreSQL dataset, schema definitions, loading script, and integrity tests.
+- `sirene/`: PostgreSQL 17 3NF ETL platform for INSEE Sirene, Docker Compose stack, and `pytest` suite ([sirene/README.md](sirene/README.md)).
 - `scripts/`: Python/Bash automation (SQL analyzer, sysbench Lua, runners).
 - `reports/`: Destination for EXPLAIN plans, QPS results, and HTML dashboards.
 - `documentation/`: Bilingual technical guides.

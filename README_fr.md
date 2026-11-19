@@ -40,6 +40,8 @@ Une documentation détaillée pour chaque composant est disponible dans le répe
 | **Benchmarking** | [benchmarking.md](documentation/fr/benchmarking.md) | [benchmarking.md](documentation/en/benchmarking.md) |
 | **Outils & Métriques** | [guide_outils.md](documentation/fr/guide_outils.md) | [tools_guide.md](documentation/en/tools_guide.md) |
 | **Rapports Interactifs** | [interactive_reporting.md](documentation/fr/interactive_reporting.md) | [interactive_reporting.md](documentation/en/interactive_reporting.md) |
+| **Plateforme PostgreSQL 3NF Sirene** | [sirene_platform.md](documentation/fr/sirene_platform.md) | [sirene_platform.md](documentation/en/sirene_platform.md) |
+| **Référence Interactive Sirene (HTML)** | [sirene_documentation.html](documentation/sirene_documentation.html) | [sirene_documentation.html](documentation/sirene_documentation.html) |
 
 ---
 
@@ -57,6 +59,7 @@ Pour les utilisateurs travaillant avec des agents IA ou cherchant une maintenanc
 ## 📂 Carte du Dépôt
 
 - `employees/` : Jeu de données, définitions de schémas et plus de 60 requêtes exemples.
+- `sirene/` : Plateforme ETL PostgreSQL 17 3NF pour INSEE Sirene, stack Docker Compose et suite `pytest` ([sirene/README.md](sirene/README.md)).
 - `scripts/` : Automatisation Python/Bash (analyseur SQL, Lua sysbench, runners).
 - `reports/` : Destination des plans EXPLAIN, résultats QPS et tableaux de bord HTML.
 - `documentation/` : Guides techniques bilingues.
