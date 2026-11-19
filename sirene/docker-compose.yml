@@ -1,0 +1,85 @@
+services:
+  sirene-postgres:
+    image: postgres:17-bookworm
+    shm_size: "1gb"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sirene}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pg_sirene_ephemeral}
+      POSTGRES_DB: ${POSTGRES_DB:-sirene}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - work_mem=64MB
+      - -c
+      - maintenance_work_mem=512MB
+      - -c
+      - max_wal_size=4GB
+      - -c
+      - checkpoint_timeout=15min
+      - -c
+      - wal_level=minimal
+      - -c
+      - max_wal_senders=0
+      - -c
+      - effective_io_concurrency=200
+      # Optional for dedicated initial bulk loads (trades crash durability for write throughput):
+      # - -c
+      # - synchronous_commit=off
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-15432}:5432"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d:ro
+      - sirene_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  sirene-etl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      sirene-postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sirene}:${POSTGRES_PASSWORD:-pg_sirene_ephemeral}@sirene-postgres:5432/${POSTGRES_DB:-sirene}
+      STAGING_DIR: /app/staging
+      SQL_DIR: /app/sql
+      BATCH_SIZE: ${BATCH_SIZE:-50000}
+      WATCHER_INTERVAL_SECONDS: ${WATCHER_INTERVAL_SECONDS:-3600}
+      PREFERRED_FORMAT: ${PREFERRED_FORMAT:-parquet}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./staging:/app/staging
+      - ..:/workspace:ro
+    command: ["python", "full_import.py", "--help"]
+
+  sirene-watcher:
+    profiles: ["daemon"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      sirene-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sirene}:${POSTGRES_PASSWORD:-pg_sirene_ephemeral}@sirene-postgres:5432/${POSTGRES_DB:-sirene}
+      STAGING_DIR: /app/staging
+      SQL_DIR: /app/sql
+      BATCH_SIZE: ${BATCH_SIZE:-50000}
+      WATCHER_INTERVAL_SECONDS: ${WATCHER_INTERVAL_SECONDS:-3600}
+      PREFERRED_FORMAT: ${PREFERRED_FORMAT:-parquet}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./staging:/app/staging
+    command: ["python", "watcher.py"]
+
+volumes:
+  sirene_pgdata:
