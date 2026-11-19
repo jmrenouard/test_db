@@ -1,3 +1,11 @@
+1.9.1 2026-11-19
+
+- docs(sirene): added self-contained interactive HTML reference (`documentation/sirene_documentation.html`) with SVG architecture and ER diagrams, 13-table 3NF explorer, CLI/Docker guide, and filterable 15-query SQL catalog.
+- docs(sirene): added bilingual technical guides (`documentation/en/sirene_platform.md`, `documentation/fr/sirene_platform.md`) and wired links into `documentation/{en,fr}/index.md`, `README.md`, `README_fr.md`, and `sirene/README.md`.
+- feat(sql): expanded `sirene/sql/03_sample_queries.sql` from 6 to 15 read-only PostgreSQL 17 analytical, spatial, governance, fuzzy-search, and operational audit queries.
+- feat(makefile): added `sirene-docs` target displaying Sirene documentation entrypoints.
+- test(docs): added `sirene/tests/test_documentation_page.py` validating HTML structure, documentation coverage, links, and path hygiene.
+
 1.9.0 2026-11-19
 
 - feat(sirene): added PostgreSQL 17 3NF schema, B-Tree and pg_trgm GIN indexes, and analytical sample SQL queries (`sirene/sql/`).

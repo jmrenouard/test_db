@@ -631,7 +631,7 @@ def test_full_import_incremental_idempotency_and_sample_queries(
                 cur.fetchall()
             if not cur.nextset():
                 break
-    assert query_count == 6
+    assert query_count == 15
 
 
 def test_watcher_http_sync_and_checksum_rejection(

@@ -34,6 +34,7 @@ Engineering register capturing technical root causes (`RCA-`), implemented impro
 - **IMP-001:** Implemented unified Parquet (`pyarrow`) and `.csv.zip` / `.csv.gz` streaming transforms (`sirene_etl.transforms`) with header whitespace stripping, `[ND]` scrubbing, and pure-Python EPSG:2154 Lambert-93 to WGS84 conversion.
 - **IMP-002:** Implemented secondary index drop/rebuild orchestration around `psycopg` v3 `COPY FROM STDIN` temporary staging tables (`sirene_etl.db`, `sirene_etl.full_import`) plus `pg_trgm` GIN indexes for fast fuzzy search.
 - **IMP-003:** Implemented `tenacity`-backed exponential-backoff streaming downloads into `.part` files with on-the-fly SHA-256 verification and PostgreSQL advisory locking (`pg_try_advisory_lock`) to guarantee single-writer safety.
+- **IMP-004:** Added self-contained interactive HTML5 reference (`documentation/sirene_documentation.html`, inline SVG architecture/ER diagrams, 13-table explorer, filterable 15-query copy-ready catalog) paired with bilingual Markdown guides (`documentation/en/sirene_platform.md`, `documentation/fr/sirene_platform.md`), 15-query `sirene/sql/03_sample_queries.sql`, and automated structural/link tests (`sirene/tests/test_documentation_page.py`).
 
 ## Approved Next Enhancements (APP)
 
@@ -46,3 +47,4 @@ Engineering register capturing technical root causes (`RCA-`), implemented impro
 - **IDEA-001:** Enrich `personnes` and `roles_entreprises` from the INPI/RNE corporate officers and beneficial owners API beyond Sirene sole proprietors.
 - **IDEA-002:** Add optional PostGIS `GEOGRAPHY(POINT, 4326)` spatial indexing alongside WGS84 `longitude`/`latitude` columns for radius-based establishment analytics.
 - **IDEA-003:** Ingest INSEE `StockEtablissementLiensSuccession` datasets to build an establishment transfer and predecessor/successor lineage graph.
+- **IDEA-004:** Add an automated PostgreSQL `EXPLAIN (ANALYZE, BUFFERS)` benchmark exporter feeding empirical execution timings into `documentation/sirene_documentation.html` at full national Sirene scale.

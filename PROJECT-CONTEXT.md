@@ -6,8 +6,8 @@
 
 **Tech Stack:** Python 3.12, `psycopg` v3 (`COPY FROM STDIN`), PyArrow, `httpx`, `tenacity`, `python-dotenv`, PostgreSQL 17 (`pg_trgm`), Docker Compose, `pytest`.
 
-**Current Phase:** Version `1.9.0` (Issue `#4`) — Implementing the 3NF schema, initial bulk and incremental loaders, autonomous dataset watcher, and engineering governance registers.
+**Current Phase:** Version `1.9.1` (Issue `#6`) — Publishing interactive HTML and bilingual Markdown technical documentation for the 3NF model, ETL scripts, Docker operations, and 15-query PostgreSQL 17 catalog.
 
 **Hard Constraints:** Strictly English across code, docs, and governance; zero local host paths; zero real credentials or PII; idempotent, monotonically guarded ingestion.
 
-**Definition of Done:** Full Dockerized `pytest` pass covering unit transforms, live PostgreSQL 17 integration, analytical SQL queries, and governance checks.
+**Definition of Done:** Full Dockerized `pytest` pass covering unit transforms, live PostgreSQL 17 integration, 15 SQL queries, documentation validation, and governance checks.

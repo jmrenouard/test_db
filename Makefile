@@ -4,7 +4,7 @@ CONTAINER_NAME = mariadb-11-8
 
 -include .env
 
-.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch
+.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs
 
 COUNT ?= 10
 
@@ -41,6 +41,7 @@ help:
 	@echo "  make sirene-import      - Run initial full Sirene bulk import"
 	@echo "  make sirene-incremental - Run incremental Sirene delta synchronization"
 	@echo "  make sirene-watch       - Start autonomous Sirene data.gouv.fr watcher daemon"
+	@echo "  make sirene-docs        - Show Sirene interactive HTML and EN/FR documentation paths"
 
 start:
 	@echo "🚀 Starting MariaDB container ($(CONTAINER_NAME))..."
@@ -117,3 +118,10 @@ sirene-incremental:
 sirene-watch:
 	@echo "👁️ Starting Sirene data.gouv.fr watcher daemon..."
 	@docker compose -f sirene/docker-compose.yml --profile daemon up -d sirene-watcher
+
+sirene-docs:
+	@echo "📚 Sirene PostgreSQL 3NF ETL Documentation:"
+	@echo "  - Interactive HTML Reference : documentation/sirene_documentation.html"
+	@echo "  - Technical Guide (EN)       : documentation/en/sirene_platform.md"
+	@echo "  - Technical Guide (FR)       : documentation/fr/sirene_platform.md"
+	@echo "  - Module Quickstart          : sirene/README.md"

@@ -20,5 +20,10 @@ Please follow the guides in order, or jump directly to a topic of interest:
 1. [Deadlock Experiment](deadlock_experiment.md) - Simulating and tracking wait-for-graph deadlocks.
 2. [Gap Locking Experiment](gap_locking_experiment.md) - Demonstrating InnoDB gap locks on non-unique indexes.
 
+## 4. Sirene PostgreSQL 3NF Platform
+
+1. [Sirene PostgreSQL 3NF Platform Guide](sirene_platform.md) - Architecture, 13-table 3NF schema, `pg_trgm` GIN indexes, Python ETL CLI/Docker operations, and 15 SQL queries.
+2. [Interactive HTML Reference](../sirene_documentation.html) - Self-contained interactive schema explorer, SVG diagrams, and searchable SQL query catalog with one-click copy.
+
 ---
 *Back to [Main Repository README](../../README.md)*
