@@ -1,3 +1,12 @@
+1.9.0 2026-11-19
+
+- feat(sirene): added PostgreSQL 17 3NF schema, B-Tree and pg_trgm GIN indexes, and analytical sample SQL queries (`sirene/sql/`).
+- feat(sirene): implemented streaming INSEE/data.gouv.fr downloader with SHA-256 verification and official COG/NAF/CJ referentials seeder (`sirene/src/sirene_etl/`).
+- feat(sirene): implemented bulk `COPY FROM STDIN` initial importer, monotonic incremental upsert loader with closure history, and autonomous watcher daemon (`sirene/full_import.py`, `sirene/incremental_import.py`, `sirene/watcher.py`).
+- feat(sirene): added tuned Docker Compose stack (`sirene/docker-compose.yml`, `sirene/Dockerfile`) and `Makefile` targets (`sirene-up`, `sirene-down`, `sirene-test`, `sirene-import`, `sirene-incremental`, `sirene-watch`).
+- docs(governance): added living engineering registers (`PROJECT-CONTEXT.md`, `.agents/rules/project-governance.md`, `docs/ACTION_LOGBOOK.md`, `docs/RCA_REGISTER.md`).
+- test(sirene): added comprehensive unit, live PostgreSQL 17 integration, and governance compliance pytest suite (`sirene/tests/`).
+
 1.8.1 2026-08-01
 
 - feat: added synthetic employee data injection mechanism (`scripts/inject_fake_employees.py`) using Python Faker with built-in fallback generator.

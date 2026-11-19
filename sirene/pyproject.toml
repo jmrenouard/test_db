@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sirene-etl"
+version = "1.9.0"
+description = "PostgreSQL 17 3NF ETL pipeline and autonomous data.gouv.fr watcher for INSEE Sirene datasets."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "psycopg[binary]>=3.2",
+    "pyarrow>=17.0",
+    "httpx>=0.27",
+    "tenacity>=9.0",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "unit: Pure unit tests without external services.",
+    "integration: End-to-end tests requiring PostgreSQL 17.",
+    "governance: Repository documentation and hygiene checks.",
+]

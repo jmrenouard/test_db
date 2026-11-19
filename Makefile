@@ -4,7 +4,7 @@ CONTAINER_NAME = mariadb-11-8
 
 -include .env
 
-.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean
+.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch
 
 COUNT ?= 10
 
@@ -33,6 +33,14 @@ help:
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  make clean      - Remove generated reports"
+	@echo ""
+	@echo "Sirene PostgreSQL 3NF ETL Commands:"
+	@echo "  make sirene-up          - Start PostgreSQL 17 container for Sirene"
+	@echo "  make sirene-down        - Stop Sirene Docker Compose stack"
+	@echo "  make sirene-test        - Build and run full Sirene pytest suite in Docker"
+	@echo "  make sirene-import      - Run initial full Sirene bulk import"
+	@echo "  make sirene-incremental - Run incremental Sirene delta synchronization"
+	@echo "  make sirene-watch       - Start autonomous Sirene data.gouv.fr watcher daemon"
 
 start:
 	@echo "🚀 Starting MariaDB container ($(CONTAINER_NAME))..."
@@ -83,3 +91,29 @@ interactive:
 clean:
 	@echo "🧹 Cleaning up reports..."
 	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt reports/perf_threads/*.html reports/perf_threads/*.md reports/deadlock reports/gap_locking reports/transactions reports/infrastructure.json
+
+sirene-up:
+	@echo "🐘 Starting Sirene PostgreSQL 17 container..."
+	@docker compose -f sirene/docker-compose.yml up -d sirene-postgres
+
+sirene-down:
+	@echo "🛑 Stopping Sirene Docker Compose stack..."
+	@docker compose -f sirene/docker-compose.yml --profile daemon down
+
+sirene-test:
+	@echo "🧪 Building and running Sirene ETL test suite in Docker..."
+	@docker compose -f sirene/docker-compose.yml up -d --wait sirene-postgres
+	@docker compose -f sirene/docker-compose.yml build sirene-etl
+	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl pytest -v
+
+sirene-import:
+	@echo "📥 Running Sirene initial bulk import..."
+	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl python full_import.py $(ARGS)
+
+sirene-incremental:
+	@echo "🔄 Running Sirene incremental synchronization..."
+	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py $(ARGS)
+
+sirene-watch:
+	@echo "👁️ Starting Sirene data.gouv.fr watcher daemon..."
+	@docker compose -f sirene/docker-compose.yml --profile daemon up -d sirene-watcher

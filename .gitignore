@@ -1,4 +1,12 @@
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+*.part
 reports/perf_threads/*.txt
 reports/explain_reports/*.txt
+sirene/staging/
+sirene/.env
+.env
+
