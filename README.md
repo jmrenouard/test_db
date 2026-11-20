@@ -100,7 +100,7 @@ For users working with AI agents or seeking automated maintenance, we provide sp
 
 - `employees/`: Core dataset, schema definitions, and 60+ sample queries.
 - `postgresql/`: PostgreSQL dataset, schema definitions, loading script, and integrity tests.
-- `sirene/`: PostgreSQL 17 3NF ETL platform for INSEE Sirene, Docker Compose stack, and `pytest` suite ([sirene/README.md](sirene/README.md)).
+- `sirene/`: PostgreSQL 18 3NF ETL platform for INSEE Sirene, embedded 100% synthetic `15,000` legal units / `30,000` establishments SQL & Parquet datasets (`make sirene-inject`, `make sirene-verify`, `make sirene-import-sample`, `make sirene-incremental-sample`), Docker Compose stack, and `pytest` suite ([sirene/README.md](sirene/README.md)).
 - `scripts/`: Python/Bash automation (SQL analyzer, sysbench Lua, runners).
 - `reports/`: Destination for EXPLAIN plans, QPS results, and HTML dashboards.
 - `documentation/`: Bilingual technical guides.

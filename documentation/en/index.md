@@ -22,8 +22,8 @@ Please follow the guides in order, or jump directly to a topic of interest:
 
 ## 4. Sirene PostgreSQL 18 3NF Platform
 
-1. [Sirene PostgreSQL 18 3NF Platform Guide](sirene_platform.md) - Architecture, 13-table 3NF schema, `pg_trgm` GIN indexes, Python ETL CLI/Docker operations, multi-master qualification (`mm_probe.py`), and 15 SQL queries.
-2. [Interactive HTML Reference](../sirene_documentation.html) - Self-contained interactive PostgreSQL 18 schema explorer, SVG diagrams, multi-master probe reference, and searchable SQL query catalog with one-click copy.
+1. [Sirene PostgreSQL 18 3NF Platform Guide](sirene_platform.md) - Architecture, 13-table 3NF schema, `pg_trgm` GIN indexes, Python ETL CLI/Docker operations, multi-master qualification (`mm_probe.py`), ready-to-inject synthetic SQL/Parquet datasets (`1.11.0`) with SHA-256 verification, and 15 SQL queries.
+2. [Interactive HTML Reference](../sirene_documentation.html) - Self-contained interactive PostgreSQL 18 schema explorer, SVG diagrams, multi-master probe reference, embedded synthetic SQL/Parquet dataset guide, and searchable SQL query catalog with one-click copy.
 
 ---
 *Back to [Main Repository README](../../README.md)*

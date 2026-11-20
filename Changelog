@@ -1,3 +1,12 @@
+1.11.0 2026-11-20
+
+- feat(sirene): added deterministic synthetic dataset generator (`sirene/scripts/generate_synthetic_dataset.py`, `seed=20261120`, zero PII) producing 15,000 legal units, 30,000 establishments, 8,000 persons, 12,000 roles, and 1,200 closure history rows.
+- feat(sql): added direct PostgreSQL `psql` injection suite (`sirene/load_sirene.sql`, `sirene/load_sirene_db.sh`, `sirene/data/sql/01..04_*.sql`) and SHA-256 verification script (`sirene/test_sirene_sha2.sql`).
+- feat(data): added ZSTD-compressed offline synthetic Parquet and delta CSV/Parquet files under `sirene/data/parquet/` and `sirene/data/delta/`.
+- feat(docker): mounted `.:/sirene:ro` on `sirene-postgres`, `./data:/app/data:ro` on `sirene-etl`, added `.gitattributes` LF rules, and added `Makefile` targets (`sirene-inject`, `sirene-verify`, `sirene-import-sample`, `sirene-incremental-sample`).
+- docs(sirene): updated `README.md`, `README_fr.md`, `sirene/README.md`, HTML/Markdown guides, `PROJECT-CONTEXT.md`, `docs/ACTION_LOGBOOK.md` (`M8`/`ACT-004`), and `docs/RCA_REGISTER.md` (`IMP-006`).
+- test(sirene): added `sirene/tests/test_direct_sql_and_sample_data.py` and updated `test_documentation_page.py` coverage.
+
 1.10.0 2026-11-20
 
 - feat(sirene): upgraded Docker runtime from PostgreSQL 17 to PostgreSQL 18 (`postgres:18-bookworm`) with `/var/lib/postgresql` volume mount alignment.

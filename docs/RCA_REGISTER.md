@@ -46,6 +46,7 @@ Engineering register capturing technical root causes (`RCA-`), implemented impro
 - **IMP-003:** Implemented `tenacity`-backed exponential-backoff streaming downloads into `.part` files with on-the-fly SHA-256 verification and PostgreSQL advisory locking (`pg_try_advisory_lock`) to guarantee single-writer safety.
 - **IMP-004:** Added self-contained interactive HTML5 reference (`documentation/sirene_documentation.html`, inline SVG architecture/ER diagrams, 13-table explorer, filterable 15-query copy-ready catalog) paired with bilingual Markdown guides (`documentation/en/sirene_platform.md`, `documentation/fr/sirene_platform.md`), 15-query `sirene/sql/03_sample_queries.sql`, and automated structural/link tests (`sirene/tests/test_documentation_page.py`).
 - **IMP-005:** Added `sirene/mm_probe.py` (`sirene_etl.mm_probe`) and 2-node `sirene/docker-compose.pg18-birep.yml` lab delivering a 5-probe multi-master qualification scorecard (`P1_DDL_COMPAT`..`P5_BULK_COPY_REPLICATION_LAG`) with staggered sequences, `origin=none` loop protection, and P3-last ordering.
+- **IMP-006:** Added deterministic zero-PII synthetic dataset generator (`sirene/scripts/generate_synthetic_dataset.py`, `seed=20261120`), direct `psql` SQL dumps (`sirene/load_sirene.sql`, `sirene/load_sirene_db.sh`, `sirene/data/sql/01..04_*.sql`), SHA-256 checksum suite (`sirene/test_sirene_sha2.sql`), offline ZSTD Parquet/delta fixtures (`sirene/data/parquet/`, `sirene/data/delta/`), and `.gitattributes` LF normalization.
 
 ## Approved Next Enhancements (APP)
 

@@ -978,7 +978,7 @@
         </div>
         <div>
           <div class="brand-title">INSEE Sirene PostgreSQL 18 3NF Platform</div>
-          <div class="brand-sub">v1.10.0 &middot; PostgreSQL 18-bookworm &middot; Python 3.12 &middot; psycopg v3 &middot; pg_trgm &middot; mm_probe</div>
+          <div class="brand-sub">v1.11.0 &middot; PostgreSQL 18-bookworm &middot; Python 3.12 &middot; psycopg v3 &middot; pg_trgm &middot; mm_probe &middot; Offline SQL/Parquet</div>
         </div>
       </div>
 
@@ -1021,6 +1021,7 @@
           <li><a class="toc-link" href="#index-explorer">Index Reference (25)</a></li>
           <li><a class="toc-link" href="#etl-docker">3. CLI Entrypoints</a></li>
           <li><a class="toc-link" href="#mm-probe">Multi-Master (mm_probe)</a></li>
+          <li><a class="toc-link" href="#embedded-datasets">Direct SQL &amp; Sample Data</a></li>
           <li><a class="toc-link" href="#library-modules">Internal ETL Modules</a></li>
           <li><a class="toc-link" href="#env-docker">Env Vars &amp; PG18 Tuning</a></li>
           <li><a class="toc-link" href="#sql-catalog">4. Catalog of 15 Queries</a></li>
@@ -1074,6 +1075,7 @@
             <span class="badge badge-violet">Pure-Python GRS80 Geocoder</span>
             <span class="badge badge-amber">SHA-256 Idempotent Watcher</span>
             <span class="badge badge-blue">Multi-Master Probe (mm_probe.py)</span>
+            <span class="badge badge-emerald">Direct SQL &amp; 15k/30k Offline Datasets</span>
           </div>
         </div>
 
@@ -1116,14 +1118,25 @@
           </div>
         </div>
 
-        <div class="card" style="border-color: var(--accent-border); background: var(--accent-soft);">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-            <h3>PostgreSQL 18 Runtime &amp; Multi-Master Qualification (<code>mm_probe.py</code>)</h3>
-            <span class="badge badge-blue">v1.10.0 &middot; Issue #8</span>
+        <div class="grid-2">
+          <div class="card" style="border-color: var(--accent-border); background: var(--accent-soft);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <h3>PostgreSQL 18 Runtime &amp; Multi-Master Qualification (<code>mm_probe.py</code>)</h3>
+              <span class="badge badge-blue">v1.10.0 &middot; Issue #8</span>
+            </div>
+            <p>
+              Runs on <code>postgres:18-bookworm</code> with the PostgreSQL 18 <code>/var/lib/postgresql</code> volume mount layout (PG 18 stores data under <code>/var/lib/postgresql/18/docker</code> and rejects legacy <code>/var/lib/postgresql/data</code> mounts). Includes <code>sirene/mm_probe.py</code> and <code>sirene/docker-compose.pg18-birep.yml</code> to qualify native bidirectional logical replication (<code>origin=none</code>) or external multi-master candidates (pgEdge Spock, Citus, YugabyteDB, CockroachDB) across 5 probes (<code>P1_DDL_COMPAT</code>..<code>P5_BULK_COPY_REPLICATION_LAG</code>).
+            </p>
           </div>
-          <p>
-            Runs on <code>postgres:18-bookworm</code> with the PostgreSQL 18 <code>/var/lib/postgresql</code> volume mount layout (PG 18 stores data under <code>/var/lib/postgresql/18/docker</code> and rejects legacy <code>/var/lib/postgresql/data</code> mounts). Includes <code>sirene/mm_probe.py</code> and <code>sirene/docker-compose.pg18-birep.yml</code> to qualify native bidirectional logical replication (<code>origin=none</code>) or external multi-master candidates (pgEdge Spock, Citus, YugabyteDB, CockroachDB) across 5 probes (<code>P1_DDL_COMPAT</code>..<code>P5_BULK_COPY_REPLICATION_LAG</code>).
-          </p>
+          <div class="card" style="border-color: var(--emerald-border); background: var(--emerald-soft);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <h3>Direct SQL Injection &amp; Embedded Offline Datasets</h3>
+              <span class="badge badge-emerald">v1.11.0 &middot; Issue #10</span>
+            </div>
+            <p>
+              Includes a zero-Python direct SQL loader (<code>sirene/load_sirene.sql</code>, <code>sirene/load_sirene_db.sh</code>, <code>sirene/data/sql/01..04_*.sql</code>) plus chained SHA-256 integrity verifier (<code>sirene/test_sirene_sha2.sql</code>) and compressed offline Parquet/CSV stock &amp; delta fixtures (<code>StockUniteLegale_synthetic.parquet</code> <code>15,000</code> rows, <code>StockEtablissement_synthetic.parquet</code> <code>30,000</code> rows, <code>Delta*</code>), generated deterministically by <code>sirene/scripts/generate_synthetic_dataset.py</code> (zero PII).
+            </p>
+          </div>
         </div>
 
         <div class="diagram-frame">
@@ -1332,6 +1345,38 @@
               </div>
               <pre><code>make sirene-mm-down</code></pre>
               <div class="cmd-desc">Stops and removes the 2-node bidirectional replication containers and ephemeral volumes cleanly.</div>
+            </div>
+            <div class="cmd-card">
+              <div class="cmd-top">
+                <span class="cmd-name">9. Direct SQL Injection (Zero Python)</span>
+                <button class="copy-btn" type="button" data-copy-text="make sirene-inject">Copy</button>
+              </div>
+              <pre><code>make sirene-inject</code></pre>
+              <div class="cmd-desc">Executes <code>sirene/load_sirene.sql</code> inside <code>sirene-postgres</code> loading all 15k legal units, 30k establishments, and governance history directly via <code>psql</code>.</div>
+            </div>
+            <div class="cmd-card">
+              <div class="cmd-top">
+                <span class="cmd-name">10. SHA-256 Checksum &amp; Row-Count Verify</span>
+                <button class="copy-btn" type="button" data-copy-text="make sirene-verify">Copy</button>
+              </div>
+              <pre><code>make sirene-verify</code></pre>
+              <div class="cmd-desc">Runs <code>sirene/test_sirene_sha2.sql</code> across all 12 domain/referential tables asserting exact row counts and chained SHA-256 digests.</div>
+            </div>
+            <div class="cmd-card">
+              <div class="cmd-top">
+                <span class="cmd-name">11. Offline Synthetic Parquet Bulk Import</span>
+                <button class="copy-btn" type="button" data-copy-text="make sirene-import-sample">Copy</button>
+              </div>
+              <pre><code>make sirene-import-sample</code></pre>
+              <div class="cmd-desc">Loads <code>StockUniteLegale_synthetic.parquet</code> (15,000 rows) &amp; <code>StockEtablissement_synthetic.parquet</code> (30,000 rows) via <code>full_import.py --offline-refs --force</code>.</div>
+            </div>
+            <div class="cmd-card">
+              <div class="cmd-top">
+                <span class="cmd-name">12. Offline Synthetic Delta Sync</span>
+                <button class="copy-btn" type="button" data-copy-text="make sirene-incremental-sample">Copy</button>
+              </div>
+              <pre><code>make sirene-incremental-sample</code></pre>
+              <div class="cmd-desc">Streams <code>DeltaUniteLegale_synthetic.parquet</code> (250 rows) &amp; <code>DeltaEtablissement_synthetic.parquet</code> (500 rows) through <code>incremental_import.py --force</code>.</div>
             </div>
           </div>
         </div>
@@ -2424,6 +2469,139 @@ python sirene/mm_probe.py --dsn-a "$MM_DSN_A" --dsn-b "$MM_DSN_B" \
           </div>
         </div>
 
+        <!-- Direct SQL Injection & Embedded Offline Synthetic Dataset -->
+        <div id="embedded-datasets" style="scroll-margin-top: 84px;">
+          <h3 style="margin-bottom: var(--sp-3);">Direct SQL Injection &amp; Embedded Offline Datasets (<code>1.11.0</code>)</h3>
+          <p style="margin-bottom: var(--sp-4); font-size: 0.9rem;">
+            For zero-internet, instant lab provisioning or pure-SQL evaluation without running Python ETL downloads, <code>sirene/</code> ships deterministic synthetic SQL dumps (<code>seed = 20261120</code>, strictly synthetic <code>900000000</code>&ndash;<code>999999999</code> SIRENs, zero real PII, total <code>sirene/data/</code> footprint under 30 MB) alongside matching ZSTD-compressed INSEE v3.11 Parquet and zipped CSV delta fixtures generated by <code>sirene/scripts/generate_synthetic_dataset.py</code>.
+          </p>
+
+          <div class="grid-2" style="margin-bottom: var(--sp-4);">
+            <div class="card">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <h3>Pure-SQL Injection &amp; SHA-256 Verifier</h3>
+                <span class="badge badge-emerald">Zero Python</span>
+              </div>
+              <p>
+                <code>sirene/load_sirene.sql</code> applies <code>sql/01_schema_3nf.sql</code>, safely drops non-constraint secondary indexes before bulk loading, streams <code>sirene/data/sql/01..04_*.sql</code> via <code>COPY FROM STDIN</code> (explicit non-generated columns, LF line endings), rebuilds <code>sql/02_indexes.sql</code>, and executes <code>ANALYZE;</code>. <code>sirene/load_sirene_db.sh</code> wraps <code>psql -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/load_sirene.sql"</code> for host-side bash runs.
+              </p>
+              <pre><code># Inject directly into running sirene-postgres container (mounts .:/sirene:ro)
+make sirene-inject
+
+# Verify exact row counts and chained SHA-256 digests across all 12 domain tables
+make sirene-verify
+
+# Host-side bash alternative (requires local psql)
+bash sirene/load_sirene_db.sh</code></pre>
+            </div>
+
+            <div class="card">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <h3>Offline Parquet / Delta Pipeline Mode</h3>
+                <span class="badge badge-blue">ETL Offline</span>
+              </div>
+              <p>
+                <code>sirene-etl</code> mounts <code>./data:/app/data:ro</code> so both <code>full_import.py</code> and <code>incremental_import.py</code> can execute end-to-end offline against INSEE-formatted synthetic Parquet and zipped CSV files containing <code>[ND]</code> non-diffusible tokens, Lambert-93 coordinates, sole proprietors, and <code>'A' -&gt; 'F'</code> closures.
+              </p>
+              <pre><code># Full bulk ingestion (15,000 legal units + 30,000 establishments)
+make sirene-import-sample
+
+# Incremental delta sync (250 legal unit rows + 500 establishment rows)
+make sirene-incremental-sample
+
+# Regenerate deterministic SQL/Parquet/CSV artifacts
+python sirene/scripts/generate_synthetic_dataset.py</code></pre>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Artifact Path</th>
+                  <th>Format / EOL</th>
+                  <th>Row Counts &amp; Contents</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>sirene/load_sirene.sql</code></td>
+                  <td>SQL (<code>\ir</code>, LF)</td>
+                  <td>Master DDL + index drop + 4 SQL dumps + index rebuild + <code>ANALYZE</code></td>
+                  <td>Zero-Python <code>psql</code> entrypoint invoked by <code>make sirene-inject</code></td>
+                </tr>
+                <tr>
+                  <td><code>sirene/load_sirene_db.sh</code></td>
+                  <td>Bash (<code>set -euo pipefail</code>, LF)</td>
+                  <td>Wraps <code>psql -v ON_ERROR_STOP=1 -f load_sirene.sql</code></td>
+                  <td>Portable host shell database loader</td>
+                </tr>
+                <tr>
+                  <td><code>sirene/test_sirene_sha2.sql</code></td>
+                  <td>SQL (LF)</td>
+                  <td>Chained <code>sha256</code> CRC + row count assertions across 12 tables</td>
+                  <td>Deterministic integrity verifier invoked by <code>make sirene-verify</code></td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/sql/01_load_referentials.sql</code></td>
+                  <td>SQL <code>COPY</code> (LF)</td>
+                  <td>7 <code>ref_*</code> tables (sentinels, 18 regions, 101+ depts, ~500 communes, NAF, CJ, workforce)</td>
+                  <td>Referential dimension dump</td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/sql/02_load_unites_legales.sql</code></td>
+                  <td>SQL <code>COPY</code> (LF)</td>
+                  <td><span class="num">15,000</span> <code>unites_legales</code> rows (explicit 32 cols, excl. <code>nom_recherche</code>)</td>
+                  <td>Legal units bulk dump (<code>'BOULANGERIE DUPONT'</code>, <code>'ACME TECHNOLOGIE'</code>, div <code>62</code>, ESS, mission)</td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/sql/03_load_etablissements.sql</code></td>
+                  <td>SQL <code>COPY</code> (LF)</td>
+                  <td><span class="num">30,000</span> <code>etablissements</code> rows (excl. generated cols; ~200 foreign, Paris/Toulouse coords)</td>
+                  <td>Establishments bulk dump (headquarters, multi-branch networks, <code>[ND]</code> nulls)</td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/sql/04_load_governance_and_history.sql</code></td>
+                  <td>SQL <code>COPY</code> (LF)</td>
+                  <td><span class="num">8,000</span> <code>personnes</code>, <span class="num">12,000</span> <code>roles_entreprises</code>, <span class="num">1,200</span> history rows, <span class="num">4</span> <code>etl_logs</code></td>
+                  <td>Governance portfolio, sole proprietors, state transitions &amp; baseline audit logs</td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/parquet/StockUniteLegale_synthetic.parquet</code></td>
+                  <td>Parquet (ZSTD)</td>
+                  <td><span class="num">15,000</span> INSEE v3.11 legal unit records (<code>9xxxxxxxx</code> SIRENs)</td>
+                  <td>Offline input for <code>full_import.py --ul-file</code></td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/parquet/StockEtablissement_synthetic.parquet</code></td>
+                  <td>Parquet (ZSTD)</td>
+                  <td><span class="num">30,000</span> INSEE v3.11 establishment records</td>
+                  <td>Offline input for <code>full_import.py --etab-file</code></td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/delta/DeltaUniteLegale_synthetic.parquet</code></td>
+                  <td>Parquet (ZSTD)</td>
+                  <td><span class="num">250</span> records (200 updates + 50 new units)</td>
+                  <td>Offline delta input for <code>incremental_import.py</code></td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/delta/DeltaEtablissement_synthetic.parquet</code></td>
+                  <td>Parquet (ZSTD)</td>
+                  <td><span class="num">500</span> records (400 updates incl. 150 <code>'A' -&gt; 'F'</code> closures + 100 new)</td>
+                  <td>Offline delta input for <code>incremental_import.py</code></td>
+                </tr>
+                <tr>
+                  <td><code>sirene/data/delta/DeltaEtablissement_synthetic.csv.zip</code></td>
+                  <td>Zipped UTF-8 CSV</td>
+                  <td><span class="num">500</span> identical delta rows in INSEE CSV format</td>
+                  <td>Zipped CSV reader &amp; delta sync validation fixture</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Internal Library Modules -->
         <div id="library-modules" style="scroll-margin-top: 84px;">
           <h3 style="margin-bottom: var(--sp-3);">Internal <code>sirene_etl</code> Package Modules (<code>sirene/src/sirene_etl/</code>)</h3>
@@ -2439,7 +2617,7 @@ python sirene/mm_probe.py --dsn-a "$MM_DSN_A" --dsn-b "$MM_DSN_B" \
               <tbody>
                 <tr>
                   <td><code>__init__.py</code></td>
-                  <td><code>__version__ = "1.10.0"</code></td>
+                  <td><code>__version__ = "1.11.0"</code></td>
                   <td>Package metadata export.</td>
                 </tr>
                 <tr>
@@ -2541,8 +2719,8 @@ python sirene/mm_probe.py --dsn-a "$MM_DSN_A" --dsn-b "$MM_DSN_B" \
               <table>
                 <thead><tr><th>Service (Compose File)</th><th>Image / Profile</th><th>Mounts &amp; Command</th></tr></thead>
                 <tbody>
-                  <tr><td><code>sirene-postgres</code> (<code>docker-compose.yml</code>)</td><td><code>${POSTGRES_IMAGE:-postgres:18-bookworm}</code> (default)</td><td>Mounts <code>./sql:/docker-entrypoint-initdb.d:ro</code> &amp; <code>sirene_pgdata:/var/lib/postgresql</code>; healthcheck <code>pg_isready</code> every 5s</td></tr>
-                  <tr><td><code>sirene-etl</code> (<code>docker-compose.yml</code>)</td><td><code>./Dockerfile</code> (default)</td><td>Mounts <code>./staging:/app/staging</code> &amp; <code>..:/workspace:ro</code>; default <code>python full_import.py --help</code></td></tr>
+                  <tr><td><code>sirene-postgres</code> (<code>docker-compose.yml</code>)</td><td><code>${POSTGRES_IMAGE:-postgres:18-bookworm}</code> (default)</td><td>Mounts <code>./sql:/docker-entrypoint-initdb.d:ro</code>, <code>.:/sirene:ro</code> &amp; <code>sirene_pgdata:/var/lib/postgresql</code>; healthcheck <code>pg_isready</code> every 5s</td></tr>
+                  <tr><td><code>sirene-etl</code> (<code>docker-compose.yml</code>)</td><td><code>./Dockerfile</code> (default)</td><td>Mounts <code>./staging:/app/staging</code>, <code>./data:/app/data:ro</code> &amp; <code>..:/workspace:ro</code>; default <code>python full_import.py --help</code></td></tr>
                   <tr><td><code>sirene-watcher</code> (<code>docker-compose.yml</code>)</td><td><code>./Dockerfile</code> (profile <code>daemon</code>)</td><td><code>restart: unless-stopped</code>; mounts <code>./staging:/app/staging</code>; runs <code>python watcher.py</code></td></tr>
                   <tr><td><code>sirene-mm-node-a</code> &amp; <code>-b</code> (<code>docker-compose.pg18-birep.yml</code>)</td><td><code>${POSTGRES_IMAGE:-postgres:18-bookworm}</code></td><td>Ports <code>15441</code> &amp; <code>15442</code>; mounts <code>./sql</code> &amp; <code>sirene_mm_a|b_pgdata:/var/lib/postgresql</code>; logical replication enabled</td></tr>
                   <tr><td><code>sirene-mm-probe</code> (<code>docker-compose.pg18-birep.yml</code>)</td><td><code>./Dockerfile</code></td><td>Depends on healthy Node A/B; sets <code>MM_DSN_A</code>/<code>MM_DSN_B</code>; default <code>python mm_probe.py --help</code></td></tr>
