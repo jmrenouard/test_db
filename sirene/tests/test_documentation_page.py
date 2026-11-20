@@ -36,12 +36,15 @@ REQUIRED_ETL_MODULES: tuple[str, ...] = (
     "full_import.py",
     "incremental_import.py",
     "watcher.py",
+    "mm_probe.py",
     "config.py",
     "db.py",
     "downloader.py",
     "referentials.py",
     "transforms.py",
 )
+
+REQUIRED_PLATFORM_MARKERS: tuple[str, ...] = ("PostgreSQL 18",)
 
 HOST_PATH_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"[A-Za-z]:\\Users\\", re.IGNORECASE),
@@ -136,8 +139,13 @@ def test_documentation_files_exist_and_non_empty(repo_root: Path) -> None:
 
 
 def test_all_tables_indexes_and_etl_modules_documented(repo_root: Path) -> None:
-    """Ensure all 13 tables, 3 pg_trgm GIN indexes, and 8 ETL modules appear in every doc."""
-    required_symbols = REQUIRED_TABLES + REQUIRED_GIN_INDEXES + REQUIRED_ETL_MODULES
+    """Ensure all 13 tables, 3 pg_trgm GIN indexes, 9 ETL scripts/modules, and PG18 appear."""
+    required_symbols = (
+        REQUIRED_TABLES
+        + REQUIRED_GIN_INDEXES
+        + REQUIRED_ETL_MODULES
+        + REQUIRED_PLATFORM_MARKERS
+    )
     for label, path in _doc_files(repo_root).items():
         content = path.read_text(encoding="utf-8")
         missing = [symbol for symbol in required_symbols if symbol not in content]

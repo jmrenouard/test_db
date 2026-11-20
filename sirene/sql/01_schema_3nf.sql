@@ -1,12 +1,15 @@
 -- =============================================================================
--- SIRENE PostgreSQL 3NF Relational Schema (PostgreSQL 15+)
+-- SIRENE PostgreSQL 18 3NF Relational Schema (postgres:18-bookworm)
 -- =============================================================================
 -- Idempotent DDL for INSEE SIRENE legal units, establishments, geographic and
 -- economic referentials, corporate officers / sole proprietors, state audit
 -- history, and ETL execution tracking.
 --
--- Requirements:
---   - PostgreSQL >= 15 (uses UNIQUE NULLS NOT DISTINCT and STORED generated cols)
+-- Requirements & Replication Notes:
+--   - PostgreSQL 18 (postgres:18-bookworm; compatible with PostgreSQL >= 15
+--     for UNIQUE NULLS NOT DISTINCT and STORED generated columns)
+--   - All 13 tables define explicit PRIMARY KEYs (REPLICA IDENTITY DEFAULT) for
+--     logical replication and multi-master qualification compatibility
 --   - pg_trgm extension for trigram fuzzy search indexes (see 02_indexes.sql)
 -- =============================================================================
 

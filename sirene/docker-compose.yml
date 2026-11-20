@@ -1,6 +1,6 @@
 services:
   sirene-postgres:
-    image: postgres:17-bookworm
+    image: ${POSTGRES_IMAGE:-postgres:18-bookworm}
     shm_size: "1gb"
     restart: unless-stopped
     environment:
@@ -32,7 +32,7 @@ services:
       - "127.0.0.1:${POSTGRES_HOST_PORT:-15432}:5432"
     volumes:
       - ./sql:/docker-entrypoint-initdb.d:ro
-      - sirene_pgdata:/var/lib/postgresql/data
+      - sirene_pgdata:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}"]
       interval: 5s

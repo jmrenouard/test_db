@@ -4,7 +4,7 @@ CONTAINER_NAME = mariadb-11-8
 
 -include .env
 
-.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs
+.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs sirene-mm-up sirene-mm-probe sirene-mm-down
 
 COUNT ?= 10
 
@@ -34,14 +34,17 @@ help:
 	@echo "Maintenance:"
 	@echo "  make clean      - Remove generated reports"
 	@echo ""
-	@echo "Sirene PostgreSQL 3NF ETL Commands:"
-	@echo "  make sirene-up          - Start PostgreSQL 17 container for Sirene"
+	@echo "Sirene PostgreSQL 18 3NF ETL Commands:"
+	@echo "  make sirene-up          - Start PostgreSQL 18 container for Sirene"
 	@echo "  make sirene-down        - Stop Sirene Docker Compose stack"
 	@echo "  make sirene-test        - Build and run full Sirene pytest suite in Docker"
 	@echo "  make sirene-import      - Run initial full Sirene bulk import"
 	@echo "  make sirene-incremental - Run incremental Sirene delta synchronization"
 	@echo "  make sirene-watch       - Start autonomous Sirene data.gouv.fr watcher daemon"
 	@echo "  make sirene-docs        - Show Sirene interactive HTML and EN/FR documentation paths"
+	@echo "  make sirene-mm-up       - Start 2-node PostgreSQL 18 bidirectional replication lab"
+	@echo "  make sirene-mm-probe    - Run multi-master qualification probe against the 2-node PG 18 lab"
+	@echo "  make sirene-mm-down     - Stop and remove 2-node PG 18 multi-master lab containers and volumes"
 
 start:
 	@echo "🚀 Starting MariaDB container ($(CONTAINER_NAME))..."
@@ -94,7 +97,7 @@ clean:
 	@rm -rf reports/performance_report.md reports/explain_reports/*.txt reports/perf_threads/*.txt reports/perf_threads/*.html reports/perf_threads/*.md reports/deadlock reports/gap_locking reports/transactions reports/infrastructure.json
 
 sirene-up:
-	@echo "🐘 Starting Sirene PostgreSQL 17 container..."
+	@echo "🐘 Starting Sirene PostgreSQL 18 container..."
 	@docker compose -f sirene/docker-compose.yml up -d sirene-postgres
 
 sirene-down:
@@ -120,8 +123,22 @@ sirene-watch:
 	@docker compose -f sirene/docker-compose.yml --profile daemon up -d sirene-watcher
 
 sirene-docs:
-	@echo "📚 Sirene PostgreSQL 3NF ETL Documentation:"
+	@echo "📚 Sirene PostgreSQL 18 3NF ETL Documentation:"
 	@echo "  - Interactive HTML Reference : documentation/sirene_documentation.html"
 	@echo "  - Technical Guide (EN)       : documentation/en/sirene_platform.md"
 	@echo "  - Technical Guide (FR)       : documentation/fr/sirene_platform.md"
 	@echo "  - Module Quickstart          : sirene/README.md"
+
+sirene-mm-up:
+	@echo "🐘 Starting 2-node PostgreSQL 18 bidirectional replication lab..."
+	@docker compose -f sirene/docker-compose.pg18-birep.yml up -d --wait sirene-mm-node-a sirene-mm-node-b
+
+sirene-mm-probe:
+	@echo "🔬 Building and running Sirene multi-master qualification probe..."
+	@docker compose -f sirene/docker-compose.pg18-birep.yml up -d --wait sirene-mm-node-a sirene-mm-node-b
+	@docker compose -f sirene/docker-compose.pg18-birep.yml build sirene-mm-probe
+	@docker compose -f sirene/docker-compose.pg18-birep.yml run --rm sirene-mm-probe sh -c 'python mm_probe.py --dsn-a "$$MM_DSN_A" --dsn-b "$$MM_DSN_B" --setup-native-birep --candidate-name pg18-native-birep $(ARGS)'
+
+sirene-mm-down:
+	@echo "🛑 Stopping 2-node PostgreSQL 18 multi-master lab..."
+	@docker compose -f sirene/docker-compose.pg18-birep.yml down -v

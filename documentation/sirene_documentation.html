@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>INSEE Sirene PostgreSQL 17 3NF Platform — Interactive Technical Reference</title>
+  <title>INSEE Sirene PostgreSQL 18 3NF Platform — Interactive Technical Reference</title>
   <style>
     :root {
       --sp-1: 4px;
@@ -977,8 +977,8 @@
           </svg>
         </div>
         <div>
-          <div class="brand-title">INSEE Sirene PostgreSQL 17 3NF Platform</div>
-          <div class="brand-sub">v1.9.1 &middot; PostgreSQL 17-bookworm &middot; Python 3.12 &middot; psycopg v3 &middot; pg_trgm</div>
+          <div class="brand-title">INSEE Sirene PostgreSQL 18 3NF Platform</div>
+          <div class="brand-sub">v1.10.0 &middot; PostgreSQL 18-bookworm &middot; Python 3.12 &middot; psycopg v3 &middot; pg_trgm &middot; mm_probe</div>
         </div>
       </div>
 
@@ -1020,8 +1020,9 @@
           <li><a class="toc-link" href="#generated-sentinels">Generated Cols &amp; Sentinels</a></li>
           <li><a class="toc-link" href="#index-explorer">Index Reference (25)</a></li>
           <li><a class="toc-link" href="#etl-docker">3. CLI Entrypoints</a></li>
+          <li><a class="toc-link" href="#mm-probe">Multi-Master (mm_probe)</a></li>
           <li><a class="toc-link" href="#library-modules">Internal ETL Modules</a></li>
-          <li><a class="toc-link" href="#env-docker">Env Vars &amp; PG17 Tuning</a></li>
+          <li><a class="toc-link" href="#env-docker">Env Vars &amp; PG18 Tuning</a></li>
           <li><a class="toc-link" href="#sql-catalog">4. Catalog of 15 Queries</a></li>
         </ul>
       </div>
@@ -1062,16 +1063,17 @@
       <section id="overview" class="panel">
         <div class="hero-banner">
           <div class="section-kicker">Section 01 &middot; Architecture &amp; Pipeline</div>
-          <h1>Sirene PostgreSQL 17 3NF ETL Platform</h1>
+          <h1>Sirene PostgreSQL 18 3NF ETL Platform</h1>
           <p>
-            Idempotent, high-throughput Python 3.12 and PostgreSQL 17 pipeline designed to ingest, normalize into strict Third Normal Form (3NF), geocode (EPSG:2154 Lambert-93 to WGS84), and continuously synchronize the French INSEE Sirene business registry from <code>data.gouv.fr</code> Parquet and compressed CSV distributions.
+            Idempotent, high-throughput Python 3.12 and PostgreSQL 18 pipeline designed to ingest, normalize into strict Third Normal Form (3NF), geocode (EPSG:2154 Lambert-93 to WGS84), qualify multi-master candidates via <code>mm_probe.py</code>, and continuously synchronize the French INSEE Sirene business registry from <code>data.gouv.fr</code> Parquet and compressed CSV distributions.
           </p>
           <div class="badge-row">
-            <span class="badge badge-blue">PostgreSQL 17-bookworm</span>
+            <span class="badge badge-blue">PostgreSQL 18-bookworm</span>
             <span class="badge badge-teal">pg_trgm GIN Fuzzy Search</span>
             <span class="badge badge-emerald">COPY FROM STDIN Streaming</span>
             <span class="badge badge-violet">Pure-Python GRS80 Geocoder</span>
             <span class="badge badge-amber">SHA-256 Idempotent Watcher</span>
+            <span class="badge badge-blue">Multi-Master Probe (mm_probe.py)</span>
           </div>
         </div>
 
@@ -1114,10 +1116,20 @@
           </div>
         </div>
 
+        <div class="card" style="border-color: var(--accent-border); background: var(--accent-soft);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <h3>PostgreSQL 18 Runtime &amp; Multi-Master Qualification (<code>mm_probe.py</code>)</h3>
+            <span class="badge badge-blue">v1.10.0 &middot; Issue #8</span>
+          </div>
+          <p>
+            Runs on <code>postgres:18-bookworm</code> with the PostgreSQL 18 <code>/var/lib/postgresql</code> volume mount layout (PG 18 stores data under <code>/var/lib/postgresql/18/docker</code> and rejects legacy <code>/var/lib/postgresql/data</code> mounts). Includes <code>sirene/mm_probe.py</code> and <code>sirene/docker-compose.pg18-birep.yml</code> to qualify native bidirectional logical replication (<code>origin=none</code>) or external multi-master candidates (pgEdge Spock, Citus, YugabyteDB, CockroachDB) across 5 probes (<code>P1_DDL_COMPAT</code>..<code>P5_BULK_COPY_REPLICATION_LAG</code>).
+          </p>
+        </div>
+
         <div class="diagram-frame">
           <div class="diagram-header">
             <div class="diagram-title">End-to-End Ingestion &amp; Continuous Synchronization Data Flow</div>
-            <div class="diagram-hint">Upstream sources &rarr; verified staging &rarr; batch normalization &rarr; PostgreSQL 17 3NF</div>
+            <div class="diagram-hint">Upstream sources &rarr; verified staging &rarr; batch normalization &rarr; PostgreSQL 18 3NF</div>
           </div>
           <svg viewBox="0 0 1120 430" role="img" aria-label="Sirene ETL Pipeline Architecture Diagram">
             <defs>
@@ -1136,7 +1148,7 @@
             <text x="135" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)">1. UPSTREAM SOURCES</text>
             <text x="415" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)">2. CONTROL &amp; ACQUISITION</text>
             <text x="698" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)">3. TRANSFORM &amp; LOAD</text>
-            <text x="980" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)">4. POSTGRESQL 17 STORAGE</text>
+            <text x="980" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)">4. POSTGRESQL 18 STORAGE</text>
 
             <!-- Box 1A: data.gouv.fr -->
             <rect x="20" y="38" width="230" height="142" rx="10" fill="var(--svg-box)" stroke="var(--accent)" stroke-width="1.6"></rect>
@@ -1210,10 +1222,10 @@
             <text x="594" y="354" font-size="10.5" fill="var(--text-secondary)">Sole proprietor SHA-256 role projection</text>
             <text x="594" y="378" font-size="10" font-family="var(--font-mono)" fill="var(--text-muted)">ON CONFLICT ... WHERE IS DISTINCT FROM</text>
 
-            <!-- Box 4A: PostgreSQL 17 -->
+            <!-- Box 4A: PostgreSQL 18 -->
             <rect x="860" y="34" width="240" height="366" rx="12" fill="var(--svg-box)" stroke="var(--emerald)" stroke-width="2"></rect>
             <rect x="860" y="34" width="240" height="34" rx="12" fill="var(--emerald-soft)"></rect>
-            <text x="980" y="55" text-anchor="middle" font-size="13" font-weight="800" fill="var(--emerald)">PostgreSQL 17 (3NF + pg_trgm)</text>
+            <text x="980" y="55" text-anchor="middle" font-size="13" font-weight="800" fill="var(--emerald)">PostgreSQL 18 (3NF + pg_trgm)</text>
 
             <rect x="876" y="82" width="208" height="58" rx="8" fill="var(--teal-soft)" stroke="var(--teal-border)" stroke-width="1"></rect>
             <text x="888" y="102" font-size="11.5" font-weight="700" fill="var(--teal)">7 Referentials + Sentinels</text>
@@ -1259,11 +1271,11 @@
           <div class="cmd-list">
             <div class="cmd-card">
               <div class="cmd-top">
-                <span class="cmd-name">1. Start PostgreSQL 17 Container</span>
+                <span class="cmd-name">1. Start PostgreSQL 18 Container</span>
                 <button class="copy-btn" type="button" data-copy-text="make sirene-up">Copy</button>
               </div>
               <pre><code>make sirene-up</code></pre>
-              <div class="cmd-desc">Starts <code>sirene-postgres</code> (<code>postgres:17-bookworm</code>), applies <code>sirene/sql/</code> on fresh volume init, and waits for healthcheck.</div>
+              <div class="cmd-desc">Starts <code>sirene-postgres</code> (<code>postgres:18-bookworm</code> with <code>/var/lib/postgresql</code> mount), applies <code>sirene/sql/</code> on fresh volume init, and waits for healthcheck.</div>
             </div>
             <div class="cmd-card">
               <div class="cmd-top">
@@ -1271,7 +1283,7 @@
                 <button class="copy-btn" type="button" data-copy-text="make sirene-test">Copy</button>
               </div>
               <pre><code>make sirene-test</code></pre>
-              <div class="cmd-desc">Builds <code>sirene-etl</code> and runs unit transforms, live PostgreSQL 17 integration, 15-query SQL, and governance/doc checks.</div>
+              <div class="cmd-desc">Builds <code>sirene-etl</code> and runs unit transforms, live PostgreSQL 18 integration, 15-query SQL, <code>mm_probe</code> unit tests, and governance/doc checks.</div>
             </div>
             <div class="cmd-card">
               <div class="cmd-top">
@@ -1305,15 +1317,31 @@
               <pre><code>make sirene-docs &amp;&amp; make sirene-down</code></pre>
               <div class="cmd-desc">Prints links to interactive HTML and bilingual Markdown docs, and cleanly stops Compose services/profiles.</div>
             </div>
+            <div class="cmd-card">
+              <div class="cmd-top">
+                <span class="cmd-name">7. Start 2-Node PG 18 Multi-Master Lab</span>
+                <button class="copy-btn" type="button" data-copy-text="make sirene-mm-up &amp;&amp; make sirene-mm-probe">Copy</button>
+              </div>
+              <pre><code>make sirene-mm-up &amp;&amp; make sirene-mm-probe</code></pre>
+              <div class="cmd-desc">Boots <code>sirene-mm-node-a</code> (<code>15441</code>) &amp; <code>sirene-mm-node-b</code> (<code>15442</code>) via <code>sirene/docker-compose.pg18-birep.yml</code> and runs <code>mm_probe.py</code> qualification probes <code>P1..P5</code>.</div>
+            </div>
+            <div class="cmd-card">
+              <div class="cmd-top">
+                <span class="cmd-name">8. Tear Down Multi-Master Lab</span>
+                <button class="copy-btn" type="button" data-copy-text="make sirene-mm-down">Copy</button>
+              </div>
+              <pre><code>make sirene-mm-down</code></pre>
+              <div class="cmd-desc">Stops and removes the 2-node bidirectional replication containers and ephemeral volumes cleanly.</div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- SECTION 2: POSTGRESQL 17 3NF DATA MODEL & INDEX EXPLORER -->
+      <!-- SECTION 2: POSTGRESQL 18 3NF DATA MODEL & INDEX EXPLORER -->
       <section id="data-model" class="panel">
         <div class="section-head">
           <div class="section-kicker">Section 02 &middot; Relational Schema &amp; Indexing</div>
-          <h2>PostgreSQL 17 3NF Data Model &amp; Index Explorer</h2>
+          <h2>PostgreSQL 18 3NF Data Model &amp; Index Explorer</h2>
           <p>
             Strict Third Normal Form schema defined in <code>sirene/sql/01_schema_3nf.sql</code> and indexed in <code>sirene/sql/02_indexes.sql</code>. Requires PostgreSQL &ge; 15 for <code>UNIQUE NULLS NOT DISTINCT</code> and <code>GENERATED ALWAYS AS (...) STORED</code> columns, plus <code>pg_trgm</code> for trigram similarity search.
           </p>
@@ -2104,7 +2132,7 @@
           <div class="grid-2" style="margin-bottom: var(--sp-4);">
             <div class="card">
               <h3>4 <code>GENERATED ALWAYS AS (...) STORED</code> Expressions</h3>
-              <p>Written without non-immutable built-ins so PostgreSQL 17 indexes them directly with <code>pg_trgm</code> GIN:</p>
+              <p>Written without non-immutable built-ins so PostgreSQL 18 indexes them directly with <code>pg_trgm</code> GIN:</p>
               <pre><code>-- 1. unites_legales.nom_recherche (idx_ul_nom_trgm)
 TRIM(
   COALESCE(' ' || NULLIF(TRIM(denomination), ''), '') ||
@@ -2220,10 +2248,10 @@ TRIM(
       <!-- SECTION 3: PYTHON ETL SCRIPTS, CLI FLAGS & DOCKER OPERATIONS -->
       <section id="etl-docker" class="panel">
         <div class="section-head">
-          <div class="section-kicker">Section 03 &middot; Python 3.12 ETL &amp; Container Operations</div>
+          <div class="section-kicker">Section 03 &middot; Python 3.12 ETL, Multi-Master Probe &amp; Container Operations</div>
           <h2>Python ETL Scripts, CLI Flags &amp; Docker Operations</h2>
           <p>
-            Three root CLI wrappers in <code>sirene/</code> expose the <code>sirene_etl</code> package (<code>sirene/src/sirene_etl/</code>) inside <code>sirene-etl</code> and <code>sirene-watcher</code> containers built from <code>sirene/Dockerfile</code> (<code>python:3.12-slim</code>).
+            Four root CLI wrappers in <code>sirene/</code> expose the <code>sirene_etl</code> package (<code>sirene/src/sirene_etl/</code>) inside <code>sirene-etl</code>, <code>sirene-watcher</code>, and <code>sirene-mm-probe</code> containers built from <code>sirene/Dockerfile</code> (<code>python:3.12-slim</code>).
           </p>
         </div>
 
@@ -2294,6 +2322,108 @@ TRIM(
           </div>
         </div>
 
+        <!-- Multi-Master Qualification (mm_probe.py) -->
+        <div id="mm-probe" style="scroll-margin-top: 84px;">
+          <h3 style="margin-bottom: var(--sp-3);">Multi-Master Product Selection &amp; Qualification (<code>sirene/mm_probe.py</code>)</h3>
+          <p style="margin-bottom: var(--sp-4); font-size: 0.9rem;">
+            Qualifies 2-node multi-master PostgreSQL 18 candidates — native PG 18 bidirectional logical replication (<code>CREATE SUBSCRIPTION ... WITH (copy_data = false, origin = none)</code> via <code>sirene/docker-compose.pg18-birep.yml</code>) as well as external architectures (<strong>pgEdge Spock</strong>, <strong>Citus</strong>, <strong>YugabyteDB</strong>, <strong>CockroachDB</strong>) — directly against the live 13-table Sirene 3NF workload. Publishes the 12 domain/referential tables (<code>sirene_mm_pub</code>, intentionally excluding node-local <code>etl_logs</code>) and runs probes in sequence <code>P1 &rarr; P2 &rarr; P4 &rarr; P5 &rarr; P3</code> so any replication conflict stall in <code>P3</code> never blocks downstream probes.
+          </p>
+
+          <div class="grid-2" style="margin-bottom: var(--sp-4);">
+            <div class="card">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <h3><code>sirene/mm_probe.py</code> CLI Flags</h3>
+                <span class="badge badge-violet">Qualification CLI</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>CLI Flag</th><th>Default &amp; Behavior</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>--dsn-a</code> / <code>--dsn-b</code></td><td>Node A / B DSNs (default: <code>$MM_DSN_A</code> / <code>$MM_DSN_B</code>, fallback <code>DATABASE_URL</code>)</td></tr>
+                    <tr><td><code>--internal-dsn-a</code> / <code>-b</code></td><td>Inter-container replication DSNs (default: <code>$MM_INTERNAL_DSN_A</code> / <code>-B</code> or <code>--dsn-a</code>/<code>-b</code>)</td></tr>
+                    <tr><td><code>--candidate-name NAME</code></td><td>Candidate label in scorecard (default: <code>pg18-candidate</code>)</td></tr>
+                    <tr><td><code>--setup-native-birep</code></td><td>Idempotently create <code>sirene_mm_pub</code> &amp; bidirectional <code>origin=none</code> subscriptions</td></tr>
+                    <tr><td><code>--no-stagger-sequences</code></td><td>Disable odd/even <code>INCREMENT BY 2 RESTART WITH 10001/10002</code> staggering</td></tr>
+                    <tr><td><code>--batch-rows INT</code></td><td>Establishments streamed via <code>COPY</code> in <code>P5</code> (default: <code>200</code>)</td></tr>
+                    <tr><td><code>--timeout-sec FLOAT</code></td><td>Per-probe convergence wait timeout in seconds (default: <code>15.0</code>)</td></tr>
+                    <tr><td><code>--output-md PATH</code> / <code>--output-json PATH</code></td><td>Optional Markdown or JSON scorecard output files</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <h3><code>Scorecard</code> Verdicts &amp; Lab Commands</h3>
+                <span class="badge badge-emerald">Scorecard Engine</span>
+              </div>
+              <div class="table-wrap" style="margin-bottom: var(--sp-3);">
+                <table>
+                  <thead><tr><th>Verdict</th><th>Trigger Condition</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>PRODUCTION_MULTI_MASTER_READY</code></td><td>All 5 probes report <code>PASS</code></td></tr>
+                    <tr><td><code>CONDITIONAL_PARTITIONED_WRITES_ONLY</code></td><td>Zero <code>FAIL</code>, one or more <code>WARN</code> (e.g. async FK race, node-local advisory lock, conflict stall)</td></tr>
+                    <tr><td><code>INCOMPATIBLE_WITH_SIRENE_3NF</code></td><td>Any probe reports <code>FAIL</code> (or empty probe list)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <pre><code># Run full native 2-node PG 18 qualification lab:
+make sirene-mm-up
+make sirene-mm-probe
+make sirene-mm-down
+
+# Point at any external multi-master candidate DSNs:
+python sirene/mm_probe.py --dsn-a "$MM_DSN_A" --dsn-b "$MM_DSN_B" \
+  --candidate-name pgedge-spock --output-md scorecard.md</code></pre>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Probe ID</th>
+                  <th>Execution Order</th>
+                  <th>Workload &amp; Verification</th>
+                  <th>Status Semantics (<code>PASS</code> / <code>WARN</code> / <code>FAIL</code>)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>P1_DDL_COMPAT</code></td>
+                  <td class="num">1st</td>
+                  <td>Verifies <code>pg_trgm</code> (<code>%</code> / <code>gin_trgm_ops</code>), <code>GENERATED ALWAYS AS ... STORED</code>, <code>UNIQUE NULLS NOT DISTINCT</code>, <code>TEMP TABLE ... ON COMMIT DROP</code> + <code>COPY FROM STDIN</code>, and node-locality of <code>pg_try_advisory_lock(84729199)</code> on both nodes.</td>
+                  <td><code>PASS</code> if cluster-wide lock + full DDL; <code>WARN</code> if DDL passes with node-local advisory locks; <code>FAIL</code> if incompatible.</td>
+                </tr>
+                <tr>
+                  <td><code>P2_SEQUENCE_SPLIT_BRAIN</code></td>
+                  <td class="num">2nd</td>
+                  <td>Executes simultaneous <code>DEFAULT</code> <code>BIGSERIAL</code> inserts into <code>personnes</code> on Node A and Node B with distinct <code>cle_deduplication</code> keys, then verifies convergence across both nodes.</td>
+                  <td><code>PASS</code> when staggered sequences yield distinct IDs &amp; converge; <code>FAIL</code> on SQLSTATE <code>23505</code> PK collision or divergence.</td>
+                </tr>
+                <tr>
+                  <td><code>P4_CROSS_NODE_FK_CAUSALITY</code></td>
+                  <td class="num">3rd</td>
+                  <td>Inserts a parent <code>unites_legales</code> (<code>SIREN</code>) on Node A and immediately attempts a child <code>etablissements</code> (<code>SIRET</code>) insert on Node B, polling until FK converges.</td>
+                  <td><code>PASS</code> if zero immediate FK race; <code>WARN</code> if async replication hits transient SQLSTATE <code>23503</code> before converging; <code>FAIL</code> on timeout.</td>
+                </tr>
+                <tr>
+                  <td><code>P5_BULK_COPY_REPLICATION_LAG</code></td>
+                  <td class="num">4th</td>
+                  <td>Streams <code>--batch-rows</code> establishments via <code>COPY FROM STDIN</code> on Node A and measures end-to-end <code>lag_ms</code> &amp; <code>rows_per_sec</code> until Node B sees all rows via <code>pg_trgm</code> <code>%</code> query.</td>
+                  <td><code>PASS</code> when all copied rows replicate within <code>--timeout-sec</code>; <code>FAIL</code> if replication stalls or times out.</td>
+                </tr>
+                <tr>
+                  <td><code>P3_CONCURRENT_SIRET_UPSERT</code></td>
+                  <td class="num">5th (Last)</td>
+                  <td>Runs concurrent conflicting updates on the same <code>SIRET</code> (Node A sets <code>etat_administratif='F'</code> with newer timestamp; Node B sets <code>enseigne_1='MM_NODE_B'</code> with older timestamp) and inspects <code>pg_stat_subscription_stats</code>.</td>
+                  <td><code>PASS</code> if <code>CONVERGED_DETERMINISTIC</code>; <code>WARN</code> on <code>SERIALIZATION_ABORT_40001</code>, <code>SUBSCRIPTION_STALLED</code>, or <code>DIVERGED_SPLIT_BRAIN</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Internal Library Modules -->
         <div id="library-modules" style="scroll-margin-top: 84px;">
           <h3 style="margin-bottom: var(--sp-3);">Internal <code>sirene_etl</code> Package Modules (<code>sirene/src/sirene_etl/</code>)</h3>
@@ -2309,7 +2439,7 @@ TRIM(
               <tbody>
                 <tr>
                   <td><code>__init__.py</code></td>
-                  <td><code>__version__ = "1.9.0"</code></td>
+                  <td><code>__version__ = "1.10.0"</code></td>
                   <td>Package metadata export.</td>
                 </tr>
                 <tr>
@@ -2357,6 +2487,11 @@ TRIM(
                   <td><code>check_and_sync_once()</code>, <code>run_daemon()</code>, <code>_is_resource_updated()</code>, <code>_stage_resource()</code></td>
                   <td>Autonomous resource monitor comparing remote metadata against <code>etl_logs</code> and dispatching full or incremental ETL runs.</td>
                 </tr>
+                <tr>
+                  <td><code>mm_probe.py</code></td>
+                  <td><code>ProbeResult</code>, <code>Scorecard</code>, <code>classify_verdict()</code>, <code>setup_native_birep()</code>, <code>run_mm_qualification()</code>, <code>format_scorecard_markdown()</code>, <code>scorecard_to_dict()</code>, <code>_PROBE_ADVISORY_LOCK_ID = 84729199</code></td>
+                  <td>Multi-master qualification suite executing probes <code>P1..P5</code> across two PostgreSQL nodes using stdlib + <code>psycopg</code> v3 only (deliberate 2-node Ponytail <code>shortcut:</code> ceiling).</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -2372,7 +2507,12 @@ TRIM(
                 <tr><td><code>POSTGRES_USER</code></td><td><code>sirene</code></td><td>Compose</td><td>PostgreSQL superuser/owner role</td></tr>
                 <tr><td><code>POSTGRES_PASSWORD</code></td><td><code>pg_sirene_ephemeral</code></td><td>Compose</td><td>Ephemeral local lab/PoC password (override in production)</td></tr>
                 <tr><td><code>POSTGRES_DB</code></td><td><code>sirene</code></td><td>Compose</td><td>Target PostgreSQL database name</td></tr>
+                <tr><td><code>POSTGRES_IMAGE</code></td><td><code>postgres:18-bookworm</code></td><td>Compose</td><td>PostgreSQL 18 Docker image tag for single-node &amp; multi-master labs</td></tr>
                 <tr><td><code>POSTGRES_HOST_PORT</code></td><td class="num"><code>15432</code></td><td>Compose</td><td>Loopback host port mapped as <code>127.0.0.1:15432:5432</code></td></tr>
+                <tr><td><code>MM_NODE_A_PORT</code></td><td class="num"><code>15441</code></td><td>MM Lab</td><td>Host loopback port for <code>sirene-mm-node-a</code></td></tr>
+                <tr><td><code>MM_NODE_B_PORT</code></td><td class="num"><code>15442</code></td><td>MM Lab</td><td>Host loopback port for <code>sirene-mm-node-b</code></td></tr>
+                <tr><td><code>MM_DSN_A</code> / <code>MM_DSN_B</code></td><td><code>postgresql://sirene:pg_sirene_ephemeral@sirene-mm-node-a|b:5432/sirene</code></td><td>MM Probe</td><td>Target DSNs for Node A and Node B in <code>mm_probe.py</code></td></tr>
+                <tr><td><code>MM_INTERNAL_DSN_A</code> / <code>-B</code></td><td>Fallback to <code>MM_DSN_A</code> / <code>MM_DSN_B</code></td><td>MM Probe</td><td>Optional internal cluster DSNs used by <code>CREATE SUBSCRIPTION</code></td></tr>
                 <tr><td><code>DATABASE_URL</code></td><td><code>postgresql://sirene:pg_sirene_ephemeral@localhost:15432/sirene</code></td><td>ETL / Host</td><td><code>psycopg</code> v3 DSN (uses <code>@sirene-postgres:5432</code> inside Compose)</td></tr>
                 <tr><td><code>STAGING_DIR</code></td><td><code>./staging</code></td><td>ETL</td><td>Local download &amp; <code>.part</code> staging cache (<code>/app/staging</code> in container)</td></tr>
                 <tr><td><code>SQL_DIR</code></td><td><code>&lt;sirene&gt;/sql</code></td><td>ETL</td><td>Directory holding <code>01_schema_3nf.sql</code> &amp; <code>02_indexes.sql</code></td></tr>
@@ -2392,28 +2532,33 @@ TRIM(
             </table>
           </div>
 
-          <h3 style="margin-bottom: var(--sp-3);">Docker Compose Services &amp; PostgreSQL 17 Container Tuning</h3>
+          <h3 style="margin-bottom: var(--sp-3);">Docker Compose Services &amp; PostgreSQL 18 Container Tuning</h3>
+          <p style="margin-bottom: var(--sp-3); font-size: 0.86rem; color: var(--text-secondary);">
+            <strong>PostgreSQL 18 Volume Layout:</strong> All PG 18 services mount persistent data at <code>/var/lib/postgresql</code> (NOT <code>/var/lib/postgresql/data</code>), because <code>postgres:18-bookworm</code> sets <code>PGDATA=/var/lib/postgresql/18/docker</code> to support clean major-version <code>pg_upgrade</code> directory layouts.
+          </p>
           <div class="grid-2">
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Service</th><th>Image / Profile</th><th>Mounts &amp; Command</th></tr></thead>
+                <thead><tr><th>Service (Compose File)</th><th>Image / Profile</th><th>Mounts &amp; Command</th></tr></thead>
                 <tbody>
-                  <tr><td><code>sirene-postgres</code></td><td><code>postgres:17-bookworm</code> (default)</td><td>Mounts <code>./sql:/docker-entrypoint-initdb.d:ro</code> &amp; <code>sirene_pgdata</code>; healthcheck <code>pg_isready</code> every 5s</td></tr>
-                  <tr><td><code>sirene-etl</code></td><td><code>./Dockerfile</code> (default)</td><td>Mounts <code>./staging:/app/staging</code> &amp; <code>..:/workspace:ro</code>; default <code>python full_import.py --help</code></td></tr>
-                  <tr><td><code>sirene-watcher</code></td><td><code>./Dockerfile</code> (profile <code>daemon</code>)</td><td><code>restart: unless-stopped</code>; mounts <code>./staging:/app/staging</code>; runs <code>python watcher.py</code></td></tr>
+                  <tr><td><code>sirene-postgres</code> (<code>docker-compose.yml</code>)</td><td><code>${POSTGRES_IMAGE:-postgres:18-bookworm}</code> (default)</td><td>Mounts <code>./sql:/docker-entrypoint-initdb.d:ro</code> &amp; <code>sirene_pgdata:/var/lib/postgresql</code>; healthcheck <code>pg_isready</code> every 5s</td></tr>
+                  <tr><td><code>sirene-etl</code> (<code>docker-compose.yml</code>)</td><td><code>./Dockerfile</code> (default)</td><td>Mounts <code>./staging:/app/staging</code> &amp; <code>..:/workspace:ro</code>; default <code>python full_import.py --help</code></td></tr>
+                  <tr><td><code>sirene-watcher</code> (<code>docker-compose.yml</code>)</td><td><code>./Dockerfile</code> (profile <code>daemon</code>)</td><td><code>restart: unless-stopped</code>; mounts <code>./staging:/app/staging</code>; runs <code>python watcher.py</code></td></tr>
+                  <tr><td><code>sirene-mm-node-a</code> &amp; <code>-b</code> (<code>docker-compose.pg18-birep.yml</code>)</td><td><code>${POSTGRES_IMAGE:-postgres:18-bookworm}</code></td><td>Ports <code>15441</code> &amp; <code>15442</code>; mounts <code>./sql</code> &amp; <code>sirene_mm_a|b_pgdata:/var/lib/postgresql</code>; logical replication enabled</td></tr>
+                  <tr><td><code>sirene-mm-probe</code> (<code>docker-compose.pg18-birep.yml</code>)</td><td><code>./Dockerfile</code></td><td>Depends on healthy Node A/B; sets <code>MM_DSN_A</code>/<code>MM_DSN_B</code>; default <code>python mm_probe.py --help</code></td></tr>
                 </tbody>
               </table>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>PG 17 Parameter</th><th>Configured Value</th><th>Bulk / Index Rationale</th></tr></thead>
+                <thead><tr><th>PG 18 Parameter</th><th>Configured Value</th><th>Bulk / Replication Rationale</th></tr></thead>
                 <tbody>
-                  <tr><td><code>shm_size</code></td><td class="num"><code>1gb</code></td><td>POSIX shared memory for parallel workers &amp; buffers</td></tr>
+                  <tr><td><code>shm_size</code></td><td class="num"><code>1gb</code> (single) / <code>512mb</code> (MM)</td><td>POSIX shared memory for parallel workers &amp; buffers</td></tr>
                   <tr><td><code>shared_buffers</code></td><td class="num"><code>1GB</code></td><td>In-memory buffer pool for 3NF tables and GIN indexes</td></tr>
                   <tr><td><code>work_mem</code></td><td class="num"><code>64MB</code></td><td>Fast in-memory sorts for <code>DISTINCT ON</code> &amp; hash joins</td></tr>
                   <tr><td><code>maintenance_work_mem</code></td><td class="num"><code>512MB</code></td><td>Accelerates post-bulk <code>CREATE INDEX</code> &amp; GIN builds</td></tr>
                   <tr><td><code>max_wal_size</code> / <code>checkpoint_timeout</code></td><td class="num"><code>4GB</code> / <code>15min</code></td><td>Reduces checkpoint frequency during multi-million COPY</td></tr>
-                  <tr><td><code>wal_level</code> / <code>max_wal_senders</code></td><td><code>minimal</code> / <code class="num">0</code></td><td>Minimizes WAL overhead on standalone bulk loads</td></tr>
+                  <tr><td><code>wal_level</code> / <code>max_wal_senders</code></td><td><code>minimal</code> / <code class="num">0</code> (bulk) &middot; <code>logical</code> / <code class="num">10</code> (MM)</td><td>Minimal WAL for single-node bulk loads; logical slots (<code>max_replication_slots=10</code>, <code>track_commit_timestamp=on</code>) for <code>pg18-birep</code></td></tr>
                   <tr><td><code>effective_io_concurrency</code></td><td class="num"><code>200</code></td><td>Optimized NVMe/SSD prefetching for bitmap/GIN scans</td></tr>
                 </tbody>
               </table>
@@ -2428,7 +2573,7 @@ TRIM(
           <div class="section-kicker">Section 04 &middot; Verified Read-Only SQL Cookbook</div>
           <h2>Catalog of 15 Analytical &amp; Search SQL Queries</h2>
           <p>
-            All 15 queries from <code>sirene/sql/03_sample_queries.sql</code>, verified with <code>ON_ERROR_STOP=1</code> against PostgreSQL 17 on both sentinel-only and populated datasets. Filter by category, search by table/index/keyword, and click <strong>Copy SQL</strong> to run directly via <code>psql</code> or <code>psycopg</code>.
+            All 15 queries from <code>sirene/sql/03_sample_queries.sql</code>, verified with <code>ON_ERROR_STOP=1</code> against PostgreSQL 18 on both sentinel-only and populated datasets. Filter by category, search by table/index/keyword, and click <strong>Copy SQL</strong> to run directly via <code>psql</code> or <code>psycopg</code>.
           </p>
         </div>
 
@@ -3450,8 +3595,8 @@ ORDER BY
   </div>
 
   <footer class="footer">
-    <span>INSEE Sirene PostgreSQL 17 3NF Technical Reference &middot; Self-contained HTML5 documentation</span>
-    <span>Files: <code>sirene/sql/</code> &middot; <code>sirene/src/sirene_etl/</code> &middot; <code>sirene/docker-compose.yml</code></span>
+    <span>INSEE Sirene PostgreSQL 18 3NF Technical Reference &middot; Self-contained HTML5 documentation</span>
+    <span>Files: <code>sirene/sql/</code> &middot; <code>sirene/src/sirene_etl/</code> &middot; <code>sirene/docker-compose.yml</code> &middot; <code>sirene/docker-compose.pg18-birep.yml</code></span>
   </footer>
 
   <script>

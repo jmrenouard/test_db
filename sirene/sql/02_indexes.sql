@@ -1,5 +1,5 @@
 -- =============================================================================
--- SIRENE PostgreSQL Secondary & Search Indexes
+-- SIRENE PostgreSQL 18 Secondary & Search Indexes (postgres:18-bookworm)
 -- =============================================================================
 -- Idempotent index definitions applied after schema creation or rebuilt after
 -- bulk full-stock ingestion (see db.rebuild_indexes_and_analyze).
@@ -8,6 +8,7 @@
 --   - B-Tree indexes on every foreign key and high-selectivity filter column
 --   - Partial composite index for active establishments by NAF and municipality
 --   - Trigram GIN indexes (pg_trgm) with fastupdate = on for fuzzy text search
+--   - Constraint-backed PK/UNIQUE replica-identity indexes stay intact on drop
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
