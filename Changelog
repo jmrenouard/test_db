@@ -1,3 +1,11 @@
+1.10.0 2026-11-20
+
+- feat(sirene): upgraded Docker runtime from PostgreSQL 17 to PostgreSQL 18 (`postgres:18-bookworm`) with `/var/lib/postgresql` volume mount alignment.
+- feat(mm-probe): added 5-probe multi-master qualification suite (`sirene/src/sirene_etl/mm_probe.py`, `sirene/mm_probe.py`) covering DDL compatibility, sequence split-brain, concurrent SIRET upserts, cross-node FK causality, and bulk COPY replication lag.
+- feat(docker): added 2-node PostgreSQL 18 bidirectional logical replication lab (`sirene/docker-compose.pg18-birep.yml`) and `Makefile` targets (`sirene-mm-up`, `sirene-mm-probe`, `sirene-mm-down`).
+- docs(sirene): updated HTML/Markdown technical references, `sirene/README.md`, `PROJECT-CONTEXT.md`, `docs/ACTION_LOGBOOK.md` (`M7`/`ACT-003`), and `docs/RCA_REGISTER.md` (`RCA-006`, `IMP-005`) for PostgreSQL 18 and `mm_probe.py`.
+- test(mm-probe): added unit and 2-node PostgreSQL 18 qualification tests (`sirene/tests/test_mm_probe.py`) and updated PG 18 integration/doc assertions.
+
 1.9.1 2026-11-19
 
 - docs(sirene): added self-contained interactive HTML reference (`documentation/sirene_documentation.html`) with SVG architecture and ER diagrams, 13-table 3NF explorer, CLI/Docker guide, and filterable 15-query SQL catalog.

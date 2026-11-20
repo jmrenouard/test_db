@@ -1,4 +1,4 @@
-"""End-to-end integration tests against live PostgreSQL 17."""
+"""End-to-end integration tests against live PostgreSQL 18."""
 
 from __future__ import annotations
 
@@ -389,6 +389,14 @@ def _start_http_server(directory: Path) -> tuple[ThreadingHTTPServer, str]:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     return server, f"http://127.0.0.1:{port}"
+
+
+def test_postgres_server_version_is_18(db_conn: psycopg.Connection) -> None:
+    """Verify the target PostgreSQL instance runs major version 18 or newer."""
+    with db_conn.cursor() as cur:
+        cur.execute("SHOW server_version_num")
+        version_num = int(cur.fetchone()[0])
+    assert version_num >= 180000, f"Expected PostgreSQL 18+, got server_version_num={version_num}"
 
 
 def test_full_import_incremental_idempotency_and_sample_queries(

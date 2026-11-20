@@ -43,7 +43,7 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register custom test markers to avoid unknown-mark warnings."""
     config.addinivalue_line("markers", "unit: Pure unit tests without external services.")
     config.addinivalue_line(
-        "markers", "integration: End-to-end tests requiring PostgreSQL 17."
+        "markers", "integration: End-to-end tests requiring PostgreSQL 18."
     )
     config.addinivalue_line(
         "markers", "governance: Repository documentation and hygiene checks."

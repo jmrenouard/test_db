@@ -29,12 +29,23 @@ Engineering register capturing technical root causes (`RCA-`), implemented impro
 - **Root Cause:** `psycopg` v3 only unescapes `%%` when parameter binding is used, leaving raw `%%` intact when `params=None`; meanwhile, non-autocommit inspection connections hold `AccessShareLock` until committed or closed.
 - **Resolution:** Parameterize `pg_trgm` `%` operator queries in `sirene/tests/test_integration_pipeline.py` and configure `autocommit=True` on the test fixture connection in `sirene/tests/conftest.py`.
 
+### RCA-006: PostgreSQL 18 Docker Image `/var/lib/postgresql` Volume Layout Change
+- **Symptom:** Starting `postgres:18-bookworm` with a legacy volume mounted at `/var/lib/postgresql/data` fails container initialization.
+- **Root Cause:** Official Docker `postgres:18` images changed `PGDATA` to `/var/lib/postgresql/18/docker` and require the persistent volume mount point to target `/var/lib/postgresql` rather than `/var/lib/postgresql/data`.
+- **Resolution:** Update `sirene/docker-compose.yml` and `sirene/docker-compose.pg18-birep.yml` persistent volume mounts to `/var/lib/postgresql` and document the layout change across EN/FR guides.
+
+### RCA-007: Parameterized `pg_trgm` Escaping in `mm_probe.py` and Native PG 18 `origin=none` Split-Brain Divergence
+- **Symptom:** Running `P5_BULK_COPY_REPLICATION_LAG` raised `psycopg.ProgrammingError: incomplete placeholder: '%'` at `sirene/src/sirene_etl/mm_probe.py:702`, and running `P3_CONCURRENT_SIRET_UPSERT` on `pg18-native-birep` (`PostgreSQL 18.7`) diverged silently (`Node A=('A','MM_NODE_B')` vs `Node B=('F','MM_INITIAL')`).
+- **Root Cause:** (1) Parameterized `psycopg` v3 queries require `%%` to escape the `pg_trgm` `%` operator (`WHERE enseigne_recherche %% %s`). (2) Native PostgreSQL 18 logical replication with `origin=none` applies bidirectional streams independently without deterministic last-writer-wins (LWW) or column-level CRDT conflict resolution.
+- **Resolution:** Fixed `mm_probe.py:702` to `WHERE enseigne_recherche %% %s` and empirically classified `pg18-native-birep` as `INCOMPATIBLE_WITH_SIRENE_3NF` on `P3`, validating `mm_probe.py`'s ability to disqualify unsafe active-active setups before production adoption.
+
 ## Implemented Improvements (IMP)
 
 - **IMP-001:** Implemented unified Parquet (`pyarrow`) and `.csv.zip` / `.csv.gz` streaming transforms (`sirene_etl.transforms`) with header whitespace stripping, `[ND]` scrubbing, and pure-Python EPSG:2154 Lambert-93 to WGS84 conversion.
 - **IMP-002:** Implemented secondary index drop/rebuild orchestration around `psycopg` v3 `COPY FROM STDIN` temporary staging tables (`sirene_etl.db`, `sirene_etl.full_import`) plus `pg_trgm` GIN indexes for fast fuzzy search.
 - **IMP-003:** Implemented `tenacity`-backed exponential-backoff streaming downloads into `.part` files with on-the-fly SHA-256 verification and PostgreSQL advisory locking (`pg_try_advisory_lock`) to guarantee single-writer safety.
 - **IMP-004:** Added self-contained interactive HTML5 reference (`documentation/sirene_documentation.html`, inline SVG architecture/ER diagrams, 13-table explorer, filterable 15-query copy-ready catalog) paired with bilingual Markdown guides (`documentation/en/sirene_platform.md`, `documentation/fr/sirene_platform.md`), 15-query `sirene/sql/03_sample_queries.sql`, and automated structural/link tests (`sirene/tests/test_documentation_page.py`).
+- **IMP-005:** Added `sirene/mm_probe.py` (`sirene_etl.mm_probe`) and 2-node `sirene/docker-compose.pg18-birep.yml` lab delivering a 5-probe multi-master qualification scorecard (`P1_DDL_COMPAT`..`P5_BULK_COPY_REPLICATION_LAG`) with staggered sequences, `origin=none` loop protection, and P3-last ordering.
 
 ## Approved Next Enhancements (APP)
 

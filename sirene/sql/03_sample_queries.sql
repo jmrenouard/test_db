@@ -1,8 +1,9 @@
 -- =============================================================================
--- SIRENE PostgreSQL 17 Analytical & Search Query Catalog (15 Queries)
+-- SIRENE PostgreSQL 18 Analytical & Search Query Catalog (15 Queries)
 -- =============================================================================
--- Read-only reference queries designed to execute cleanly against any
--- initialized SIRENE 3NF database (empty sentinel-seeded or full production).
+-- Read-only reference queries validated on PostgreSQL 18 (postgres:18-bookworm)
+-- and designed to execute cleanly against any initialized SIRENE 3NF database
+-- (empty sentinel-seeded or full production).
 -- Zero psql meta-commands are used so every statement runs under psql or
 -- psycopg multi-statement execution with ON_ERROR_STOP=1.
 -- =============================================================================

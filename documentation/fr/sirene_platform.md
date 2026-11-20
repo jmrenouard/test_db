@@ -3,7 +3,7 @@
 
 # Plateforme PostgreSQL 3NF Sirene
 
-Le sous-système `sirene/` fournit un pipeline ETL **Python 3.12** et **PostgreSQL 17** prêt pour la production afin d'ingérer, normaliser en Troisième Forme Normale (3NF), géocoder et synchroniser en continu le répertoire **INSEE Sirene** des entreprises et établissements depuis les distributions Parquet et CSV/ZIP de `data.gouv.fr`.
+Le sous-système `sirene/` fournit un pipeline ETL **Python 3.12** et **PostgreSQL 18** prêt pour la production afin d'ingérer, normaliser en Troisième Forme Normale (3NF), géocoder et synchroniser en continu le répertoire **INSEE Sirene** des entreprises et établissements depuis les distributions Parquet et CSV/ZIP de `data.gouv.fr`.
 
 > Pour explorer interactivement le modèle SVG, rechercher dans les colonnes et copier les requêtes SQL en un clic, ouvrez la [Référence HTML Interactive](../sirene_documentation.html) (`make sirene-docs`).
 
@@ -19,7 +19,7 @@ flowchart LR
     COG["CSV INSEE COG 2026 & Parquet NAF Rév. 2"] -->|"CSV / PyArrow Parquet"| REF["referentials.py (référentiels 3NF + sentinelles)"]
     DL -->|"Lots en streaming"| TR["transforms.py (nettoyage [ND] + EPSG:2154 vers WGS84)"]
     TR -->|"Tuples nettoyés"| ING["full_import.py & incremental_import.py (COPY FROM STDIN + TEMP TABLE)"]
-    REF -->|"Upserts UNNEST + Auto-FK HIST"| PG[("PostgreSQL 17 (Schéma 3NF + GIN pg_trgm)")]
+    REF -->|"Upserts UNNEST + Auto-FK HIST"| PG[("PostgreSQL 18 (Schéma 3NF + GIN pg_trgm)")]
     ING -->|"Fusion idempotente + Projection EI"| PG
     WATCH["watcher.py (--once / mode démon)"] -->|"Vérifie etl_logs & dispatche"| ING
     WATCH -.->|"Interroge les métadonnées"| DG
@@ -49,9 +49,9 @@ flowchart LR
 
 ---
 
-## 2. Modèle de Données 3NF PostgreSQL 17 & Index
+## 2. Modèle de Données 3NF PostgreSQL 18 & Index
 
-Le schéma (`sirene/sql/01_schema_3nf.sql`) requiert **PostgreSQL 15+** (utilisation de `UNIQUE NULLS NOT DISTINCT` et de colonnes générées `STORED` immuables) ainsi que l'extension `pg_trgm`.
+Le schéma (`sirene/sql/01_schema_3nf.sql`) cible **PostgreSQL 18** (requiert PostgreSQL 15+ pour `UNIQUE NULLS NOT DISTINCT` et les colonnes générées `STORED` immuables) ainsi que l'extension `pg_trgm`. Chacune des 13 tables dispose d'une clé primaire explicite garantissant une identité de réplica complète en réplication logique et lors de la qualification multi-maître (`mm_probe.py`).
 
 ### Diagramme Entité-Relation (Les 13 Tables)
 
@@ -346,11 +346,34 @@ python sirene/watcher.py --once --offline-refs
 python sirene/watcher.py --interval 1800
 ```
 
+#### 4. `sirene/mm_probe.py` (`sirene_etl.mm_probe:main`)
+
+Exécute le banc de qualification multi-maître en 5 sondes (`P1_DDL_COMPAT` à `P5_BULK_COPY_REPLICATION_LAG`) face à deux points d'accès compatibles PostgreSQL (`--dsn-a`, `--dsn-b`), avec configuration optionnelle de la réplication logique bidirectionnelle native PostgreSQL 18 (`origin = none`).
+
+| Option CLI | Type | Défaut | Description |
+| :--- | :--- | :--- | :--- |
+| `--dsn-a` | `str` | `MM_DSN_A` ou `DATABASE_URL` | Chaîne DSN hôte ou conteneur du Nœud A |
+| `--dsn-b` | `str` | `MM_DSN_B` ou `DATABASE_URL` | Chaîne DSN hôte ou conteneur du Nœud B |
+| `--internal-dsn-a` | `str` | `MM_INTERNAL_DSN_A` ou `--dsn-a` | DSN inter-conteneurs utilisé par le Nœud B pour créer `sub_from_a` |
+| `--internal-dsn-b` | `str` | `MM_INTERNAL_DSN_B` ou `--dsn-b` | DSN inter-conteneurs utilisé par le Nœud A pour créer `sub_from_b` |
+| `--candidate-name` | `str` | `"pg18-candidate"` | Nom du produit candidat affiché dans les rapports JSON/Markdown |
+| `--setup-native-birep` | Flag | `False` | Configure de manière idempotente la publication `sirene_mm_pub`, les séquences et les souscriptions `origin=none` |
+| `--no-stagger-sequences` | Flag | `False` | Désactive le décalage `INCREMENT BY 2` des séquences lors de l'initialisation native |
+| `--batch-rows` | `int` | `200` | Nombre d'établissements injectés par `COPY FROM STDIN` dans `P5_BULK_COPY_REPLICATION_LAG` |
+| `--timeout-sec` | `float` | `15.0` | Délai maximal d'attente de convergence par sonde (en secondes) |
+| `--output-md` | `Path` | `None` | Chemin optionnel pour exporter la fiche de score en Markdown |
+| `--output-json` | `Path` | `None` | Chemin optionnel pour exporter la fiche de score en JSON |
+
+```bash
+python sirene/mm_probe.py --setup-native-birep --candidate-name "pg18-native-birep"
+python sirene/mm_probe.py --dsn-a "postgresql://..." --dsn-b "postgresql://..." --candidate-name "pgedge-spock"
+```
+
 ### Modules Internes de la Bibliothèque (`sirene/src/sirene_etl/`)
 
 | Module | Symboles Clés | Responsabilité Principale |
 | :--- | :--- | :--- |
-| `__init__.py` | `__version__` (`"1.9.0"`) | Export de la version du package |
+| `__init__.py` | `__version__` (`"1.10.0"`) | Export de la version du package |
 | `config.py` | `Settings`, `load_settings()` | Dataclass immuable chargée depuis `.env` et les variables d'environnement |
 | `logging_utils.py` | `JsonLineFormatter`, `get_logger()` | Journalisation JSON compacte horodatée UTC sur `sys.stdout` |
 | `db.py` | `get_connection()`, `acquire_etl_lock()`, `release_etl_lock()`, `apply_sql_file()`, `drop_secondary_indexes()`, `rebuild_indexes_and_analyze()`, `start_etl_log()`, `finish_etl_log()`, `is_checksum_already_imported()`, `get_last_successful_import()` | Connexions `psycopg` v3, verrou consultatif (`84729101`), exécution SQL, gestion des index et journal `etl_logs` |
@@ -360,15 +383,23 @@ python sirene/watcher.py --interval 1800
 | `full_import.py` | `run_full_import()`, `main()` | Verrou consultatif, DDL/référentiels, drop/rebuild d'index, `COPY FROM STDIN`, upsert `IS DISTINCT FROM`, projection EI |
 | `incremental_import.py` | `run_incremental_import()`, `main()` | Transaction unique `ON COMMIT DROP` via `COPY FROM STDIN`, déduplication PK, audit `etablissements_historique_etat`, garde monotone |
 | `watcher.py` | `check_and_sync_once()`, `run_daemon()`, `main()` | Comparaison des métadonnées contre `etl_logs`, gestion `SIGINT`/`SIGTERM`, dispatch complet ou incrémental |
+| `mm_probe.py` | `ProbeResult`, `Scorecard`, `classify_verdict()`, `setup_native_birep()`, `run_mm_qualification()`, `format_scorecard_markdown()`, `scorecard_to_dict()`, `main()` | Sondes de qualification actif-actif (`P1`–`P5`), initialisation bidirectionnelle PG 18 (`origin=none`) et verdict |
 
 ### Variables d'Environnement
 
 | Variable | Valeur par Défaut | Rôle |
 | :--- | :--- | :--- |
+| `POSTGRES_IMAGE` | `postgres:18-bookworm` | Tag d'image Docker utilisé par `sirene-postgres` et `sirene-mm-node-*` |
 | `POSTGRES_USER` | `sirene` | Rôle PostgreSQL du conteneur |
 | `POSTGRES_PASSWORD` | `pg_sirene_ephemeral` | Mot de passe éphémère de laboratoire (ne jamais commiter de secrets réels) |
 | `POSTGRES_DB` | `sirene` | Nom de la base de données cible |
 | `POSTGRES_HOST_PORT` | `15432` | Port loopback hôte mappé vers `5432` (évite tout conflit avec un PostgreSQL local sur `5432`) |
+| `MM_NODE_A_PORT` | `15441` | Port loopback hôte du Nœud A du laboratoire multi-maître (`sirene-mm-node-a`) |
+| `MM_NODE_B_PORT` | `15442` | Port loopback hôte du Nœud B du laboratoire multi-maître (`sirene-mm-node-b`) |
+| `MM_DSN_A` | `postgresql://sirene:pg_sirene_ephemeral@sirene-mm-node-a:5432/sirene` | Chaîne DSN cible du Nœud A pour `mm_probe.py` / `sirene-mm-probe` |
+| `MM_DSN_B` | `postgresql://sirene:pg_sirene_ephemeral@sirene-mm-node-b:5432/sirene` | Chaîne DSN cible du Nœud B pour `mm_probe.py` / `sirene-mm-probe` |
+| `MM_INTERNAL_DSN_A` | Repli sur `--dsn-a` | DSN inter-conteneurs optionnel utilisé par la souscription du Nœud B vers A |
+| `MM_INTERNAL_DSN_B` | Repli sur `--dsn-b` | DSN inter-conteneurs optionnel utilisé par la souscription du Nœud A vers B |
 | `DATABASE_URL` | `postgresql://sirene:pg_sirene_ephemeral@localhost:15432/sirene` | Chaîne DSN côté hôte (`sirene-postgres:5432` dans Docker Compose) |
 | `STAGING_DIR` | `./staging` | Répertoire de staging `.part` et cache des référentiels |
 | `SQL_DIR` | `<racine_package>/sql` | Répertoire contenant `01_schema_3nf.sql` et `02_indexes.sql` |
@@ -385,13 +416,14 @@ python sirene/watcher.py --interval 1800
 | `COG_PAYS_URL` | `https://www.insee.fr/fr/statistiques/fichier/8740222/v_pays_territoire_2026.csv` | CSV des pays et territoires INSEE |
 | `NAF_PARQUET_URL` | `https://static.data.gouv.fr/resources/naf-1/20231123-121750/nafr2.parquet` | Fichier Parquet officiel NAF Rév. 2 |
 
-### Services Docker Compose, Profils & Réglages PostgreSQL 17
+### Services Docker Compose, Profils & Réglages PostgreSQL 18
 
 Définis dans `sirene/docker-compose.yml` :
 
-- **`sirene-postgres`** (`postgres:17-bookworm`, `shm_size: 1gb`) :
+- **`sirene-postgres`** (`${POSTGRES_IMAGE:-postgres:18-bookworm}`, `shm_size: 1gb`) :
   - Expose `127.0.0.1:${POSTGRES_HOST_PORT:-15432}:5432`.
-  - Monte `./sql:/docker-entrypoint-initdb.d:ro` (initialise `01_schema_3nf.sql` et `02_indexes.sql` au premier démarrage) ainsi que `sirene_pgdata:/var/lib/postgresql/data`.
+  - Monte `./sql:/docker-entrypoint-initdb.d:ro` (initialise `01_schema_3nf.sql` et `02_indexes.sql` au premier démarrage) ainsi que `sirene_pgdata:/var/lib/postgresql`.
+  - **Disposition des Volumes Docker PostgreSQL 18** : Les images officielles `postgres:18-bookworm` définissent `PGDATA=/var/lib/postgresql/18/docker` et rejettent un montage direct sur `/var/lib/postgresql/data` ; le volume persistant doit cibler `/var/lib/postgresql`.
   - Healthcheck : `pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}` toutes les `5s`.
   - Paramètres optimisés pour l'ingestion massive : `shared_buffers=1GB`, `work_mem=64MB`, `maintenance_work_mem=512MB`, `max_wal_size=4GB`, `checkpoint_timeout=15min`, `wal_level=minimal`, `max_wal_senders=0`, `effective_io_concurrency=200`.
 - **`sirene-etl`** (construit via `sirene/Dockerfile`, `python:3.12-slim`) :
@@ -402,23 +434,50 @@ Définis dans `sirene/docker-compose.yml` :
   - Activé explicitement avec `--profile daemon` (ou `make sirene-watch`) afin d'éviter tout polling Internet non sollicité pendant les tests hors ligne.
   - Exécute `python watcher.py` en continu.
 
+### Sélection de Produit Multi-Maître (`mm_probe.py`)
+
+`sirene/mm_probe.py` constitue un banc empirique de qualification pour évaluer tout moteur multi-maître compatible PostgreSQL face au schéma 3NF Sirene à 13 tables. En pointant simplement `--dsn-a` et `--dsn-b` vers deux nœuds cibles, la même suite évalue la **réplication logique bidirectionnelle native PostgreSQL 18 (`origin=none`)**, **pgEdge Spock**, **Citus**, **YugabyteDB** ou **CockroachDB**.
+
+#### Stack Docker Bidirectionnelle (`sirene/docker-compose.pg18-birep.yml`)
+
+- **`sirene-mm-node-a`** (`127.0.0.1:${MM_NODE_A_PORT:-15441}:5432`) et **`sirene-mm-node-b`** (`127.0.0.1:${MM_NODE_B_PORT:-15442}:5432`) : exécutent `${POSTGRES_IMAGE:-postgres:18-bookworm}` avec `-c wal_level=logical -c max_wal_senders=10 -c max_replication_slots=10 -c track_commit_timestamp=on` et montent les volumes PostgreSQL 18 sur `/var/lib/postgresql` (`sirene_mm_a_pgdata`, `sirene_mm_b_pgdata`).
+- **`sirene-mm-probe`** : construit `./Dockerfile`, attend la disponibilité des deux nœuds et exécute `mm_probe.py` sur `MM_DSN_A` et `MM_DSN_B`.
+- **`setup_native_birep()`** : crée la publication `sirene_mm_pub` sur les 12 tables métier/référentiels (hors `etl_logs`), décale les séquences `BIGSERIAL` (`personnes_id_seq`, `roles_entreprises_id_seq`, `etablissements_historique_etat_id_seq` : `INCREMENT BY 2`, `RESTART WITH 10001` sur A et `10002` sur B), crée les souscriptions `sub_from_b` / `sub_from_a` avec `WITH (copy_data = false, origin = none)` et attend l'activation des workers dans `pg_stat_subscription`.
+
+#### Les 5 Sondes de Qualification & Verdicts
+
+Les sondes s'exécutent dans l'ordre **`P1 -> P2 -> P4 -> P5 -> P3`** (exécuter `P3` en dernier évite qu'un blocage de réplication natif `origin=none` sur conflit ne perturbe `P4`/`P5`), puis sont restituées triées de `P1` à `P5` :
+
+| ID de Sonde | Périmètre Vérifié | Critères PASS / WARN / FAIL |
+| :--- | :--- | :--- |
+| `P1_DDL_COMPAT` | `pg_trgm` (`%` / `gin_trgm_ops`), `GENERATED ALWAYS AS ... STORED`, `UNIQUE NULLS NOT DISTINCT`, `TEMP TABLE ... ON COMMIT DROP` + `COPY FROM STDIN`, portée de `pg_try_advisory_lock` | `WARN` si le verrou consultatif est local au nœud (un verrou sur A ne bloque pas B) |
+| `P2_SEQUENCE_SPLIT_BRAIN` | Insertions simultanées dans `personnes` via `DEFAULT` `BIGSERIAL` sur les nœuds A et B | `PASS` si convergence avec IDs distincts ; `FAIL` sur collision PK (`23505`) ou divergence |
+| `P3_CONCURRENT_SIRET_UPSERT` | Mises à jour conflictuelles simultanées sur un même `etablissements` (A ferme `'F'` avec horodatage récent ; B modifie `enseigne_1 = 'MM_NODE_B'` avec horodatage plus ancien) | Classe l'issue en `CONVERGED_DETERMINISTIC` (`PASS`), `CONVERGED_NON_MONOTONIC` (`WARN`), `SERIALIZATION_ABORT_40001` (`WARN`), `SUBSCRIPTION_STALLED` (`WARN` via `pg_stat_subscription_stats`) ou `DIVERGED_SPLIT_BRAIN` (`FAIL`) |
+| `P4_CROSS_NODE_FK_CAUSALITY` | Insertion du parent `unites_legales` sur A puis insertion immédiate de l'enfant `etablissements` sur B | `PASS` si synchronisation immédiate ; `WARN` si course asynchrone `23503` avant convergence (`convergence_ms`) |
+| `P5_BULK_COPY_REPLICATION_LAG` | Injection en masse (`COPY FROM STDIN`) de `batch_rows` établissements sur A puis vérification `%` `pg_trgm` / comptage sur B | Mesure la latence de réplication `lag_ms` et le débit `rows_per_sec` |
+
+`Scorecard.verdict` retourne **`INCOMPATIBLE_WITH_SIRENE_3NF`** si au moins une sonde vaut `FAIL`, **`CONDITIONAL_PARTITIONED_WRITES_ONLY`** s'il existe au moins un `WARN` sans `FAIL`, ou **`PRODUCTION_MULTI_MASTER_READY`** si toutes les sondes valent `PASS`.
+
 ### Cibles du `Makefile`
 
 | Cible | Commande Exécutée | Rôle |
 | :--- | :--- | :--- |
-| `make sirene-up` | `docker compose -f sirene/docker-compose.yml up -d sirene-postgres` | Démarre le conteneur PostgreSQL 17 en arrière-plan |
+| `make sirene-up` | `docker compose -f sirene/docker-compose.yml up -d sirene-postgres` | Démarre le conteneur PostgreSQL 18 en arrière-plan |
 | `make sirene-down` | `docker compose -f sirene/docker-compose.yml --profile daemon down` | Arrête la pile Sirene incluant le profil démon |
-| `make sirene-test` | `up -d --wait sirene-postgres`, `build sirene-etl`, `run --rm sirene-etl pytest -v` | Exécute la suite complète `pytest` (unitaire, PostgreSQL 17, gouvernance) |
+| `make sirene-test` | `up -d --wait sirene-postgres`, `build sirene-etl`, `run --rm sirene-etl pytest -v` | Exécute la suite complète `pytest` (unitaire, PostgreSQL 18, gouvernance) |
 | `make sirene-import` | `docker compose -f sirene/docker-compose.yml run --rm sirene-etl python full_import.py $(ARGS)` | Lance l'import initial complet (options via `ARGS="..."`) |
 | `make sirene-incremental` | `docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py $(ARGS)` | Lance la synchronisation différentielle transactionnelle |
 | `make sirene-watch` | `docker compose -f sirene/docker-compose.yml --profile daemon up -d sirene-watcher` | Démarre le démon autonome de veille `data.gouv.fr` |
+| `make sirene-mm-up` | `docker compose -f sirene/docker-compose.pg18-birep.yml up -d --wait sirene-mm-node-a sirene-mm-node-b` | Démarre le laboratoire logique multi-maître PostgreSQL 18 à 2 nœuds |
+| `make sirene-mm-probe` | `up -d --wait`, `build sirene-mm-probe`, `run --rm sirene-mm-probe python mm_probe.py --dsn-a ... --dsn-b ... --setup-native-birep --candidate-name pg18-native-birep $(ARGS)` | Configure la réplication bidirectionnelle et exécute les 5 sondes `P1`–`P5` |
+| `make sirene-mm-down` | `docker compose -f sirene/docker-compose.pg18-birep.yml down -v` | Arrête et nettoie le laboratoire multi-maître et ses volumes |
 | `make sirene-docs` | Affiche les chemins vers la page HTML et les guides EN/FR | Liste les points d'entrée documentaires Sirene |
 
 ---
 
 ## 4. Catalogue des 15 Requêtes SQL Analytiques et de Recherche
 
-Les 15 requêtes ci-dessous sont des requêtes **PostgreSQL 17** en lecture seule issues exactement de `sirene/sql/03_sample_queries.sql`, validées avec `ON_ERROR_STOP=1` sur base vide (sentinelles seules) et sur base peuplée.
+Les 15 requêtes ci-dessous sont des requêtes **PostgreSQL 18** en lecture seule issues exactement de `sirene/sql/03_sample_queries.sql`, validées avec `ON_ERROR_STOP=1` sur base vide (sentinelles seules) et sur base peuplée.
 
 ### Requête 1 — Recherche Exacte par SIREN / SIRET (Unité Légale, Adresse, NAF, CJ, Effectifs & WGS84)
 
@@ -1207,7 +1266,7 @@ ORDER BY sort_order;
 
 ### Requête 15 — Santé Opérationnelle ETL (`etl_logs` & SHA-256) + Volumétrie des Tables et Index (`pg_stat_user_tables`)
 
-Combine les statistiques des dernières exécutions `etl_logs` (débit, durée, SHA-256, compteurs de succès/échec) et la volumétrie réelle des tables et index PostgreSQL 17.
+Combine les statistiques des dernières exécutions `etl_logs` (débit, durée, SHA-256, compteurs de succès/échec) et la volumétrie réelle des tables et index PostgreSQL 18.
 
 ```sql
 WITH latest_per_entity AS (

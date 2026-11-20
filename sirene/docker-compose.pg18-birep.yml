@@ -1,0 +1,83 @@
+services:
+  sirene-mm-node-a:
+    image: ${POSTGRES_IMAGE:-postgres:18-bookworm}
+    shm_size: "512mb"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sirene}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pg_sirene_ephemeral}
+      POSTGRES_DB: ${POSTGRES_DB:-sirene}
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - track_commit_timestamp=on
+    ports:
+      - "127.0.0.1:${MM_NODE_A_PORT:-15441}:5432"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d:ro
+      - sirene_mm_a_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  sirene-mm-node-b:
+    image: ${POSTGRES_IMAGE:-postgres:18-bookworm}
+    shm_size: "512mb"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sirene}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pg_sirene_ephemeral}
+      POSTGRES_DB: ${POSTGRES_DB:-sirene}
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - track_commit_timestamp=on
+    ports:
+      - "127.0.0.1:${MM_NODE_B_PORT:-15442}:5432"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d:ro
+      - sirene_mm_b_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  sirene-mm-probe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      sirene-mm-node-a:
+        condition: service_healthy
+      sirene-mm-node-b:
+        condition: service_healthy
+    environment:
+      MM_DSN_A: postgresql://${POSTGRES_USER:-sirene}:${POSTGRES_PASSWORD:-pg_sirene_ephemeral}@sirene-mm-node-a:5432/${POSTGRES_DB:-sirene}
+      MM_DSN_B: postgresql://${POSTGRES_USER:-sirene}:${POSTGRES_PASSWORD:-pg_sirene_ephemeral}@sirene-mm-node-b:5432/${POSTGRES_DB:-sirene}
+      SQL_DIR: /app/sql
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./staging:/app/staging
+      - ..:/workspace:ro
+    command: ["python", "mm_probe.py", "--help"]
+
+volumes:
+  sirene_mm_a_pgdata:
+  sirene_mm_b_pgdata:

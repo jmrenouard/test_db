@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sirene-etl"
-version = "1.9.0"
-description = "PostgreSQL 17 3NF ETL pipeline and autonomous data.gouv.fr watcher for INSEE Sirene datasets."
+version = "1.10.0"
+description = "PostgreSQL 18 3NF ETL pipeline, autonomous data.gouv.fr watcher, and multi-master qualification probe for INSEE Sirene datasets."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -30,6 +30,6 @@ testpaths = ["tests"]
 addopts = "-ra"
 markers = [
     "unit: Pure unit tests without external services.",
-    "integration: End-to-end tests requiring PostgreSQL 17.",
+    "integration: End-to-end tests requiring PostgreSQL 18.",
     "governance: Repository documentation and hygiene checks.",
 ]

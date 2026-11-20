@@ -20,10 +20,10 @@ Veuillez suivre les guides dans l'ordre, ou accéder directement à un sujet d'i
 1. [Expérience Deadlock](deadlock_experiment.md) - Simulation et suivi des interblocages "wait-for-graph".
 2. [Expérience Gap Locking](gap_locking_experiment.md) - Démonstration des "gap locks" InnoDB sur des index non uniques.
 
-## 4. Plateforme PostgreSQL 3NF Sirene
+## 4. Plateforme PostgreSQL 18 3NF Sirene
 
-1. [Guide Plateforme PostgreSQL 3NF Sirene](sirene_platform.md) - Architecture ETL, schéma 3NF à 13 tables, index GIN `pg_trgm`, scripts Python/CLI/Docker et 15 requêtes SQL.
-2. [Référence HTML Interactive](../sirene_documentation.html) - Explorateur interactif autonome du schéma, diagrammes SVG et catalogue filtrable des 15 requêtes SQL.
+1. [Guide Plateforme PostgreSQL 18 3NF Sirene](sirene_platform.md) - Architecture ETL, schéma 3NF à 13 tables, index GIN `pg_trgm`, scripts Python/CLI/Docker, qualification multi-maître (`mm_probe.py`) et 15 requêtes SQL.
+2. [Référence HTML Interactive](../sirene_documentation.html) - Explorateur interactif autonome PostgreSQL 18 du schéma, diagrammes SVG, sonde multi-maître et catalogue filtrable des 15 requêtes SQL.
 
 ---
 *Retour au [README](../../README_fr.md) Principal*
