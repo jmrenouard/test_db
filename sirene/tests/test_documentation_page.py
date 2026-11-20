@@ -44,7 +44,12 @@ REQUIRED_ETL_MODULES: tuple[str, ...] = (
     "transforms.py",
 )
 
-REQUIRED_PLATFORM_MARKERS: tuple[str, ...] = ("PostgreSQL 18",)
+REQUIRED_PLATFORM_MARKERS: tuple[str, ...] = (
+    "PostgreSQL 18",
+    "load_sirene.sql",
+    "test_sirene_sha2.sql",
+    "StockUniteLegale_synthetic.parquet",
+)
 
 HOST_PATH_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"[A-Za-z]:\\Users\\", re.IGNORECASE),

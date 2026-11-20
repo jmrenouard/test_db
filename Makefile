@@ -4,7 +4,7 @@ CONTAINER_NAME = mariadb-11-8
 
 -include .env
 
-.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs sirene-mm-up sirene-mm-probe sirene-mm-down
+.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs sirene-mm-up sirene-mm-probe sirene-mm-down sirene-inject sirene-verify sirene-import-sample sirene-incremental-sample
 
 COUNT ?= 10
 
@@ -45,6 +45,10 @@ help:
 	@echo "  make sirene-mm-up       - Start 2-node PostgreSQL 18 bidirectional replication lab"
 	@echo "  make sirene-mm-probe    - Run multi-master qualification probe against the 2-node PG 18 lab"
 	@echo "  make sirene-mm-down     - Stop and remove 2-node PG 18 multi-master lab containers and volumes"
+	@echo "  make sirene-inject      - Inject synthetic 15k UL / 30k SIRET SQL dumps directly via psql"
+	@echo "  make sirene-verify      - Verify injected Sirene row counts and SHA-256 checksums"
+	@echo "  make sirene-import-sample      - Run full_import.py on embedded offline synthetic Parquet files"
+	@echo "  make sirene-incremental-sample - Run incremental_import.py on embedded synthetic delta Parquet files"
 
 start:
 	@echo "🚀 Starting MariaDB container ($(CONTAINER_NAME))..."
@@ -142,3 +146,19 @@ sirene-mm-probe:
 sirene-mm-down:
 	@echo "🛑 Stopping 2-node PostgreSQL 18 multi-master lab..."
 	@docker compose -f sirene/docker-compose.pg18-birep.yml down -v
+
+sirene-inject:
+	@echo "💉 Injecting synthetic Sirene SQL dumps into sirene-postgres..."
+	@docker compose -f sirene/docker-compose.yml exec -T -w /sirene sirene-postgres psql -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene} -v ON_ERROR_STOP=1 -f load_sirene.sql
+
+sirene-verify:
+	@echo "🔍 Verifying Sirene row counts and SHA-256 checksums..."
+	@docker compose -f sirene/docker-compose.yml exec -T -w /sirene sirene-postgres psql -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene} -v ON_ERROR_STOP=1 -f test_sirene_sha2.sql
+
+sirene-import-sample:
+	@echo "📥 Running full_import.py against embedded offline synthetic Parquet files..."
+	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl python full_import.py --ul-file /app/data/parquet/StockUniteLegale_synthetic.parquet --etab-file /app/data/parquet/StockEtablissement_synthetic.parquet --offline-refs --force
+
+sirene-incremental-sample:
+	@echo "🔄 Running incremental_import.py against embedded synthetic delta Parquet files..."
+	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py --ul-file /app/data/delta/DeltaUniteLegale_synthetic.parquet --etab-file /app/data/delta/DeltaEtablissement_synthetic.parquet --force

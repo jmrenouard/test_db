@@ -33,6 +33,7 @@ services:
     volumes:
       - ./sql:/docker-entrypoint-initdb.d:ro
       - sirene_pgdata:/var/lib/postgresql
+      - .:/sirene:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}"]
       interval: 5s
@@ -57,6 +58,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - ./staging:/app/staging
+      - ./data:/app/data:ro
       - ..:/workspace:ro
     command: ["python", "full_import.py", "--help"]
 

@@ -22,8 +22,8 @@ Veuillez suivre les guides dans l'ordre, ou accéder directement à un sujet d'i
 
 ## 4. Plateforme PostgreSQL 18 3NF Sirene
 
-1. [Guide Plateforme PostgreSQL 18 3NF Sirene](sirene_platform.md) - Architecture ETL, schéma 3NF à 13 tables, index GIN `pg_trgm`, scripts Python/CLI/Docker, qualification multi-maître (`mm_probe.py`) et 15 requêtes SQL.
-2. [Référence HTML Interactive](../sirene_documentation.html) - Explorateur interactif autonome PostgreSQL 18 du schéma, diagrammes SVG, sonde multi-maître et catalogue filtrable des 15 requêtes SQL.
+1. [Guide Plateforme PostgreSQL 18 3NF Sirene](sirene_platform.md) - Architecture ETL, schéma 3NF à 13 tables, index GIN `pg_trgm`, scripts Python/CLI/Docker, qualification multi-maître (`mm_probe.py`), jeux de données synthétiques SQL/Parquet prêts à injecter (`1.11.0`) avec vérification SHA-256 et 15 requêtes SQL.
+2. [Référence HTML Interactive](../sirene_documentation.html) - Explorateur interactif autonome PostgreSQL 18 du schéma, diagrammes SVG, sonde multi-maître, guide des jeux de données synthétiques et catalogue filtrable des 15 requêtes SQL.
 
 ---
 *Retour au [README](../../README_fr.md) Principal*

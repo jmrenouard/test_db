@@ -28,6 +28,8 @@ flowchart LR
 - `sirene/sql/01_schema_3nf.sql`: Idempotent PostgreSQL 18 DDL (`pg_trgm` extension, 7 referential tables with sentinels, `unites_legales`, `etablissements`, `etablissements_historique_etat`, `personnes`, `roles_entreprises`, and `etl_logs`).
 - `sirene/sql/02_indexes.sql`: B-Tree indexes on foreign keys and selective filters, partial composite active-establishment index, and three `pg_trgm` GIN indexes (`fastupdate = on`).
 - `sirene/sql/03_sample_queries.sql`: Fifteen read-only analytical, spatial, governance, fuzzy-search, quality-audit, and ETL freshness queries.
+- `sirene/load_sirene.sql`, `sirene/load_sirene_db.sh`, `sirene/test_sirene_sha2.sql`, `sirene/data/`: Deterministic zero-PII synthetic dataset (`15,000` legal units, `30,000` establishments, `8,000` persons, `12,000` roles, `1,200` state history rows) for direct `psql` injection, SHA-256 verification, and offline Parquet/delta ETL runs.
+- `sirene/scripts/generate_synthetic_dataset.py`: Deterministic generator (`seed = 20261120`) producing `sirene/data/sql/` dumps, ZSTD Parquet files, and zipped delta CSVs.
 - `sirene/src/sirene_etl/`: Core ETL library (`config`, `logging_utils`, `db`, `downloader`, `referentials`, `transforms`, `full_import`, `incremental_import`, `watcher`, `mm_probe`).
 - `sirene/full_import.py`, `sirene/incremental_import.py`, `sirene/watcher.py`, `sirene/mm_probe.py`: CLI entrypoints.
 - `sirene/docker-compose.yml` & `sirene/docker-compose.pg18-birep.yml`: Single-node PostgreSQL 18 bulk stack (`/var/lib/postgresql` mount) and 2-node logical bidirectional replication lab.
@@ -64,6 +66,24 @@ make sirene-docs
 
 # 7. Stop containers
 make sirene-down
+```
+
+### Direct SQL Injection & Offline Synthetic Dataset (`15,000` UL / `30,000` SIRET)
+
+Zero-PII embedded synthetic SQL dumps and ZSTD-compressed Parquet/delta files let you populate and verify PostgreSQL 18 without Python or network access:
+
+```bash
+# Inject synthetic SQL dumps directly into sirene-postgres via psql
+make sirene-inject
+# Or standalone / inside sirene/: psql -f sirene/load_sirene.sql or bash sirene/load_sirene_db.sh
+
+# Verify row counts and SHA-256 checksums across all 12 tables
+make sirene-verify
+# Or directly: psql -f sirene/test_sirene_sha2.sql
+
+# Or test offline Python ETL pipelines on the embedded Parquet & delta samples
+make sirene-import-sample
+make sirene-incremental-sample
 ```
 
 Direct `docker compose` equivalents from `sirene/`:

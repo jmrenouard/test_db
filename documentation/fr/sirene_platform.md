@@ -373,7 +373,7 @@ python sirene/mm_probe.py --dsn-a "postgresql://..." --dsn-b "postgresql://..." 
 
 | Module | Symboles Clés | Responsabilité Principale |
 | :--- | :--- | :--- |
-| `__init__.py` | `__version__` (`"1.10.0"`) | Export de la version du package |
+| `__init__.py` | `__version__` (`"1.11.0"`) | Export de la version du package |
 | `config.py` | `Settings`, `load_settings()` | Dataclass immuable chargée depuis `.env` et les variables d'environnement |
 | `logging_utils.py` | `JsonLineFormatter`, `get_logger()` | Journalisation JSON compacte horodatée UTC sur `sys.stdout` |
 | `db.py` | `get_connection()`, `acquire_etl_lock()`, `release_etl_lock()`, `apply_sql_file()`, `drop_secondary_indexes()`, `rebuild_indexes_and_analyze()`, `start_etl_log()`, `finish_etl_log()`, `is_checksum_already_imported()`, `get_last_successful_import()` | Connexions `psycopg` v3, verrou consultatif (`84729101`), exécution SQL, gestion des index et journal `etl_logs` |
@@ -422,13 +422,13 @@ Définis dans `sirene/docker-compose.yml` :
 
 - **`sirene-postgres`** (`${POSTGRES_IMAGE:-postgres:18-bookworm}`, `shm_size: 1gb`) :
   - Expose `127.0.0.1:${POSTGRES_HOST_PORT:-15432}:5432`.
-  - Monte `./sql:/docker-entrypoint-initdb.d:ro` (initialise `01_schema_3nf.sql` et `02_indexes.sql` au premier démarrage) ainsi que `sirene_pgdata:/var/lib/postgresql`.
+  - Monte `./sql:/docker-entrypoint-initdb.d:ro` (initialise `01_schema_3nf.sql` et `02_indexes.sql` au premier démarrage), `sirene_pgdata:/var/lib/postgresql` et `.:/sirene:ro` (permet l'injection `psql` directe via `load_sirene.sql` et le contrôle via `test_sirene_sha2.sql`).
   - **Disposition des Volumes Docker PostgreSQL 18** : Les images officielles `postgres:18-bookworm` définissent `PGDATA=/var/lib/postgresql/18/docker` et rejettent un montage direct sur `/var/lib/postgresql/data` ; le volume persistant doit cibler `/var/lib/postgresql`.
   - Healthcheck : `pg_isready -U $${POSTGRES_USER:-sirene} -d $${POSTGRES_DB:-sirene}` toutes les `5s`.
   - Paramètres optimisés pour l'ingestion massive : `shared_buffers=1GB`, `work_mem=64MB`, `maintenance_work_mem=512MB`, `max_wal_size=4GB`, `checkpoint_timeout=15min`, `wal_level=minimal`, `max_wal_senders=0`, `effective_io_concurrency=200`.
 - **`sirene-etl`** (construit via `sirene/Dockerfile`, `python:3.12-slim`) :
   - Attend `sirene-postgres` (`condition: service_healthy`).
-  - Monte `./staging:/app/staging` et `..:/workspace:ro`.
+  - Monte `./staging:/app/staging`, `./data:/app/data:ro` (jeux de données synthétiques Parquet/delta embarqués) et `..:/workspace:ro`.
   - Utilise `DATABASE_URL=postgresql://${POSTGRES_USER:-sirene}:${POSTGRES_PASSWORD:-pg_sirene_ephemeral}@sirene-postgres:5432/${POSTGRES_DB:-sirene}`.
 - **`sirene-watcher`** (`profiles: ["daemon"]`, `restart: unless-stopped`) :
   - Activé explicitement avec `--profile daemon` (ou `make sirene-watch`) afin d'éviter tout polling Internet non sollicité pendant les tests hors ligne.
@@ -458,6 +458,53 @@ Les sondes s'exécutent dans l'ordre **`P1 -> P2 -> P4 -> P5 -> P3`** (exécuter
 
 `Scorecard.verdict` retourne **`INCOMPATIBLE_WITH_SIRENE_3NF`** si au moins une sonde vaut `FAIL`, **`CONDITIONAL_PARTITIONED_WRITES_ONLY`** s'il existe au moins un `WARN` sans `FAIL`, ou **`PRODUCTION_MULTI_MASTER_READY`** si toutes les sondes valent `PASS`.
 
+### Injection SQL Directe & Jeu de Données Hors Ligne Embarqué (`1.11.0`)
+
+À l'instar des bases exemples classiques `employees/` et `postgresql/`, `sirene/` embarque un **jeu de données 100 % synthétique, déterministe et sans aucune donnée personnelle (PII)** (`14.33 MB` au total sous `sirene/data/`, plage SIREN `900000001`–`900015050`, graine `20261120`), accompagné de chargeurs `psql` sans Python et d'une suite de vérification d'intégrité SHA-256.
+
+#### Volumétrie du Jeu de Données Embarqué
+
+| Table Métier / Référentiel | Fichier Dump SQL Direct | Lignes | Détails |
+| :--- | :--- | ---: | :--- |
+| `ref_regions`, `ref_departements`, `ref_communes`, `ref_pays`, `ref_naf`, `ref_categories_juridiques`, `ref_tranches_effectifs` | `sirene/data/sql/01_load_referentials.sql` | `25` / `112` / `563` / `11` / `39` / `113` / `17` | Sentinelles (`UNK`, `UNK00`, `99100`, `00.00Z`, `0000`, `NN`, `UN`) + codes `HIST`, régions, départements, communes, NAF |
+| `unites_legales` | `sirene/data/sql/02_load_unites_legales.sql` | `15,000` | Inclut `3,000` entrepreneurs individuels (`1000`), `PME`/`ETI`/`GE`, ESS/mission, `ACME TECHNOLOGIE`, `BOULANGERIE DUPONT`, division NAF `'62'` active |
+| `etablissements` | `sirene/data/sql/03_load_etablissements.sql` | `30,000` | `15,000` sièges + `15,000` établissements secondaires (réseaux multi-sites, ~200 à l'étranger, coordonnées Lambert-93 & WGS84 Paris/Toulouse) |
+| `personnes`, `roles_entreprises`, `etablissements_historique_etat`, `etl_logs` | `sirene/data/sql/04_load_governance_and_history.sql` | `8,000` / `12,000` / `1,200` / `4` | Entrepreneurs individuels + dirigeants physiques/moraux, transitions `'A'<->'F'`, journaux initiaux et synchronisation `setval` des séquences |
+
+#### Chargeur `psql` Sans Python & Vérification SHA-256
+
+- **`sirene/load_sirene.sql`** : applique de façon idempotente `sql/01_schema_3nf.sql`, exécute `TRUNCATE ... RESTART IDENTITY CASCADE`, supprime les index secondaires non contraints pour maximiser le débit `COPY`, charge `sirene/data/sql/01_load_referentials.sql` à `04_load_governance_and_history.sql` via `\ir` (listes de colonnes explicites excluant les colonnes `GENERATED ALWAYS`), reconstruit `sql/02_indexes.sql` et exécute `ANALYZE;`.
+- **`sirene/load_sirene_db.sh`** : script Bash normalisé en LF (`#!/usr/bin/env bash`, `set -euo pipefail`) exécutant `` "$PSQL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/load_sirene.sql" "$@" `` (par défaut `` PSQL="${PSQL:-psql}" ``).
+- **`sirene/test_sirene_sha2.sql`** : reprend le modèle de `postgresql/test_employees_sha2.sql` sur les 12 tables métier et référentielles avec la fonction native PostgreSQL `sha256(bytea)` (`encode(sha256(convert_to(crc || '#' || r.row_text, 'UTF8')), 'hex')`) sans `pgcrypto`, validant `CRC | OK` et `count | OK`.
+
+```bash
+# Injection SQL directe et vérification SHA-256 dans Docker (zéro Python requis)
+make sirene-up
+make sirene-inject
+make sirene-verify
+
+# Ou directement contre une instance PostgreSQL 18 locale
+bash sirene/load_sirene_db.sh -h 127.0.0.1 -p 15432 -U sirene -d sirene
+psql -h 127.0.0.1 -p 15432 -U sirene -d sirene -v ON_ERROR_STOP=1 -f sirene/test_sirene_sha2.sql
+```
+
+#### Fichiers Hors Ligne Parquet / Delta & Générateur
+
+| Artefact | Format / Volume | Rôle |
+| :--- | :--- | :--- |
+| `sirene/data/parquet/StockUniteLegale_synthetic.parquet` | Parquet ZSTD (`15,000` lignes) | Jeu complet hors ligne des unités légales pour `full_import.py` (`make sirene-import-sample`) |
+| `sirene/data/parquet/StockEtablissement_synthetic.parquet` | Parquet ZSTD (`30,000` lignes) | Jeu complet hors ligne des établissements pour `full_import.py` (`make sirene-import-sample`) |
+| `sirene/data/delta/DeltaUniteLegale_synthetic.parquet` | Parquet ZSTD (`250` lignes) | `200` mises à jour + `50` créations d'unités légales (`make sirene-incremental-sample`) |
+| `sirene/data/delta/DeltaEtablissement_synthetic.parquet` | Parquet ZSTD (`500` lignes) | `400` mises à jour (dont `150` fermetures `'A' -> 'F'`) + `100` créations |
+| `sirene/data/delta/DeltaEtablissement_synthetic.csv.zip` | CSV UTF-8 zippé (`500` lignes) | Jeu delta d'établissements identique pour tester la voie CSV/ZIP |
+| `sirene/scripts/generate_synthetic_dataset.py` | Générateur Python (`seed = 20261120`) | Régénère à l'identique les dumps SQL LF, fichiers Parquet et archives CSV zippées |
+
+```bash
+# Import complet Parquet hors ligne et synchronisation différentielle via Docker Compose
+make sirene-import-sample
+make sirene-incremental-sample
+```
+
 ### Cibles du `Makefile`
 
 | Cible | Commande Exécutée | Rôle |
@@ -468,6 +515,10 @@ Les sondes s'exécutent dans l'ordre **`P1 -> P2 -> P4 -> P5 -> P3`** (exécuter
 | `make sirene-import` | `docker compose -f sirene/docker-compose.yml run --rm sirene-etl python full_import.py $(ARGS)` | Lance l'import initial complet (options via `ARGS="..."`) |
 | `make sirene-incremental` | `docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py $(ARGS)` | Lance la synchronisation différentielle transactionnelle |
 | `make sirene-watch` | `docker compose -f sirene/docker-compose.yml --profile daemon up -d sirene-watcher` | Démarre le démon autonome de veille `data.gouv.fr` |
+| `make sirene-inject` | `docker compose -f sirene/docker-compose.yml exec -T -w /sirene sirene-postgres psql ... -f load_sirene.sql` | Injecte directement les dumps SQL synthétiques via `psql` (sans Python) |
+| `make sirene-verify` | `docker compose -f sirene/docker-compose.yml exec -T -w /sirene sirene-postgres psql ... -f test_sirene_sha2.sql` | Vérifie les comptages et empreintes SHA-256 cumulées sur les 12 tables |
+| `make sirene-import-sample` | `docker compose -f sirene/docker-compose.yml run --rm sirene-etl python full_import.py --ul-file /app/data/parquet/StockUniteLegale_synthetic.parquet ... --offline-refs --force` | Exécute `full_import.py` sur les fichiers Parquet synthétiques embarqués |
+| `make sirene-incremental-sample` | `docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py --ul-file /app/data/delta/DeltaUniteLegale_synthetic.parquet ... --force` | Exécute `incremental_import.py` sur les deltas Parquet synthétiques embarqués |
 | `make sirene-mm-up` | `docker compose -f sirene/docker-compose.pg18-birep.yml up -d --wait sirene-mm-node-a sirene-mm-node-b` | Démarre le laboratoire logique multi-maître PostgreSQL 18 à 2 nœuds |
 | `make sirene-mm-probe` | `up -d --wait`, `build sirene-mm-probe`, `run --rm sirene-mm-probe python mm_probe.py --dsn-a ... --dsn-b ... --setup-native-birep --candidate-name pg18-native-birep $(ARGS)` | Configure la réplication bidirectionnelle et exécute les 5 sondes `P1`–`P5` |
 | `make sirene-mm-down` | `docker compose -f sirene/docker-compose.pg18-birep.yml down -v` | Arrête et nettoie le laboratoire multi-maître et ses volumes |

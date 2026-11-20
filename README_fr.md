@@ -59,7 +59,7 @@ Pour les utilisateurs travaillant avec des agents IA ou cherchant une maintenanc
 ## 📂 Carte du Dépôt
 
 - `employees/` : Jeu de données, définitions de schémas et plus de 60 requêtes exemples.
-- `sirene/` : Plateforme ETL PostgreSQL 17 3NF pour INSEE Sirene, stack Docker Compose et suite `pytest` ([sirene/README.md](sirene/README.md)).
+- `sirene/` : Plateforme ETL PostgreSQL 18 3NF pour INSEE Sirene, jeu de données synthétique embarqué (`15 000` unités légales / `30 000` établissements sans PII) injectable directement en SQL (`make sirene-inject`, `make sirene-verify`) ou hors-ligne en Parquet/delta (`make sirene-import-sample`, `make sirene-incremental-sample`), stack Docker Compose et suite `pytest` ([sirene/README.md](sirene/README.md)).
 - `scripts/` : Automatisation Python/Bash (analyseur SQL, Lua sysbench, runners).
 - `reports/` : Destination des plans EXPLAIN, résultats QPS et tableaux de bord HTML.
 - `documentation/` : Guides techniques bilingues.
