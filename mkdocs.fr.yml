@@ -1,0 +1,178 @@
+site_name: Documentation test_db
+site_description: Plateforme de tests multi-moteurs (MariaDB, MySQL, Percona, PostgreSQL 18), benchmarks Sysbench et ETL INSEE Sirene 3NF
+site_url: https://test-db.lightpath.fr/fr/
+repo_name: jmrenouard/test_db
+repo_url: https://github.com/jmrenouard/test_db
+edit_uri: edit/master/docs/fr/
+copyright: Copyright &copy; 2026 Jean-Marie Renouard &middot; LightPath
+
+docs_dir: docs/fr
+exclude_docs: |
+  *.kdbx
+  *.keyx
+  *.pid
+  *.log
+  .env
+  .env.*
+  .env_*
+  guides/en/
+  *_en.md
+  *-en.md
+  overview-en.md
+  01-tutorials/
+  02-how-to-guides/
+
+hooks:
+  - scripts/mkdocs_hooks.py
+
+theme:
+  name: material
+  language: fr
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.tracking
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Passer en mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Passer en mode clair
+
+plugins:
+  - search
+
+extra:
+  alternate:
+    - name: English
+      link: /
+      lang: en
+    - name: Français
+      link: /fr/
+      lang: fr
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jmrenouard/test_db
+      name: test_db sur GitHub
+    - icon: fontawesome/solid/globe
+      link: https://www.lightpath.fr
+      name: LightPath
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Accueil: index.md
+  - Tutoriels:
+      - 01-tutoriels/index.md
+      - Bac à sable MariaDB Employees: 01-tutoriels/01-bac-a-sable-mariadb-employees.md
+      - Lab Sirene PostgreSQL 18 hors ligne: 01-tutoriels/02-lab-sirene-postgresql18-hors-ligne.md
+      - Lab Concurrence et Benchmarks: 01-tutoriels/03-lab-concurrence-et-benchmarks.md
+  - Guides pratiques:
+      - 02-guides-pratiques/index.md
+      - Déploiement:
+          - Déployer les piles MariaDB et PostgreSQL: 02-guides-pratiques/deploiement/deployer-piles-mariadb-et-postgresql.md
+      - Exploitation:
+          - Exécuter Sysbench et l'analyse SQL: 02-guides-pratiques/exploitation/executer-sysbench-et-analyse-sql.md
+          - Exécuter l'ETL Sirene complet et incrémental: 02-guides-pratiques/exploitation/executer-etl-sirene-complet-et-incremental.md
+          - Qualifier PostgreSQL 18 multi-maître: 02-guides-pratiques/exploitation/qualifier-postgresql18-multimaitre.md
+      - Gestion des incidents:
+          - Remédier aux deadlocks, gap locks et dérives ETL: 02-guides-pratiques/gestion-incidents/remedier-deadlocks-gap-locks-et-derive-etl.md
+      - Sécurité:
+          - Vérifier les sommes et la confidentialité: 02-guides-pratiques/securite/verifier-sommes-controle-et-confidentialite.md
+  - Référence:
+      - 03-reference/index.md
+      - Spécifications d'architecture:
+          - Matrice des jeux de données et schémas: 03-reference/architecture-specs/matrice-jeux-donnees-et-schemas.md
+      - Configuration:
+          - Variables d'environnement et cibles Makefile: 03-reference/configuration/variables-environnement-et-cibles-makefile.md
+      - CLI et scripts:
+          - Catalogue des scripts CLI et SQL: 03-reference/cli-et-scripts/catalogue-scripts-cli-et-sql.md
+      - Codes d'erreur:
+          - Matrice des erreurs et alertes: 03-reference/codes-erreurs/matrice-erreurs-et-alertes.md
+      - Guides techniques (FR):
+          - Index des guides: guides/fr/index.md
+          - Plateforme Sirene 3NF: guides/fr/sirene_platform.md
+          - Gestion MariaDB: guides/fr/mariadb_management.md
+          - Guide des outils: guides/fr/guide_outils.md
+          - Benchmarking: guides/fr/benchmarking.md
+          - Analyseur SQL: guides/fr/sql_analyzer.md
+          - Rapports interactifs: guides/fr/interactive_reporting.md
+          - Expérience Deadlock: guides/fr/deadlock_experiment.md
+          - Expérience Gap Locking: guides/fr/gap_locking_experiment.md
+          - 60 requêtes SQL Employees: guides/employees-sql-fr.md
+          - Documentation HTML interactive Sirene: guides/sirene_documentation.html
+  - Explications:
+      - 04-explications/index.md
+      - Vue d'architecture:
+          - Architecture plateforme et ETL: 04-explications/vue-architecture/architecture-plateforme-et-etl.md
+      - Décisions d'architecture:
+          - ADR-001 ETL Sirene PostgreSQL 18 3NF et qualification MM: 04-explications/decisions-architecture/adr-001-postgresql18-3nf-sirene-etl-et-qualification-mm.md
+          - ADR-002 Architecture Diátaxis et publication MkDocs: 04-explications/decisions-architecture/adr-002-diataxis-et-publication-mkdocs-versionnee.md
+      - Analyses internes:
+          - Compromis concurrence, verrouillage et réplication: 04-explications/analyses-internes/compromis-concurrence-verrous-et-replication.md
+      - Aperçus du projet:
+          - Aperçu (Français): overview-fr.md
+          - Démarrage rapide Sirene: sirene-quickstart.md
+  - Versions et gouvernance:
+      - Changelog: CHANGELOG.md
+      - Journal d'actions (anglais): ACTION_LOGBOOK.md
+      - Registre RCA (anglais): RCA_REGISTER.md

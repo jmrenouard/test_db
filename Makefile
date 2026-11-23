@@ -171,17 +171,22 @@ sirene-incremental-sample:
 	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py --ul-file /app/data/delta/DeltaUniteLegale_synthetic.parquet --etab-file /app/data/delta/DeltaEtablissement_synthetic.parquet --force
 
 docs-check:
-	@echo "📚 Running Diataxis and MkDocs publishing checks..."
-	@$(PYTHON) -m pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py -v
+	@echo "📚 Running Diataxis, tutorial, and MkDocs publishing checks..."
+	@$(PYTHON) -m pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py tests/test_tutorials_and_howtos.py -v
 
 docs-build:
-	@echo "🏗️ Building strict MkDocs Material site in site/..."
+	@echo "🏗️ Building strict EN and FR MkDocs Material sites in site/ and site/fr/..."
 	@$(PYTHON) -m mkdocs build --strict -d site
+	@$(PYTHON) -m mkdocs build -f mkdocs.fr.yml --strict -d site/fr
 
 docs-build-versioned:
 	@echo "📦 Building multi-version IONOS site bundle in site_dist/..."
 	@$(PYTHON) scripts/build_versioned_docs.py --output site_dist --base-url https://test-db.lightpath.fr --main-ref WORKTREE
 
 docs-serve:
-	@echo "🌐 Serving MkDocs Material documentation locally..."
+	@echo "🌐 Serving MkDocs Material documentation locally (English)..."
 	@$(PYTHON) -m mkdocs serve
+
+docs-serve-fr:
+	@echo "🌐 Serving MkDocs Material documentation locally (French)..."
+	@$(PYTHON) -m mkdocs serve -f mkdocs.fr.yml -a 127.0.0.1:8001

@@ -209,8 +209,13 @@ def test_mkdocs_yml_configuration_and_security_exclusions() -> None:
 
     raw_exclude = config.get("exclude_docs", "")
     exclude_text = "\n".join(raw_exclude) if isinstance(raw_exclude, list) else str(raw_exclude)
-    for pattern in ("*.kdbx", "*.keyx", "*.pid", "*.log", ".env", ".env.*", ".env_*"):
+    for pattern in ("*.kdbx", "*.keyx", "*.pid", "*.log", ".env", ".env.*", ".env_*", "guides/fr/", "overview-fr.md", "01-tutoriels/", "02-guides-pratiques/"):
         assert pattern in exclude_text, f"exclude_docs must exclude '{pattern}'"
+
+    assert config.get("theme", {}).get("language") == "en", "mkdocs.yml theme.language must be 'en'"
+    alternates = config.get("extra", {}).get("alternate", [])
+    alt_langs = {item.get("lang"): item.get("link") for item in alternates if isinstance(item, dict)}
+    assert alt_langs == {"en": "/", "fr": "/fr/"}, f"Unexpected extra.alternate in mkdocs.yml: {alternates}"
 
     nav = config.get("nav", [])
     assert isinstance(nav, list) and len(nav) == 6
@@ -233,6 +238,43 @@ def test_mkdocs_yml_configuration_and_security_exclusions() -> None:
     katex_js_text = katex_js.read_text(encoding="utf-8")
     assert "document$.subscribe" in katex_js_text
     assert "renderMathInElement" in katex_js_text
+
+
+def test_mkdocs_fr_yml_configuration_and_language_isolation() -> None:
+    """Verify mkdocs.fr.yml configures strict French Material tabs, alternate switcher, and EN exclusions."""
+    fr_cfg_path = REPO_ROOT / "mkdocs.fr.yml"
+    assert fr_cfg_path.is_file(), "mkdocs.fr.yml must exist"
+
+    class _IgnoreTagsLoader(yaml.SafeLoader):
+        pass
+
+    _IgnoreTagsLoader.add_multi_constructor("!", lambda loader, suffix, node: None)
+    _IgnoreTagsLoader.add_multi_constructor("tag:yaml.org,2002:python/", lambda loader, suffix, node: None)
+    fr_cfg = yaml.load(fr_cfg_path.read_text(encoding="utf-8"), Loader=_IgnoreTagsLoader)
+    assert isinstance(fr_cfg, dict)
+
+    assert fr_cfg.get("docs_dir") == "docs/fr"
+    assert fr_cfg.get("theme", {}).get("language") == "fr"
+    alternates = fr_cfg.get("extra", {}).get("alternate", [])
+    alt_langs = {item.get("lang"): item.get("link") for item in alternates if isinstance(item, dict)}
+    assert alt_langs == {"en": "/", "fr": "/fr/"}
+
+    fr_exclude = fr_cfg.get("exclude_docs", "")
+    fr_exclude_text = "\n".join(fr_exclude) if isinstance(fr_exclude, list) else str(fr_exclude)
+    for pattern in ("*.kdbx", "*.keyx", ".env", "guides/en/", "overview-en.md", "01-tutorials/", "02-how-to-guides/"):
+        assert pattern in fr_exclude_text, f"mkdocs.fr.yml exclude_docs must exclude '{pattern}'"
+
+    fr_nav = fr_cfg.get("nav", [])
+    fr_tabs = [next(iter(entry.keys())) for entry in fr_nav if isinstance(entry, dict)]
+    assert fr_tabs == [
+        "Accueil",
+        "Tutoriels",
+        "Guides pratiques",
+        "Référence",
+        "Explications",
+        "Versions et gouvernance",
+    ]
+    assert (REPO_ROOT / "docs" / "fr" / "index.md").is_file()
 
 
 # ==============================================================================
@@ -648,6 +690,7 @@ def test_mkdocs_hooks_on_config_edit_uri_and_virtual_edit_url(
         assert page.edit_url == f"https://github.com/jmrenouard/test_db/edit/master/{repo_file}"
 
     monkeypatch.setenv("TEST_DB_DOCS_REF", "v1.11.0")
+    monkeypatch.setenv("TEST_DB_DOCS_SITE_URL", f"{PORTAL_BASE_URL}/v1.11.0")
     cfg_tag = _AttrDict(
         {
             "docs_dir": str(docs_dir),
@@ -656,10 +699,18 @@ def test_mkdocs_hooks_on_config_edit_uri_and_virtual_edit_url(
             "repo_url": "https://github.com/jmrenouard/test_db",
             "mdx_configs": {"toc": {}},
             "nav": [],
+            "extra": {
+                "alternate": [
+                    {"name": "English", "link": "/", "lang": "en"},
+                    {"name": "Français", "link": "/fr/", "lang": "fr"},
+                ]
+            },
         }
     )
     hooks.on_config(cfg_tag)
     assert cfg_tag["edit_uri"] == ""
+    tag_alts = {item["lang"]: item["link"] for item in cfg_tag["extra"]["alternate"]}
+    assert tag_alts == {"en": "/v1.11.0/", "fr": "/v1.11.0/fr/"}
 
     page_tag = _FakePage(
         "overview-en.md",
@@ -667,6 +718,33 @@ def test_mkdocs_hooks_on_config_edit_uri_and_virtual_edit_url(
     )
     hooks.on_page_markdown("# Overview\n", page_tag, cfg_tag, _FakeFiles())
     assert not page_tag.edit_url
+
+    docs_fr_dir = docs_dir / "fr"
+    docs_fr_dir.mkdir()
+    (docs_fr_dir / "index.md").write_text("# Accueil\n", encoding="utf-8")
+    monkeypatch.setenv("TEST_DB_DOCS_REF", "WORKTREE")
+    monkeypatch.setenv("TEST_DB_DOCS_SITE_URL", f"{PORTAL_BASE_URL}/master/fr")
+    cfg_fr_master = _AttrDict(
+        {
+            "docs_dir": str(docs_fr_dir),
+            "site_url": "",
+            "edit_uri": "",
+            "repo_url": "https://github.com/jmrenouard/test_db",
+            "theme": _AttrDict({"language": "fr"}),
+            "mdx_configs": {"toc": {"permalink": True}},
+            "nav": [{"Accueil": "index.md"}],
+            "extra": {
+                "alternate": [
+                    {"name": "English", "link": "/", "lang": "en"},
+                    {"name": "Français", "link": "/fr/", "lang": "fr"},
+                ]
+            },
+        }
+    )
+    hooks.on_config(cfg_fr_master)
+    assert cfg_fr_master["edit_uri"] == "edit/master/docs/fr/"
+    fr_master_alts = {item["lang"]: item["link"] for item in cfg_fr_master["extra"]["alternate"]}
+    assert fr_master_alts == {"en": "/master/", "fr": "/master/fr/"}
 
 
 def test_mkdocs_hooks_importable_without_mkdocs_or_pathspec(
@@ -935,16 +1013,24 @@ def test_build_versioned_docs_end_to_end_worktree_and_release_tags(tmp_path: Pat
         out_dir / "latest" / "index.html",
         out_dir / "dev" / "index.html",
         out_dir / "master" / "index.html",
+        out_dir / "master" / "fr" / "index.html",
         out_dir / "master" / "stylesheets" / "extra.css",
         out_dir / "master" / "javascripts" / "katex.js",
         out_dir / "master" / "guides" / "sirene_documentation.html",
+        out_dir / "master" / "fr" / "guides" / "sirene_documentation.html",
         out_dir / "v1.11.0" / "index.html",
+        out_dir / "v1.11.0" / "fr" / "index.html",
         out_dir / "v1.10.0" / "index.html",
         out_dir / "v1.9.1" / "index.html",
         out_dir / "v1.9.0" / "index.html",
     ]
     for path in expected_files:
         assert path.is_file(), f"Expected built artifact missing: {path}"
+
+    assert 'lang="en"' in (out_dir / "master" / "index.html").read_text(encoding="utf-8")
+    assert 'lang="fr"' in (out_dir / "master" / "fr" / "index.html").read_text(encoding="utf-8")
+    assert not (out_dir / "master" / "guides" / "fr").exists(), "EN version build must exclude FR guides/"
+    assert not (out_dir / "master" / "fr" / "guides" / "en").exists(), "FR version build must exclude EN guides/"
 
     manifest = json.loads((out_dir / "versions.json").read_text(encoding="utf-8"))
     assert isinstance(manifest, list)
@@ -1003,6 +1089,7 @@ def test_docs_publish_workflow_triggers_permissions_build_and_sftp_deploy() -> N
     for required_path in (
         "docs/**",
         "mkdocs.yml",
+        "mkdocs.fr.yml",
         "README.md",
         "README_fr.md",
         "Changelog",
@@ -1015,6 +1102,7 @@ def test_docs_publish_workflow_triggers_permissions_build_and_sftp_deploy() -> N
         ".github/workflows/docs-publish.yml",
         "tests/test_diataxis_documentation.py",
         "tests/test_mkdocs_publishing.py",
+        "tests/test_tutorials_and_howtos.py",
     ):
         assert required_path in triggers["push"]["paths"]
 
@@ -1075,6 +1163,7 @@ def test_docs_publish_workflow_triggers_permissions_build_and_sftp_deploy() -> N
         "requirements-docs.txt",
         "tests/test_diataxis_documentation.py",
         "tests/test_mkdocs_publishing.py",
+        "tests/test_tutorials_and_howtos.py",
         "scripts/build_versioned_docs.py",
         PORTAL_BASE_URL,
         "origin/master",
@@ -1082,6 +1171,7 @@ def test_docs_publish_workflow_triggers_permissions_build_and_sftp_deploy() -> N
         "site_dist/versions.json",
         "site_dist/.htaccess",
         "site_dist/master/index.html",
+        "site_dist/master/fr/index.html",
     ):
         assert expected_token in build_run_script, f"verify-and-build missing '{expected_token}'"
 
@@ -1135,6 +1225,7 @@ def test_docs_publish_workflow_triggers_permissions_build_and_sftp_deploy() -> N
     assert f"{PORTAL_BASE_URL}/versions.json" in deploy_run_script
     assert f"{PORTAL_BASE_URL}/latest/" in deploy_run_script
     assert f"{PORTAL_BASE_URL}/master/" in deploy_run_script
+    assert f"{PORTAL_BASE_URL}/master/fr/" in deploy_run_script
 
     for unsafe_pattern in (
         "chmod 777",

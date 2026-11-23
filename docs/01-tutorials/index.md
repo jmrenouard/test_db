@@ -19,12 +19,11 @@ outputs, and stops or cleans temporary artifacts at the end.
 
 ---
 
-## Bilingual Technical Manuals
+## Technical Guides
 
-For legacy single-topic guides in English and French:
+For component-level technical manuals in English:
 
 - [Technical Guides Index (EN)](../../documentation/en/index.md)
-- [Technical Guides Index (FR)](../../documentation/fr/index.md)
 
 ---
 

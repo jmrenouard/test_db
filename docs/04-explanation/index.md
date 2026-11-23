@@ -15,7 +15,7 @@ are, and how locking, isolation, and active-active replication behave under cont
 
 ## Foundational Context & Governance
 
-- **Bilingual Technical Guides**: See [Technical Documentation Index (EN)](../../documentation/en/index.md),
+- **Technical Guides**: See [Technical Documentation Index (EN)](../../documentation/en/index.md),
   [Sirene Platform Guide (EN)](../../documentation/en/sirene_platform.md), and
   [Sirene Quickstart](../../sirene/README.md).
 - **Engineering Traceability**: See [Action Logbook](../ACTION_LOGBOOK.md), [RCA Register](../RCA_REGISTER.md), and

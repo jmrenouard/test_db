@@ -18,7 +18,9 @@ Living operational register tracking roadmap milestones, active engineering task
 
 ## Ongoing Actions
 
-*None*
+| ID | Issue / Branch | Status | Summary & Verification Evidence |
+| :--- | :--- | :--- | :--- |
+| `ACT-006` | `#14` / `docs/issue-14-diataxis-i18n-mermaid` | `IN PROGRESS` | `IN PROGRESS` — Separated English (`mkdocs.yml`) and French (`mkdocs.fr.yml`) MkDocs Material portals with `extra.alternate` switching, authored full French 4-quadrant tree under `docs/fr/` (`01-tutoriels/`, ASD-STF100 `02-guides-pratiques/`, `03-reference/`, `04-explications/`), added column-0 Mermaid diagrams to EN/FR tutorials and synced `guide_outils.md`, added dual EN/FR build support in `scripts/mkdocs_hooks.py` and `scripts/build_versioned_docs.py` (`<ver>/` and `<ver>/fr/`), added executable validation suite `tests/test_tutorials_and_howtos.py`, and updated `tests/test_diataxis_documentation.py`, `tests/test_mkdocs_publishing.py`, `Makefile`, `docs-ci.yml`, and `docs-publish.yml`. Verified: `pytest` (`85 passed, 1 skipped in 32.50s`), `diataxis_check.py --strict --check-ste --lang en` (`0 error(s), 0 warning(s)` across 46 files), `diataxis_check_fr.py --strict --check-stf` (`0 error(s), 0 warning(s)` across 22 files), `stf_check.py --mode procedural` (`0 errors, 0 warnings`), `audit_helpers.py` (`32/32` Mermaid blocks compiled via `mmdc`, `ascii_diagrams=0`, `language_mix=0`), strict EN+FR MkDocs builds, and Playwright verification (`100` pages, `37` SVGs, `0` failures each on `/` and `/fr/`). |
 
 ## Completed Actions
 

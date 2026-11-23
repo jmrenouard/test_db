@@ -114,23 +114,19 @@ without mixing guided lessons, operational procedures, reference tables, and arc
     - [ADR-002: Diátaxis Versioned MkDocs Publishing](04-explanation/design-decisions/adr-002-diataxis-versioned-mkdocs-publishing.md)
     - [Concurrency, Locking, and Replication Trade-offs](04-explanation/deep-dives/concurrency-locking-and-replication-tradeoffs.md)
 
--   :material-translate:{ .lg .middle } **Bilingual EN / FR Guides &amp; Interactive HTML**
+-   :material-translate:{ .lg .middle } **Technical Guides &amp; Interactive HTML**
 
     ---
 
-    Access synchronized English and French repository overviews, the Sirene module quickstart, bilingual technical
-    manuals, and the self-contained interactive Sirene HTML schema and SQL explorer.
+    Access the English repository overview, the Sirene module quickstart, technical reference manuals,
+    and the self-contained interactive Sirene HTML schema and SQL explorer.
 
     - [Repository Overview (EN)](../README.md)
-    - [Repository Overview (FR)](../README_fr.md)
     - [Sirene Module Quickstart](../sirene/README.md)
     - [Technical Guides Index (EN)](../documentation/en/index.md)
-    - [Technical Guides Index (FR)](../documentation/fr/index.md)
     - [Sirene Interactive HTML Reference](../documentation/sirene_documentation.html)
     - [Sirene Platform Guide (EN)](../documentation/en/sirene_platform.md)
-    - [Sirene Platform Guide (FR)](../documentation/fr/sirene_platform.md)
     - [Employees SQL Reference (EN)](../doc_employees/employees.md)
-    - [Employees SQL Reference (FR)](../doc_employees/employees_fr.md)
 
 -   :material-history:{ .lg .middle } **Releases &amp; Governance**
 

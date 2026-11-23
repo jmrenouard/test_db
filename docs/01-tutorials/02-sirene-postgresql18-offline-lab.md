@@ -36,6 +36,15 @@ sirene-etl
 
 ## What You Will Build
 
+```mermaid
+flowchart LR
+    UP["1. make sirene-up"] -->|"PostgreSQL 18 on 127.0.0.1:15432"| INJ["2. make sirene-inject"]
+    INJ -->|"15k UL + 30k SIRET SQL"| VER["3. make sirene-verify"]
+    VER -->|"12/12 SHA-256 OK"| IMP["4. make sirene-import-sample"]
+    IMP -->|"Offline Parquet COPY"| INC["5. make sirene-incremental-sample"]
+    INC -->|"Delta A->F History + etl_logs"| DOWN["6. make sirene-down"]
+```
+
 By the end of this tutorial, you will have:
 
 1. Started PostgreSQL 18 (`postgres:18-bookworm`) with `/var/lib/postgresql` persistent storage (`make sirene-up`).
@@ -115,7 +124,7 @@ make sirene-verify
 
 Expected output (summary tail):
 
-```text
+```psql
            table_name           | records_match | crc_match
 --------------------------------+---------------+-----------
  etablissements                 | OK            | OK
