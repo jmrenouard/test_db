@@ -12,7 +12,7 @@ hide:
 
 # test_db — Multi-Engine Database Test Platform &amp; Sirene PostgreSQL 18 3NF ETL
 
-`test_db` (`v1.11.0`) combines the canonical MariaDB/MySQL/Percona/PostgreSQL `employees` benchmark suite, automated
+`test_db` (`v1.12.0`) combines the canonical MariaDB/MySQL/Percona/PostgreSQL `employees` benchmark suite, automated
 `sysbench` concurrency and `EXPLAIN` reporting, and a PostgreSQL 18 3NF ETL and multi-master qualification platform for
 the INSEE Sirene business registry (`sirene/`). Published documentation lives at
 [https://test-db.lightpath.fr/](https://test-db.lightpath.fr/).

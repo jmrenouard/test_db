@@ -75,7 +75,6 @@ _ALERT_RE = re.compile(
     r"(?m)^([ \t]*)>[ \t]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*([^\r\n]*)\r?\n"
     r"((?:[ \t]*>.*(?:\r?\n|$))*)"
 )
-_RELEASE_NOTES_SEMVER_RE = re.compile(r"^RELEASE_NOTES_v?(\d+)\.(\d+)\.(\d+)\.md$")
 _SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
 _EXCLUDED_TARGET_RE = re.compile(
     r"(?i)(?:(?:^|/)\.env[^/]*$|\.(?:kdbx|keyx|pid|log)$)"
@@ -463,10 +462,6 @@ def _resolve_target(
                         ),
                         False,
                     )
-                if doc_subpath.startswith("RELEASE_NOTES_") and _virtual_doc_available(
-                    "CHANGELOG.md", available_root_docs, docs_dir
-                ):
-                    return f"{prefix}CHANGELOG.md", False
                 if _virtual_doc_available("guides/en/index.md", available_root_docs, docs_dir):
                     return f"{prefix}guides/en/index.md", False
                 return (
@@ -695,81 +690,6 @@ def _nav_doc_exists(rel_path: str, docs_dir: Path, repo_root: Path) -> bool:
     return False
 
 
-def _discover_release_notes_entries(docs_dir: Path) -> list[dict[str, str]]:
-    """Discover `RELEASE_NOTES_*.md` files in `docs_dir` sorted by semver descending."""
-    if not docs_dir.is_dir():
-        return []
-    semver_entries: list[tuple[tuple[int, int, int], str, str]] = []
-    other_entries: list[tuple[str, str]] = []
-
-    for path in sorted(docs_dir.glob("RELEASE_NOTES_*.md")):
-        if not path.is_file():
-            continue
-        match = _RELEASE_NOTES_SEMVER_RE.match(path.name)
-        if match:
-            ver = (int(match.group(1)), int(match.group(2)), int(match.group(3)))
-            semver_entries.append((ver, f"Release Notes v{ver[0]}.{ver[1]}.{ver[2]}", path.name))
-        else:
-            stem_tag = path.stem.removeprefix("RELEASE_NOTES_")
-            other_entries.append((f"Release Notes {stem_tag}", path.name))
-
-    semver_entries.sort(key=lambda item: item[0], reverse=True)
-    ordered: list[dict[str, str]] = [{label: fname} for _, label, fname in semver_entries]
-    for label, fname in sorted(other_entries, reverse=True):
-        ordered.append({label: fname})
-    return ordered
-
-
-def _prune_releases_section(
-    children: list[Any],
-    docs_dir: Path,
-    repo_root: Path,
-) -> list[Any]:
-    """Prune `Releases & Governance` items and inject discovered `RELEASE_NOTES_*.md` entries."""
-    discovered_notes = _discover_release_notes_entries(docs_dir)
-    notes_inserted = False
-    pruned: list[Any] = []
-
-    for child in children:
-        if isinstance(child, str):
-            if Path(child).name.startswith("RELEASE_NOTES_"):
-                if not notes_inserted:
-                    pruned.extend(discovered_notes)
-                    notes_inserted = True
-                continue
-            if _nav_doc_exists(child, docs_dir, repo_root):
-                pruned.append(child)
-            continue
-
-        if isinstance(child, dict) and len(child) == 1:
-            title, target = next(iter(child.items()))
-            if isinstance(target, str):
-                if Path(target).name.startswith("RELEASE_NOTES_"):
-                    if not notes_inserted:
-                        pruned.extend(discovered_notes)
-                        notes_inserted = True
-                    continue
-                if _nav_doc_exists(target, docs_dir, repo_root):
-                    pruned.append({title: target})
-                    if target == "CHANGELOG.md" and not notes_inserted:
-                        pruned.extend(discovered_notes)
-                        notes_inserted = True
-            elif isinstance(target, list):
-                nested = _prune_nav_list(target, docs_dir, repo_root)
-                if nested:
-                    pruned.append({title: nested})
-
-    if not notes_inserted and discovered_notes:
-        insert_idx = 0
-        for idx, item in enumerate(pruned):
-            if isinstance(item, dict) and next(iter(item.values())) == "CHANGELOG.md":
-                insert_idx = idx + 1
-                break
-        pruned[insert_idx:insert_idx] = discovered_notes
-
-    return pruned
-
-
 def _prune_nav_list(
     items: list[Any],
     docs_dir: Path,
@@ -790,11 +710,7 @@ def _prune_nav_list(
                     if _nav_doc_exists(target, docs_dir, repo_root):
                         kept_dict[title] = target
                 elif isinstance(target, list):
-                    nested = (
-                        _prune_releases_section(target, docs_dir, repo_root)
-                        if title == "Releases & Governance"
-                        else _prune_nav_list(target, docs_dir, repo_root)
-                    )
+                    nested = _prune_nav_list(target, docs_dir, repo_root)
                     if nested:
                         kept_dict[title] = nested
                 elif isinstance(target, dict):
@@ -811,7 +727,7 @@ def prune_nav_for_existing_files(
     docs_dir: Path,
     repo_root: Path,
 ) -> list[Any]:
-    """Prune missing pages and empty sections while auto-discovering release notes."""
+    """Prune missing pages and empty sections from a MkDocs navigation list."""
     if not nav:
         return []
     return _prune_nav_list(list(nav), Path(docs_dir), Path(repo_root))

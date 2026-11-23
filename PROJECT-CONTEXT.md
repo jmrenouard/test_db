@@ -6,8 +6,8 @@
 
 **Tech Stack:** Python 3.12, `psycopg` v3 (`COPY FROM STDIN`), PyArrow, `httpx`, `tenacity`, `python-dotenv`, PostgreSQL 18 (`pg_trgm`), Docker Compose, `pytest`.
 
-**Current Phase:** Version `1.11.0` (Issue `#10`) — Embedded deterministic synthetic SQL dumps (`15,000` legal units / `30,000` establishments, zero PII), SHA-256 verifier (`test_sirene_sha2.sql`), and offline Parquet/delta sample datasets.
+**Current Phase:** Version `1.12.0` (Issue `#12`) — Diataxis 4-quadrant documentation (`docs/`), versioned MkDocs Material publishing (`master` + `v1.9.0+` releases), sparse Git archive builder (`scripts/build_versioned_docs.py`), and IONOS SFTP CI/CD (`https://test-db.lightpath.fr/`).
 
-**Hard Constraints:** Strictly English across code, docs, and governance; zero local host paths; zero real credentials or PII; idempotent, monotonically guarded ingestion.
+**Hard Constraints:** Strictly English across governance, code, and GitHub artifacts; ASD-STE100 Issue 9 compliance on `docs/02-how-to-guides/`; zero local host paths; zero real credentials or PII; idempotent ingestion.
 
-**Definition of Done:** Full Dockerized `pytest` pass plus clean `load_sirene.sql` injection, `test_sirene_sha2.sql` SHA-256 checksum pass, and governance checks.
+**Definition of Done:** Full `diataxis_check.py --strict --check-ste`, `pytest` (Diataxis, MkDocs publishing, governance, documentation, and Dockerized Sirene suite), `mkdocs build --strict`, `build_versioned_docs.py`, and live HTTPS verification on `https://test-db.lightpath.fr/`.

@@ -1,6 +1,6 @@
 # Reference: Schemas, Configuration, CLI, SQL Catalogs, and Error Matrix
 
-Technical reference specifications for **test_db** (`v1.11.0`): MariaDB `11.8` / MySQL / Percona (`employees`,
+Technical reference specifications for **test_db** (`v1.12.0`): MariaDB `11.8` / MySQL / Percona (`employees`,
 `sakila`), PostgreSQL `12+` (`employees`), and PostgreSQL `18` (`sirene` 3NF ETL and multi-master qualification).
 
 ## Core Reference Specifications
@@ -28,8 +28,8 @@ Technical reference specifications for **test_db** (`v1.11.0`): MariaDB `11.8` /
 
 | Record | Scope | Location |
 | :--- | :--- | :--- |
-| **Changelog** | Semantic version release history through `1.11.0` | [`Changelog`](../../Changelog) |
-| **Action Logbook** | Chronological roadmap milestones (`M1`–`M8`) and verified actions (`ACT-000`–`ACT-004`) | [`docs/ACTION_LOGBOOK.md`](../ACTION_LOGBOOK.md) |
+| **Changelog** | Semantic version release history through `1.12.0` | [`Changelog`](../../Changelog) |
+| **Action Logbook** | Chronological roadmap milestones (`M1`–`M9`) and verified actions (`ACT-000`–`ACT-005`) | [`docs/ACTION_LOGBOOK.md`](../ACTION_LOGBOOK.md) |
 | **RCA Register** | Root cause analyses (`RCA-001`–`RCA-007`), improvements (`IMP-*`), approved standards (`APP-*`), and ideas (`IDEA-*`) | [`docs/RCA_REGISTER.md`](../RCA_REGISTER.md) |
 
 ## Related Documentation Quadrants

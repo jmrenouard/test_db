@@ -19,7 +19,7 @@ are, and how locking, isolation, and active-active replication behave under cont
   [Sirene Platform Guide (EN)](../../documentation/en/sirene_platform.md), and
   [Sirene Quickstart](../../sirene/README.md).
 - **Engineering Traceability**: See [Action Logbook](../ACTION_LOGBOOK.md), [RCA Register](../RCA_REGISTER.md), and
-  [Changelog](../../Changelog) for milestone history (`M1`–`M8`) and root-cause records (`RCA-001`–`RCA-007`).
+  [Changelog](../../Changelog) for milestone history (`M1`–`M9`) and root-cause records (`RCA-001`–`RCA-007`).
 
 ## Related Documentation Quadrants
 

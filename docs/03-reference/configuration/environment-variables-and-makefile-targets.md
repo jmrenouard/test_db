@@ -5,7 +5,7 @@ Complete parameter specification for `Makefile`, MariaDB/MySQL shell tools, Sire
 
 ## 1. Makefile Targets (`Makefile`)
 
-Default variable in `Makefile`: `COUNT ?= 10`; `CONTAINER_NAME = mariadb-11-8`; optional `-include .env`.
+Default variables in `Makefile`: `COUNT ?= 10`; `PYTHON ?= python3`; `CONTAINER_NAME = mariadb-11-8`; optional `-include .env`.
 
 ### 1.1 MariaDB & Employees Targets
 
@@ -50,8 +50,8 @@ Default variable in `Makefile`: `COUNT ?= 10`; `CONTAINER_NAME = mariadb-11-8`; 
 
 | Target | Purpose | Validation / Output |
 | :--- | :--- | :--- |
-| `docs-check` | Runs Diataxis, STE, and MkDocs publishing checks (`diataxis_check.py`, `pytest`, `mkdocs build --strict`) | Fails non-zero on broken links, genre mixing, or STE errors |
-| `docs-build` | Compiles single-version static site from current `docs/` tree via `mkdocs build --strict` | Generates `site/` bundle |
+| `docs-check` | Runs `$(PYTHON) -m pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py -v` | Fails non-zero on Diataxis, STE, link, or publishing check failures |
+| `docs-build` | Compiles single-version static site from current `docs/` tree via `$(PYTHON) -m mkdocs build --strict -d site` | Generates `site/` bundle |
 | `docs-build-versioned` | Runs `scripts/build_versioned_docs.py` across `master` (`WORKTREE`) and tags `>= v1.9.0` | Generates `site_dist/` (`versions.json`, `.htaccess`, per-version dirs) |
 | `docs-serve` | Launches local MkDocs Material live-reload preview server (`mkdocs serve`) | Serves local preview on loopback HTTP port |
 
