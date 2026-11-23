@@ -68,6 +68,23 @@ This project is optimized for a **MariaDB 11.8+** Docker environment. A `Makefil
 
 ---
 
+## 🌐 Published MkDocs Portal & Diataxis Documentation
+
+The unified versioned documentation site is published at [**https://test-db.lightpath.fr/**](https://test-db.lightpath.fr/)
+and organized across the four Diataxis quadrants under `docs/`:
+
+| Pillar | Scope | Entrypoint |
+| :--- | :--- | :--- |
+| **Online Versioned Portal** | Multi-version MkDocs Material site (`master` / `latest` / `v1.9.0+`) | [**https://test-db.lightpath.fr/**](https://test-db.lightpath.fr/) |
+| **Diataxis Portal Home** | Unified documentation hub inside the repository | [`docs/index.md`](docs/index.md) |
+| **1. Tutorials (`docs/01-tutorials/`)** | Guided isolated Docker labs (Employees, Sirene PG 18, Concurrency & Sysbench) | [`docs/01-tutorials/index.md`](docs/01-tutorials/index.md) |
+| **2. How-To Guides (`docs/02-how-to-guides/`)** | Operational procedures, multi-master qualification, incident runbooks, and security | [`docs/02-how-to-guides/index.md`](docs/02-how-to-guides/index.md) |
+| **3. Reference (`docs/03-reference/`)** | Schemas, SHA-256 baselines, Makefile targets, env vars, CLI/SQL catalogs, and RCA matrix | [`docs/03-reference/index.md`](docs/03-reference/index.md) |
+| **4. Explanation (`docs/04-explanation/`)** | Platform & ETL architecture, ADRs (`ADR-001`, `ADR-002`), and locking/replication trade-offs | [`docs/04-explanation/index.md`](docs/04-explanation/index.md) |
+| **Governance & Releases** | Engineering history, milestone tracking, and root-cause register | [`Changelog`](Changelog) · [`ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) · [`RCA_REGISTER.md`](docs/RCA_REGISTER.md) |
+
+---
+
 ## 📚 Technical Documentation
 
 Deep-dive documentation for specific components is available in the `documentation/` directory:

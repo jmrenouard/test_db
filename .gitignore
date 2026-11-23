@@ -9,4 +9,7 @@ reports/explain_reports/*.txt
 sirene/staging/
 sirene/.env
 .env
+site/
+site_dist/
+.venv-docs/
 
