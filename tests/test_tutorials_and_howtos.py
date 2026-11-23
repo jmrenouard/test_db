@@ -11,6 +11,7 @@ These tests verify:
 from __future__ import annotations
 
 import ast
+import importlib.util
 import re
 import shutil
 import subprocess
@@ -120,6 +121,9 @@ def test_python_cli_entrypoints_syntax_and_safe_execution() -> None:
         REPO_ROOT / "sirene" / "mm_probe.py",
         REPO_ROOT / "sirene" / "watcher.py",
         REPO_ROOT / "sirene" / "scripts" / "generate_synthetic_dataset.py",
+        REPO_ROOT / "sirene" / "src" / "sirene_etl" / "full_import.py",
+        REPO_ROOT / "sirene" / "src" / "sirene_etl" / "incremental_import.py",
+        REPO_ROOT / "sirene" / "src" / "sirene_etl" / "mm_probe.py",
     ]
     for py_file in python_files:
         assert py_file.exists(), f"Expected Python entrypoint missing: {py_file}"
@@ -144,16 +148,13 @@ def test_python_cli_entrypoints_syntax_and_safe_execution() -> None:
     for token in ("INSERT INTO employees", "INSERT INTO dept_emp", "INSERT INTO titles", "INSERT INTO salaries", "COMMIT;"):
         assert token in dry_run.stdout, f"inject_fake_employees.py --dry-run missing {token}"
 
-    help_expectations: dict[str, tuple[str, ...]] = {
+    stdlib_help_expectations: dict[str, tuple[str, ...]] = {
         "scripts/db_simulator.py": ("--sql-dir", "--script", "--container", "--output-dir"),
         "scripts/sql_analyzer.py": ("--query-file", "--query", "--container"),
         "scripts/perf_threads_reporter.py": ("--dir", "--md", "--html"),
         "interactive_runner.py": ("-a", "--run-all"),
-        "sirene/full_import.py": ("--offline-refs", "--limit-rows", "--force"),
-        "sirene/incremental_import.py": ("--ul-file", "--etab-file", "--force"),
-        "sirene/mm_probe.py": ("--dsn-a", "--dsn-b", "--setup-native-birep"),
     }
-    for rel_script, expected_flags in help_expectations.items():
+    for rel_script, expected_flags in stdlib_help_expectations.items():
         proc = subprocess.run(
             [sys.executable, rel_script, "--help"],
             cwd=REPO_ROOT,
@@ -164,6 +165,37 @@ def test_python_cli_entrypoints_syntax_and_safe_execution() -> None:
         assert proc.returncode == 0, f"{rel_script} --help failed: {proc.stderr}"
         for flag in expected_flags:
             assert flag in proc.stdout, f"{rel_script} --help missing flag {flag}"
+
+    sirene_cli_expectations: dict[str, tuple[str, tuple[str, ...]]] = {
+        "sirene/full_import.py": (
+            "sirene/src/sirene_etl/full_import.py",
+            ("--offline-refs", "--limit-rows", "--force"),
+        ),
+        "sirene/incremental_import.py": (
+            "sirene/src/sirene_etl/incremental_import.py",
+            ("--ul-file", "--etab-file", "--force"),
+        ),
+        "sirene/mm_probe.py": (
+            "sirene/src/sirene_etl/mm_probe.py",
+            ("--dsn-a", "--dsn-b", "--setup-native-birep"),
+        ),
+    }
+    has_sirene_http = importlib.util.find_spec("httpx") is not None
+    for rel_script, (impl_rel, expected_flags) in sirene_cli_expectations.items():
+        impl_src = (REPO_ROOT / impl_rel).read_text(encoding="utf-8")
+        for flag in expected_flags:
+            assert flag in impl_src, f"{impl_rel} missing documented CLI flag {flag}"
+        if has_sirene_http:
+            proc = subprocess.run(
+                [sys.executable, rel_script, "--help"],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert proc.returncode == 0, f"{rel_script} --help failed: {proc.stderr}"
+            for flag in expected_flags:
+                assert flag in proc.stdout, f"{rel_script} --help missing flag {flag}"
 
 
 def test_documented_shell_scripts_pass_bash_syntax() -> None:
