@@ -30,18 +30,18 @@ Ce projet est optimisé pour un environnement Docker **MariaDB 11.8+**. Un `Make
 
 ## 🌐 Portail MkDocs Publié & Documentation Diátaxis
 
-La documentation unifiée et versionnée est publiée sur [**https://test-db.lightpath.fr/**](https://test-db.lightpath.fr/)
-et structurée selon les quatre quadrants Diátaxis dans `docs/` :
+La documentation unifiée et versionnée est publiée sur [**https://test-db.lightpath.fr/fr/**](https://test-db.lightpath.fr/fr/)
+et structurée selon les quatre quadrants Diátaxis dans `docs/fr/` :
 
 | Pilier | Périmètre | Point d'entrée |
 | :--- | :--- | :--- |
-| **Portail en ligne versionné** | Site MkDocs Material multi-versions (`master` / `latest` / `v1.9.0+`) | [**https://test-db.lightpath.fr/**](https://test-db.lightpath.fr/) |
-| **Accueil Diátaxis** | Portail central de la documentation dans le dépôt | [`docs/index.md`](docs/index.md) |
-| **1. Tutoriels (`docs/01-tutorials/`)** | Travaux pratiques Docker isolés (Employees, Sirene PG 18, concurrence et Sysbench) | [`docs/01-tutorials/index.md`](docs/01-tutorials/index.md) |
-| **2. Guides pratiques (`docs/02-how-to-guides/`)** | Procédures d'exploitation, qualification multi-maître, runbooks d'incident et sécurité | [`docs/02-how-to-guides/index.md`](docs/02-how-to-guides/index.md) |
-| **3. Référence (`docs/03-reference/`)** | Schémas, sommes SHA-256, cibles Makefile, variables, catalogues CLI/SQL et matrice RCA | [`docs/03-reference/index.md`](docs/03-reference/index.md) |
-| **4. Explications (`docs/04-explanation/`)** | Architecture plateforme/ETL, ADR (`ADR-001`, `ADR-002`) et compromis verrouillage/réplication | [`docs/04-explanation/index.md`](docs/04-explanation/index.md) |
-| **Gouvernance & Versions** | Historique des versions, journal d'actions et registre des causes racines | [`Changelog`](Changelog) · [`ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) · [`RCA_REGISTER.md`](docs/RCA_REGISTER.md) |
+| **Portail en ligne versionné** | Site MkDocs Material multi-versions (`master` / `latest` / `v1.9.0+`) | [**https://test-db.lightpath.fr/fr/**](https://test-db.lightpath.fr/fr/) |
+| **Accueil Diátaxis (FR)** | Portail central de la documentation française | [`docs/fr/index.md`](docs/fr/index.md) |
+| **1. Tutoriels (`docs/fr/01-tutoriels/`)** | Travaux pratiques Docker isolés (Employees, Sirene PG 18, concurrence et Sysbench) | [`docs/fr/01-tutoriels/index.md`](docs/fr/01-tutoriels/index.md) |
+| **2. Guides pratiques (`docs/fr/02-guides-pratiques/`)** | Procédures ASD-STF100 d'exploitation, qualification multi-maître, runbooks et sécurité | [`docs/fr/02-guides-pratiques/index.md`](docs/fr/02-guides-pratiques/index.md) |
+| **3. Référence (`docs/fr/03-reference/`)** | Schémas, sommes SHA-256, cibles Makefile, variables, catalogues CLI/SQL et matrice RCA | [`docs/fr/03-reference/index.md`](docs/fr/03-reference/index.md) |
+| **4. Explications (`docs/fr/04-explications/`)** | Architecture plateforme/ETL, ADR (`ADR-001`, `ADR-002`) et compromis verrouillage/réplication | [`docs/fr/04-explications/index.md`](docs/fr/04-explications/index.md) |
+| **Gouvernance & Versions (EN)** | Historique des versions, journal d'actions et registre des causes racines | [`Changelog`](Changelog) · [`ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) · [`RCA_REGISTER.md`](docs/RCA_REGISTER.md) |
 
 ---
 

@@ -30,6 +30,14 @@ make status
 
 ## What You Will Build
 
+```mermaid
+flowchart LR
+    B["1. make bench"] -->|"600 Sysbench events"| DL["2. TEST=deadlock"]
+    DL -->|"4-thread cycle detection"| GL["3. TEST=gap_locking"]
+    GL -->|"REPEATABLE READ range waits"| AN["4. make analyze"]
+    AN -->|"EXPLAIN + HTML report"| CL["5. make clean && make stop"]
+```
+
 By the end of this tutorial, you will have:
 
 1. Executed the 60-query Sysbench Lua loop (`10` iterations = `600` events) via `make bench`.
@@ -77,6 +85,18 @@ Latency (ms):
 ---
 
 ## Step 2: Simulate InnoDB Circular Deadlocks
+
+```mermaid
+sequenceDiagram
+    participant T1 as Thread 1 (trans_cycle_1.sql)
+    participant DB as InnoDB deadlock_test
+    participant T2 as Thread 2 (trans_cycle_2.sql)
+    T1->>DB: UPDATE row id=1 (acquires X-lock)
+    T2->>DB: UPDATE row id=2 (acquires X-lock)
+    T1->>DB: UPDATE row id=2 (waits for T2)
+    T2->>DB: UPDATE row id=1 (wait-for cycle detected)
+    DB-->>T2: Error 1213 (TRANSACTION DEADLOCK rollback)
+```
 
 Run the `deadlock` test suite from `tests/data/deadlock/`:
 

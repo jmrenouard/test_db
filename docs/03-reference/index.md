@@ -12,17 +12,14 @@ Technical reference specifications for **test_db** (`v1.12.0`): MariaDB `11.8` /
 | [CLI Scripts & SQL Catalog](cli-and-scripts/cli-scripts-and-sql-catalog.md) | Flags, arguments, and exit codes for Python and Bash automation scripts plus exhaustive catalogs of `employees/req_employees.sql` (60 queries) and `sirene/sql/03_sample_queries.sql` (15 queries). | `sirene/*.py`, `sirene/scripts/generate_synthetic_dataset.py`, `scripts/*`, `interactive_runner.py`, `employees/req_employees.sql`, `sirene/sql/03_sample_queries.sql` |
 | [Error & Alert Matrix](troubleshooting-codes/error-and-alert-matrix.md) | Failure codes, RCA taxonomy (`RCA-001`..`RCA-007`), InnoDB deadlock/gap-lock errors, SHA-256 failures, `mm_probe.py` probe outcomes, and direct remediation runbook links. | `docs/RCA_REGISTER.md`, `sirene/src/sirene_etl/*.py`, `scripts/verify_data.sh`, `scripts/db_simulator.py` |
 
-## Bilingual Guides and Legacy References
+## Technical Guides and Legacy References
 
-| Document | Language | Focus |
-| :--- | :--- | :--- |
-| [Technical Guides Portal (EN)](../../documentation/en/index.md) | English | Legacy guide index for SQL analyzer, MariaDB management, benchmarking, and Sirene |
-| [Technical Guides Portal (FR)](../../documentation/fr/index.md) | French | Bilingual technical guides index for MariaDB, Sysbench, and Sirene |
-| [Sirene PostgreSQL 3NF Platform (EN)](../../documentation/en/sirene_platform.md) | English | Full 13-table data dictionary, CLI guide, and full SQL text for all 15 Sirene queries |
-| [Sirene PostgreSQL 3NF Platform (FR)](../../documentation/fr/sirene_platform.md) | French | French 3NF data dictionary, CLI reference, and 15 analytical Sirene queries |
-| [Employees Schema Documentation (EN)](../../doc_employees/employees.md) | English | Historical Employees schema overview and entity-relationship diagram |
-| [Employees Schema Documentation (FR)](../../doc_employees/employees_fr.md) | French | French Employees data model overview and entity-relationship diagrams |
-| [Sirene Module Quickstart](../../sirene/README.md) | English | Concise module layout, Compose targets, and `mm_probe.py` quickstart |
+| Document | Focus |
+| :--- | :--- |
+| [Technical Guides Portal (EN)](../../documentation/en/index.md) | Legacy guide index for SQL analyzer, MariaDB management, benchmarking, and Sirene |
+| [Sirene PostgreSQL 3NF Platform (EN)](../../documentation/en/sirene_platform.md) | Full 13-table data dictionary, CLI guide, and full SQL text for all 15 Sirene queries |
+| [Employees Schema Documentation (EN)](../../doc_employees/employees.md) | Historical Employees schema overview and entity-relationship diagram |
+| [Sirene Module Quickstart](../../sirene/README.md) | Concise module layout, Compose targets, and `mm_probe.py` quickstart |
 
 ## Engineering Traceability & Release Records
 

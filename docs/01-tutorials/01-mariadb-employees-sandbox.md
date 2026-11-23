@@ -36,6 +36,14 @@ mariadb-11-8   Exited (0) ...
 
 ## What You Will Build
 
+```mermaid
+flowchart LR
+    S1["1. make start / status"] -->|"Boot mariadb-11-8"| S2["2. make inject"]
+    S2 -->|"Load 6 tables + 2 views"| S3["3. make verify"]
+    S3 -->|"CRC32 checksums OK"| S4["4. test_employees_sha2.sql"]
+    S4 -->|"Cross-engine SHA-256 OK"| S5["5. make stop"]
+```
+
 By the end of this tutorial, you will have:
 
 1. Started the `mariadb-11-8` container and verified container readiness with `make status`.
@@ -143,7 +151,7 @@ docker exec -i mariadb-11-8 mariadb -u root -t < test_employees_sha2.sql
 
 Expected output (summary tail):
 
-```text
+```mysql
 +--------------+---------------+------------------------------------------------------------------+
 | table_name   | records_match | crc_match                                                        |
 +--------------+---------------+------------------------------------------------------------------+

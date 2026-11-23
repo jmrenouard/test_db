@@ -26,6 +26,7 @@ _PRIVATE_OUTPUT_RE = re.compile(
 
 ALWAYS_OVERLAY_FILES: tuple[str, ...] = (
     "mkdocs.yml",
+    "mkdocs.fr.yml",
     "scripts/mkdocs_hooks.py",
     "docs/stylesheets/extra.css",
     "docs/javascripts/katex.js",
@@ -33,6 +34,7 @@ ALWAYS_OVERLAY_FILES: tuple[str, ...] = (
 
 FALLBACK_OVERLAY_FILES: tuple[str, ...] = (
     "docs/index.md",
+    "docs/fr/index.md",
     "docs/assets/logo.svg",
     "docs/assets/header-banner.svg",
 )
@@ -47,6 +49,7 @@ SPARSE_DOC_EXACT_FILES: frozenset[str] = frozenset(
         "PROJECT-CONTEXT.md",
         "sirene/README.md",
         "mkdocs.yml",
+        "mkdocs.fr.yml",
         "scripts/mkdocs_hooks.py",
     }
 )
@@ -289,6 +292,8 @@ def _run_mkdocs_build(
     version_slug: str,
     base_url: str,
     strict: bool,
+    config_filename: str = "mkdocs.yml",
+    lang_subpath: str = "",
 ) -> None:
     """Invoke `python -m mkdocs build` for one version directory."""
     env = os.environ.copy()
@@ -298,7 +303,9 @@ def _run_mkdocs_build(
         if git_ref in {"WORKTREE", "origin/master", "master", "HEAD"}
         else git_ref
     )
-    env["TEST_DB_DOCS_SITE_URL"] = f"{base_url.rstrip('/')}/{version_slug}/"
+    clean_lang = lang_subpath.strip("/")
+    suffix = f"{version_slug}/{clean_lang}/" if clean_lang else f"{version_slug}/"
+    env["TEST_DB_DOCS_SITE_URL"] = f"{base_url.rstrip('/')}/{suffix}"
 
     cmd = [
         sys.executable,
@@ -306,7 +313,7 @@ def _run_mkdocs_build(
         "mkdocs",
         "build",
         "-f",
-        str(project_dir / "mkdocs.yml"),
+        str(project_dir / config_filename),
         "-d",
         str(site_output_dir),
     ]
@@ -314,6 +321,38 @@ def _run_mkdocs_build(
         cmd.append("--strict")
 
     subprocess.run(cmd, cwd=str(project_dir), env=env, check=True)  # nosec B603
+
+
+def _build_en_and_fr_for_dir(
+    project_dir: Path,
+    version_output_dir: Path,
+    git_ref: str,
+    version_slug: str,
+    base_url: str,
+    strict: bool,
+) -> None:
+    """Build English site into `<ver>/` and French site into `<ver>/fr/` when configured."""
+    _run_mkdocs_build(
+        project_dir=project_dir,
+        site_output_dir=version_output_dir,
+        git_ref=git_ref,
+        version_slug=version_slug,
+        base_url=base_url,
+        strict=strict,
+        config_filename="mkdocs.yml",
+        lang_subpath="",
+    )
+    if (project_dir / "mkdocs.fr.yml").is_file():
+        _run_mkdocs_build(
+            project_dir=project_dir,
+            site_output_dir=version_output_dir / "fr",
+            git_ref=git_ref,
+            version_slug=version_slug,
+            base_url=base_url,
+            strict=strict,
+            config_filename="mkdocs.fr.yml",
+            lang_subpath="fr",
+        )
 
 
 def build_single_version(
@@ -330,9 +369,9 @@ def build_single_version(
     version_output_dir.parent.mkdir(parents=True, exist_ok=True)
 
     if validated_ref == "WORKTREE":
-        _run_mkdocs_build(
+        _build_en_and_fr_for_dir(
             project_dir=repo_root,
-            site_output_dir=version_output_dir,
+            version_output_dir=version_output_dir,
             git_ref=validated_ref,
             version_slug=version_slug,
             base_url=base_url,
@@ -364,9 +403,9 @@ def build_single_version(
                 )
                 _safe_extract_zip(archive_path, snapshot_dir)
             _overlay_repo_files(repo_root=repo_root, snapshot_dir=snapshot_dir)
-            _run_mkdocs_build(
+            _build_en_and_fr_for_dir(
                 project_dir=snapshot_dir,
-                site_output_dir=version_output_dir,
+                version_output_dir=version_output_dir,
                 git_ref=validated_ref,
                 version_slug=version_slug,
                 base_url=base_url,

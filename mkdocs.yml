@@ -15,6 +15,15 @@ exclude_docs: |
   .env
   .env.*
   .env_*
+  fr/
+  01-tutoriels/
+  02-guides-pratiques/
+  03-reference-fr/
+  04-explications/
+  guides/fr/
+  *_fr.md
+  *-fr.md
+  overview-fr.md
 
 hooks:
   - scripts/mkdocs_hooks.py
@@ -58,6 +67,13 @@ plugins:
   - search
 
 extra:
+  alternate:
+    - name: English
+      link: /
+      lang: en
+    - name: Français
+      link: /fr/
+      lang: fr
   version:
     provider: mike
     default: latest
@@ -135,8 +151,8 @@ nav:
           - CLI Scripts & SQL Catalog: 03-reference/cli-and-scripts/cli-scripts-and-sql-catalog.md
       - Troubleshooting Codes:
           - Error & Alert Matrix: 03-reference/troubleshooting-codes/error-and-alert-matrix.md
-      - Bilingual Guides (EN):
-          - Guides Index (EN): guides/en/index.md
+      - Technical Guides (EN):
+          - Guides Index: guides/en/index.md
           - Sirene 3NF Platform: guides/en/sirene_platform.md
           - MariaDB Management: guides/en/mariadb_management.md
           - Tools Guide: guides/en/tools_guide.md
@@ -145,18 +161,8 @@ nav:
           - Interactive Reporting: guides/en/interactive_reporting.md
           - Deadlock Experiment: guides/en/deadlock_experiment.md
           - Gap Locking Experiment: guides/en/gap_locking_experiment.md
-          - 60 Employees SQL Queries (EN): guides/employees-sql-en.md
-      - Guides Bilingues (FR):
-          - Index des Guides (FR): guides/fr/index.md
-          - Plateforme Sirene 3NF: guides/fr/sirene_platform.md
-          - Gestion MariaDB: guides/fr/mariadb_management.md
-          - Guide des Outils: guides/fr/guide_outils.md
-          - Benchmarking (FR): guides/fr/benchmarking.md
-          - Analyseur SQL: guides/fr/sql_analyzer.md
-          - Rapports Interactifs: guides/fr/interactive_reporting.md
-          - Expérience Deadlock: guides/fr/deadlock_experiment.md
-          - Expérience Gap Locking: guides/fr/gap_locking_experiment.md
-          - 60 Requêtes SQL Employees (FR): guides/employees-sql-fr.md
+          - 60 Employees SQL Queries: guides/employees-sql-en.md
+          - Sirene Interactive HTML: guides/sirene_documentation.html
   - Explanation:
       - 04-explanation/index.md
       - Architecture Overview:
@@ -168,7 +174,6 @@ nav:
           - Concurrency, Locking & Replication Tradeoffs: 04-explanation/deep-dives/concurrency-locking-and-replication-tradeoffs.md
       - Project Overviews:
           - Overview (English): overview-en.md
-          - Aperçu (Français): overview-fr.md
           - Sirene Quickstart: sirene-quickstart.md
   - Releases & Governance:
       - Changelog: CHANGELOG.md

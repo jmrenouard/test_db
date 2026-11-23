@@ -1,3 +1,6 @@
+[🏠 Accueil](index.md) | [⬅️ Précédent](interactive_reporting.md) | [➡️ Suivant](sql_analyzer.md)
+***
+
 # Tests de Performance avec Sysbench
 
 Le projet inclut des tests de performance automatisés pour la simulation de haute concurrence et les tests de charge en utilisant `sysbench`.
@@ -134,3 +137,6 @@ Les résultats sont sauvegardés dans :
 - `reports/simulator_report.md` / `reports/simulator_report.html` (lors de l'utilisation de `db_simulator.py`)
 - **Tableau de Bord Interactif** : Rapports HTML modernes avec graphiques en barres CSS et transparence des commandes.
 - Résumé affiché dans la console du terminal.
+
+***
+[🏠 Accueil](index.md) | [⬅️ Précédent](interactive_reporting.md) | [➡️ Suivant](sql_analyzer.md)

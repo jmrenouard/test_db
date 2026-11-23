@@ -82,6 +82,8 @@ Le diagramme suivant illustre comment les outils interagissent avec le conteneur
 ```mermaid
 graph TD
     A[Makefile / Utilisateur] -- Orchestre --> B{scripts/test_runner.sh}
+    A -- Exécution Directe --> B2[scripts/run_dir_bench.sh]
+    A -- UI Interactive --> B3[scripts/db_simulator.py]
     
     subgraph "Vérification"
     B --> C[scripts/verify_data.sh]
@@ -90,6 +92,8 @@ graph TD
     subgraph "Performance"
     B --> D[sysbench + LUA]
     B --> E[scripts/perf_threads_reporter.py]
+    B2 --> D2[dir_transactions_sysbench.lua]
+    B3 --> B2
     end
 
     subgraph "Qualité & IQ"
@@ -98,15 +102,18 @@ graph TD
 
     C -- "Requêtes" --> G[(MariaDB 11.8 Docker)]
     D -- "Charges" --> G
+    D2 -- "Charges" --> G
     F -- "Explain/Schema" --> G
 
     F -- "Produit" --> H[reports/performance_report.html]
     E -- "Produit" --> I[reports/perf_threads/scaling_report.html]
+    B3 -- "Produit" --> K[reports/simulator_report.html]
     C -- "Logs" --> J[STDOUT / Integrity Check]
     
     style G fill:#f96,stroke:#333,stroke-width:4px
     style H fill:#bbf,stroke:#333,stroke-width:2px
     style I fill:#bbf,stroke:#333,stroke-width:2px
+    style K fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ***

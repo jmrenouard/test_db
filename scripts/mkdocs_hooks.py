@@ -7,6 +7,7 @@ from pathlib import Path
 import posixpath
 import re
 from typing import TYPE_CHECKING, Any, Iterable
+from urllib.parse import urlsplit
 
 if TYPE_CHECKING:
     from mkdocs.structure.files import Files
@@ -48,6 +49,27 @@ VIRTUAL_STATIC_ASSETS: dict[str, tuple[str, str]] = {
     "guides/sirene_documentation.html": ("documentation/sirene_documentation.html", "documentation"),
 }
 
+# Shared docs files mounted into French builds (docs_dir=docs/fr) without duplicating files on disk.
+VIRTUAL_FR_ROOT_DOCS: dict[str, tuple[str, str]] = {
+    "ACTION_LOGBOOK.md": ("docs/ACTION_LOGBOOK.md", "docs"),
+    "RCA_REGISTER.md": ("docs/RCA_REGISTER.md", "docs"),
+}
+
+VIRTUAL_FR_STATIC_ASSETS: dict[str, str] = {
+    "assets/logo.svg": "docs/assets/logo.svg",
+    "assets/header-banner.svg": "docs/assets/header-banner.svg",
+    "stylesheets/extra.css": "docs/stylesheets/extra.css",
+    "javascripts/katex.js": "docs/javascripts/katex.js",
+}
+
+VIRTUAL_DOCS_SHARED: frozenset[str] = frozenset({"CHANGELOG.md", "sirene-quickstart.md"})
+VIRTUAL_DOCS_EN: frozenset[str] = VIRTUAL_DOCS_SHARED | frozenset(
+    uri for uri in VIRTUAL_DOCS if uri == "overview-en.md" or uri.startswith(("guides/en/", "guides/employees-sql-en"))
+)
+VIRTUAL_DOCS_FR: frozenset[str] = VIRTUAL_DOCS_SHARED | frozenset(
+    uri for uri in VIRTUAL_DOCS if uri == "overview-fr.md" or uri.startswith(("guides/fr/", "guides/employees-sql-fr"))
+)
+
 _REPO_DOC_TO_VIRTUAL: dict[str, str] = {
     source_path: virtual_uri for virtual_uri, (source_path, _) in VIRTUAL_DOCS.items()
 }
@@ -60,6 +82,13 @@ QUADRANT_HISTORICAL_FALLBACKS: dict[str, tuple[str, ...]] = {
     "02-how-to-guides": ("guides/en/tools_guide.md", "guides/en/index.md", "overview-en.md"),
     "03-reference": ("guides/en/index.md", "overview-en.md"),
     "04-explanation": ("guides/en/benchmarking.md", "guides/en/index.md", "overview-en.md"),
+}
+
+QUADRANT_HISTORICAL_FALLBACKS_FR: dict[str, tuple[str, ...]] = {
+    "01-tutoriels": ("guides/fr/mariadb_management.md", "guides/fr/index.md", "overview-fr.md"),
+    "02-guides-pratiques": ("guides/fr/guide_outils.md", "guides/fr/index.md", "overview-fr.md"),
+    "03-reference": ("guides/fr/index.md", "overview-fr.md"),
+    "04-explications": ("guides/fr/benchmarking.md", "guides/fr/index.md", "overview-fr.md"),
 }
 
 ALERT_MAP: dict[str, str] = {
@@ -225,6 +254,76 @@ def _split_destination(raw_dest: str) -> tuple[str, str, bool]:
     return stripped, "", False
 
 
+def _repo_root_for_docs_dir(docs_dir: Path) -> Path:
+    """Resolve repository root from either `docs/` or `docs/fr/`."""
+    if docs_dir.name == "fr" and docs_dir.parent.name == "docs":
+        return docs_dir.parent.parent
+    return docs_dir.parent
+
+
+def _get_build_language(config: Any, docs_dir: Path | None = None) -> str:
+    """Resolve active MkDocs theme language (`en` or `fr`) from config or docs_dir."""
+    theme = getattr(config, "theme", None)
+    if theme is None and isinstance(config, dict):
+        theme = config.get("theme")
+    raw_lang: Any = None
+    if isinstance(theme, dict):
+        raw_lang = theme.get("language")
+    elif theme is not None:
+        raw_lang = getattr(theme, "language", None)
+        if raw_lang is None:
+            try:
+                raw_lang = theme["language"]
+            except (KeyError, TypeError):
+                raw_lang = None
+    if isinstance(raw_lang, str) and raw_lang.strip().lower() == "fr":
+        return "fr"
+    if docs_dir is not None and docs_dir.name == "fr" and docs_dir.parent.name == "docs":
+        return "fr"
+    return "en"
+
+
+def virtual_docs_for_language(lang: str) -> frozenset[str]:
+    """Return allowed virtual document URIs for a single-language MkDocs build."""
+    if lang == "fr":
+        return VIRTUAL_DOCS_FR
+    return VIRTUAL_DOCS_EN
+
+
+def _adjust_alternate_links(config: Any) -> None:
+    """Adjust `extra.alternate` EN/FR switcher links to match the current version base path."""
+    extra = getattr(config, "extra", None)
+    if extra is None and isinstance(config, dict):
+        extra = config.get("extra")
+    if not isinstance(extra, dict):
+        return
+    alternate = extra.get("alternate")
+    if not isinstance(alternate, list):
+        return
+
+    site_url = getattr(config, "site_url", None)
+    if site_url is None and isinstance(config, dict):
+        site_url = config.get("site_url", "")
+    site_path = urlsplit(str(site_url or "")).path or "/"
+    if not site_path.startswith("/"):
+        site_path = "/" + site_path
+    if not site_path.endswith("/"):
+        site_path += "/"
+    base_path = site_path[:-3] if site_path.endswith("/fr/") else site_path
+    if not base_path:
+        base_path = "/"
+    fr_path = "/fr/" if base_path == "/" else f"{base_path.rstrip('/')}/fr/"
+
+    for entry in alternate:
+        if not isinstance(entry, dict):
+            continue
+        entry_lang = str(entry.get("lang", "")).strip().lower()
+        if entry_lang == "en":
+            entry["link"] = base_path
+        elif entry_lang == "fr":
+            entry["link"] = fr_path
+
+
 def _virtual_doc_available(
     virtual_uri: str,
     available_root_docs: frozenset[str],
@@ -234,7 +333,7 @@ def _virtual_doc_available(
     if virtual_uri not in available_root_docs:
         return False
     if docs_dir is not None:
-        repo_root = docs_dir.parent
+        repo_root = _repo_root_for_docs_dir(docs_dir)
         # When repo_root contains real repository layout markers, verify the source file exists on disk.
         if (
             (repo_root / "README.md").is_file()
@@ -254,7 +353,7 @@ def _static_asset_available(
     if available_static_assets is not None:
         return virtual_uri in available_static_assets
     if docs_dir is not None:
-        repo_root = docs_dir.parent
+        repo_root = _repo_root_for_docs_dir(docs_dir)
         if (
             (repo_root / "README.md").is_file()
             or (repo_root / "documentation").is_dir()
@@ -309,13 +408,20 @@ def _resolve_target(
     available_root_docs: frozenset[str],
     docs_dir: Path | None = None,
     available_static_assets: frozenset[str] | None = None,
+    build_lang: str | None = None,
 ) -> tuple[str | None, bool]:
     """Resolve a target URL or return `(None, True)` when excluded/neutralized."""
     if not raw_url:
         return raw_url, False
 
     clean_repo = repo_url.rstrip("/")
-    repo_root = docs_dir.parent if docs_dir is not None else None
+    repo_root = _repo_root_for_docs_dir(docs_dir) if docs_dir is not None else None
+    effective_lang = build_lang or (
+        "fr"
+        if (docs_dir is not None and docs_dir.name == "fr" and docs_dir.parent.name == "docs")
+        else "en"
+    )
+    docs_repo_prefix = "docs/fr" if effective_lang == "fr" else "docs"
 
     # Rewrite legacy file:///test_db/<rel> links (deadlock/gap_locking guides) to GitHub blob/tree URLs.
     if raw_url.startswith(_FILE_TEST_DB_PREFIX):
@@ -350,11 +456,12 @@ def _resolve_target(
         return cleaned_url, False
 
     norm_src = page_src_path.replace("\\", "/").lstrip("/")
-    src_dir = (
-        VIRTUAL_DOCS[norm_src][1]
-        if norm_src in VIRTUAL_DOCS
-        else posixpath.dirname(f"docs/{norm_src}")
-    )
+    if norm_src in VIRTUAL_DOCS:
+        src_dir = VIRTUAL_DOCS[norm_src][1]
+    elif norm_src in VIRTUAL_FR_ROOT_DOCS:
+        src_dir = VIRTUAL_FR_ROOT_DOCS[norm_src][1]
+    else:
+        src_dir = posixpath.dirname(f"{docs_repo_prefix}/{norm_src}")
     had_trailing_slash = path_part.endswith("/")
     repo_rel = (
         posixpath.normpath(posixpath.join(src_dir, path_part))
@@ -394,7 +501,20 @@ def _resolve_target(
         return f"{clean_repo}/blob/{ref}/{repo_rel}{anchor}", False
 
     if repo_rel == "docs/index.md":
-        return f"{prefix}index.md{anchor}", False
+        if effective_lang == "en":
+            return f"{prefix}index.md{anchor}", False
+        return f"{clean_repo}/blob/{ref}/docs/index.md{anchor}", False
+
+    if repo_rel == "docs/fr/index.md":
+        if effective_lang == "fr":
+            return f"{prefix}index.md{anchor}", False
+        return f"{clean_repo}/blob/{ref}/docs/fr/index.md{anchor}", False
+
+    if repo_rel in ("docs/ACTION_LOGBOOK.md", "docs/RCA_REGISTER.md"):
+        return f"{prefix}{repo_rel[len('docs/'):]}{anchor}", False
+
+    if repo_rel.startswith(("docs/assets/", "docs/stylesheets/", "docs/javascripts/")):
+        return f"{prefix}{repo_rel[len('docs/'):]}{anchor}", False
 
     if repo_rel.startswith("docs/"):
         doc_subpath = repo_rel[len("docs/") :]
@@ -426,13 +546,31 @@ def _resolve_target(
                 return f"{prefix}sirene-quickstart.md", False
             return f"{clean_repo}/blob/{ref}/{VIRTUAL_DOCS[doc_subpath][0]}{anchor}", False
 
+        if effective_lang == "en" and doc_subpath.startswith("fr/"):
+            is_dir_target = had_trailing_slash or (repo_root is not None and (repo_root / repo_rel).is_dir())
+            kind = "tree" if is_dir_target else "blob"
+            trailing = "/" if had_trailing_slash and not repo_rel.endswith("/") else ""
+            return f"{clean_repo}/{kind}/{ref}/{repo_rel}{trailing}{anchor}", False
+
+        if effective_lang == "fr":
+            if repo_rel.startswith("docs/fr/"):
+                doc_subpath = repo_rel[len("docs/fr/") :]
+            else:
+                is_dir_target = had_trailing_slash or (repo_root is not None and (repo_root / repo_rel).is_dir())
+                kind = "tree" if is_dir_target else "blob"
+                trailing = "/" if had_trailing_slash and not repo_rel.endswith("/") else ""
+                return f"{clean_repo}/{kind}/{ref}/{repo_rel}{trailing}{anchor}", False
+
+        fallbacks = (
+            QUADRANT_HISTORICAL_FALLBACKS_FR if effective_lang == "fr" else QUADRANT_HISTORICAL_FALLBACKS
+        )
+        primary_quadrant = "01-tutoriels" if effective_lang == "fr" else "01-tutorials"
+        default_overview = "overview-fr.md" if effective_lang == "fr" else "overview-en.md"
+
         if docs_dir is not None:
             top_segment = doc_subpath.split("/", 1)[0]
-            if (
-                top_segment in QUADRANT_HISTORICAL_FALLBACKS
-                and not (docs_dir / top_segment).is_dir()
-            ):
-                for candidate in QUADRANT_HISTORICAL_FALLBACKS[top_segment]:
+            if top_segment in fallbacks and not (docs_dir / top_segment).is_dir():
+                for candidate in fallbacks[top_segment]:
                     if (docs_dir / candidate).is_file() or (
                         candidate in VIRTUAL_DOCS
                         and _virtual_doc_available(candidate, available_root_docs, docs_dir)
@@ -440,22 +578,20 @@ def _resolve_target(
                         return f"{prefix}{candidate}", False
                 return (
                     _historical_overview_target(
-                        prefix, clean_repo, ref, available_root_docs, docs_dir
+                        prefix, clean_repo, ref, available_root_docs, docs_dir, default_overview
                     ),
                     False,
                 )
 
             if (
                 norm_src == "index.md"
-                and not (docs_dir / "01-tutorials").is_dir()
+                and not (docs_dir / primary_quadrant).is_dir()
                 and not (docs_dir / doc_subpath).exists()
                 and doc_subpath not in available_root_docs
             ):
-                if doc_subpath.startswith(("guides/fr/", "fr/")) and _virtual_doc_available(
-                    "guides/fr/index.md", available_root_docs, docs_dir
-                ):
-                    return f"{prefix}guides/fr/index.md", False
-                if doc_subpath.startswith(("guides/fr/", "fr/")):
+                if effective_lang == "fr" or doc_subpath.startswith(("guides/fr/", "fr/")):
+                    if _virtual_doc_available("guides/fr/index.md", available_root_docs, docs_dir):
+                        return f"{prefix}guides/fr/index.md", False
                     return (
                         _historical_overview_target(
                             prefix, clean_repo, ref, available_root_docs, docs_dir, "overview-fr.md"
@@ -497,6 +633,7 @@ def _rewrite_html_attributes(
     available_root_docs: frozenset[str],
     docs_dir: Path | None,
     available_static_assets: frozenset[str] | None,
+    build_lang: str | None = None,
 ) -> str:
     """Rewrite relative HTML `src`/`href` attributes outside inline code."""
 
@@ -510,6 +647,7 @@ def _rewrite_html_attributes(
             available_root_docs=available_root_docs,
             docs_dir=docs_dir,
             available_static_assets=available_static_assets,
+            build_lang=build_lang,
         )
         new_val = "#" if neutralized else str(resolved)
         return f"{match.group(1)}{match.group(2)}{new_val}{match.group(2)}"
@@ -526,6 +664,7 @@ def _rewrite_plain_segment(
     available_root_docs: frozenset[str],
     docs_dir: Path | None,
     available_static_assets: frozenset[str] | None,
+    build_lang: str | None = None,
 ) -> str:
     """Convert `<www.lightpath.fr>` autolinks and rewrite HTML attributes outside inline code."""
     normalized = _LIGHTPATH_AUTOLINK_RE.sub(
@@ -541,6 +680,7 @@ def _rewrite_plain_segment(
         available_root_docs=available_root_docs,
         docs_dir=docs_dir,
         available_static_assets=available_static_assets,
+        build_lang=build_lang,
     )
 
 
@@ -554,6 +694,7 @@ def _rewrite_prose_segment(
     available_root_docs: frozenset[str],
     docs_dir: Path | None = None,
     available_static_assets: frozenset[str] | None = None,
+    build_lang: str | None = None,
 ) -> str:
     """Rewrite Markdown links, HTML `src`/`href`, and legacy autolinks outside inline code."""
     out: list[str] = []
@@ -573,6 +714,7 @@ def _rewrite_prose_segment(
                     available_root_docs=available_root_docs,
                     docs_dir=docs_dir,
                     available_static_assets=available_static_assets,
+                    build_lang=build_lang,
                 )
             )
 
@@ -610,6 +752,7 @@ def _rewrite_prose_segment(
                         available_root_docs=available_root_docs,
                         docs_dir=docs_dir,
                         available_static_assets=available_static_assets,
+                        build_lang=build_lang,
                     )
                     url_part, title_suffix, had_angles = _split_destination(
                         text[bracket_end + 2 : paren_end]
@@ -623,6 +766,7 @@ def _rewrite_prose_segment(
                         available_root_docs=available_root_docs,
                         docs_dir=docs_dir,
                         available_static_assets=available_static_assets,
+                        build_lang=build_lang,
                     )
                     if neutralized:
                         out.append("" if is_img else label)
@@ -648,6 +792,7 @@ def rewrite_relative_links(
     use_directory_urls: bool = True,
     available_root_docs: Iterable[str] | None = None,
     available_static_assets: Iterable[str] | None = None,
+    build_lang: str | None = None,
 ) -> str:
     """Rewrite repository-relative Markdown and HTML links outside fenced code blocks."""
     norm = page_src_path.replace("\\", "/").lstrip("/")
@@ -676,16 +821,33 @@ def rewrite_relative_links(
             available_root_docs=root_docs,
             docs_dir=resolved_docs,
             available_static_assets=static_assets,
+            build_lang=build_lang,
         )
         for is_fence, chunk in _split_fences(markdown)
     )
 
 
-def _nav_doc_exists(rel_path: str, docs_dir: Path, repo_root: Path) -> bool:
-    """Return True if a navigation target exists in `docs_dir` or as a virtual root doc."""
+def _nav_doc_exists(
+    rel_path: str,
+    docs_dir: Path,
+    repo_root: Path,
+    allowed_virtual_docs: frozenset[str] | None = None,
+) -> bool:
+    """Return True if a navigation target exists in `docs_dir` or as an active virtual doc."""
     if (docs_dir / rel_path).is_file():
         return True
-    if rel_path in VIRTUAL_DOCS and (repo_root / VIRTUAL_DOCS[rel_path][0]).is_file():
+    if rel_path in VIRTUAL_DOCS:
+        if allowed_virtual_docs is not None and rel_path not in allowed_virtual_docs:
+            return False
+        if (repo_root / VIRTUAL_DOCS[rel_path][0]).is_file():
+            return True
+    if rel_path in VIRTUAL_STATIC_ASSETS and (repo_root / VIRTUAL_STATIC_ASSETS[rel_path][0]).is_file():
+        return True
+    if (
+        docs_dir.name == "fr"
+        and rel_path in VIRTUAL_FR_ROOT_DOCS
+        and (repo_root / VIRTUAL_FR_ROOT_DOCS[rel_path][0]).is_file()
+    ):
         return True
     return False
 
@@ -694,12 +856,13 @@ def _prune_nav_list(
     items: list[Any],
     docs_dir: Path,
     repo_root: Path,
+    allowed_virtual_docs: frozenset[str] | None = None,
 ) -> list[Any]:
     """Recursively prune missing pages and empty sections from a MkDocs navigation list."""
     pruned: list[Any] = []
     for entry in items:
         if isinstance(entry, str):
-            if _nav_doc_exists(entry, docs_dir, repo_root):
+            if _nav_doc_exists(entry, docs_dir, repo_root, allowed_virtual_docs):
                 pruned.append(entry)
             continue
 
@@ -707,14 +870,14 @@ def _prune_nav_list(
             kept_dict: dict[str, Any] = {}
             for title, target in entry.items():
                 if isinstance(target, str):
-                    if _nav_doc_exists(target, docs_dir, repo_root):
+                    if _nav_doc_exists(target, docs_dir, repo_root, allowed_virtual_docs):
                         kept_dict[title] = target
                 elif isinstance(target, list):
-                    nested = _prune_nav_list(target, docs_dir, repo_root)
+                    nested = _prune_nav_list(target, docs_dir, repo_root, allowed_virtual_docs)
                     if nested:
                         kept_dict[title] = nested
                 elif isinstance(target, dict):
-                    nested_dict = _prune_nav_list([target], docs_dir, repo_root)
+                    nested_dict = _prune_nav_list([target], docs_dir, repo_root, allowed_virtual_docs)
                     if nested_dict:
                         kept_dict[title] = nested_dict[0]
             if kept_dict:
@@ -726,20 +889,25 @@ def prune_nav_for_existing_files(
     nav: list[Any] | None,
     docs_dir: Path,
     repo_root: Path,
+    allowed_virtual_docs: Iterable[str] | None = None,
 ) -> list[Any]:
     """Prune missing pages and empty sections from a MkDocs navigation list."""
     if not nav:
         return []
-    return _prune_nav_list(list(nav), Path(docs_dir), Path(repo_root))
+    allowed = None if allowed_virtual_docs is None else frozenset(allowed_virtual_docs)
+    return _prune_nav_list(list(nav), Path(docs_dir), Path(repo_root), allowed)
 
 
 def on_config(config: Any) -> Any:
-    """Configure environment-driven `site_url`, `edit_uri`, GFM slugifier, and pruned nav."""
+    """Configure environment-driven `site_url`, `edit_uri`, switcher links, GFM slugifier, and pruned nav."""
     site_url = os.environ.get("TEST_DB_DOCS_SITE_URL", "").strip()
     if site_url:
         config.site_url = site_url.rstrip("/") + "/"
 
-    config.edit_uri = "edit/master/docs/" if _effective_repo_ref() == "master" else ""
+    docs_dir = Path(config.docs_dir)
+    lang = _get_build_language(config, docs_dir=docs_dir)
+    docs_prefix = "docs/fr" if (lang == "fr" and docs_dir.name == "fr") else "docs"
+    config.edit_uri = f"edit/master/{docs_prefix}/" if _effective_repo_ref() == "master" else ""
 
     mdx = getattr(config, "mdx_configs", None)
     if isinstance(mdx, dict):
@@ -747,16 +915,26 @@ def on_config(config: Any) -> Any:
         if isinstance(toc_cfg, dict) and not toc_cfg.get("slugify"):
             toc_cfg["slugify"] = gfm_slugify
 
-    docs_dir = Path(config.docs_dir)
-    repo_root = docs_dir.parent
+    _adjust_alternate_links(config)
+
+    repo_root = _repo_root_for_docs_dir(docs_dir)
     if getattr(config, "nav", None):
-        config.nav = prune_nav_for_existing_files(config.nav, docs_dir=docs_dir, repo_root=repo_root)
+        config.nav = prune_nav_for_existing_files(
+            config.nav,
+            docs_dir=docs_dir,
+            repo_root=repo_root,
+            allowed_virtual_docs=virtual_docs_for_language(lang),
+        )
     return config
 
 
 def on_files(files: Files, config: Any) -> Files:
-    """Exclude sensitive runtime files and inject virtual docs and static HTML assets."""
+    """Exclude sensitive runtime files and inject language-isolated virtual docs and static assets."""
     from mkdocs.structure.files import File, Files as MkDocsFiles, InclusionLevel
+
+    docs_dir = Path(config.docs_dir)
+    lang = _get_build_language(config, docs_dir=docs_dir)
+    allowed_virtual = virtual_docs_for_language(lang)
 
     kept: list[File] = []
     for file_obj in list(files):
@@ -768,8 +946,10 @@ def on_files(files: Files, config: Any) -> Files:
     if len(kept) != len(files):
         files = MkDocsFiles(kept)
 
-    repo_root = Path(config.docs_dir).parent
+    repo_root = _repo_root_for_docs_dir(docs_dir)
     for virtual_uri, (source_rel, _) in VIRTUAL_DOCS.items():
+        if virtual_uri not in allowed_virtual:
+            continue
         src_path = repo_root / source_rel
         if src_path.is_file() and files.get_file_from_path(virtual_uri) is None:
             files.append(File.generated(config, virtual_uri, abs_src_path=str(src_path)))
@@ -778,6 +958,16 @@ def on_files(files: Files, config: Any) -> Files:
         src_path = repo_root / source_rel
         if src_path.is_file() and files.get_file_from_path(virtual_uri) is None:
             files.append(File.generated(config, virtual_uri, abs_src_path=str(src_path)))
+
+    if lang == "fr" and docs_dir.name == "fr":
+        for virtual_uri, (source_rel, _) in VIRTUAL_FR_ROOT_DOCS.items():
+            src_path = repo_root / source_rel
+            if src_path.is_file() and files.get_file_from_path(virtual_uri) is None:
+                files.append(File.generated(config, virtual_uri, abs_src_path=str(src_path)))
+        for virtual_uri, source_rel in VIRTUAL_FR_STATIC_ASSETS.items():
+            src_path = repo_root / source_rel
+            if src_path.is_file() and files.get_file_from_path(virtual_uri) is None:
+                files.append(File.generated(config, virtual_uri, abs_src_path=str(src_path)))
 
     return files
 
@@ -791,9 +981,14 @@ def on_page_markdown(markdown: str, page: Any, config: Any, files: Files) -> str
         config.get("docs_dir") if isinstance(config, dict) else None
     )
     docs_dir = Path(raw_docs) if raw_docs else None
+    build_lang = _get_build_language(config, docs_dir=docs_dir)
 
     if src in VIRTUAL_DOCS:
         page.edit_url = f"{repo_url}/edit/master/{VIRTUAL_DOCS[src][0]}" if ref == "master" else None
+    elif src in VIRTUAL_FR_ROOT_DOCS and build_lang == "fr":
+        page.edit_url = (
+            f"{repo_url}/edit/master/{VIRTUAL_FR_ROOT_DOCS[src][0]}" if ref == "master" else None
+        )
 
     if src == "CHANGELOG.md" and not markdown.lstrip().startswith("# "):
         markdown = f"# Changelog\n\n{markdown}"
@@ -817,4 +1012,5 @@ def on_page_markdown(markdown: str, page: Any, config: Any, files: Files) -> str
         use_directory_urls=bool(getattr(config, "use_directory_urls", True)),
         available_root_docs=available_root_docs,
         available_static_assets=available_static_assets,
+        build_lang=build_lang,
     )

@@ -8,6 +8,7 @@ on:
       - "documentation/**"
       - "doc_employees/**"
       - "mkdocs.yml"
+      - "mkdocs.fr.yml"
       - "README.md"
       - "README_fr.md"
       - "Changelog"
@@ -20,6 +21,7 @@ on:
       - ".github/workflows/docs-ci.yml"
       - "tests/test_diataxis_documentation.py"
       - "tests/test_mkdocs_publishing.py"
+      - "tests/test_tutorials_and_howtos.py"
   pull_request:
     branches: ["master"]
     paths:
@@ -27,6 +29,7 @@ on:
       - "documentation/**"
       - "doc_employees/**"
       - "mkdocs.yml"
+      - "mkdocs.fr.yml"
       - "README.md"
       - "README_fr.md"
       - "Changelog"
@@ -39,6 +42,7 @@ on:
       - ".github/workflows/docs-ci.yml"
       - "tests/test_diataxis_documentation.py"
       - "tests/test_mkdocs_publishing.py"
+      - "tests/test_tutorials_and_howtos.py"
   workflow_dispatch:
 
 permissions:
@@ -72,9 +76,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-docs.txt pytest pyyaml
 
-      - name: Run Diataxis and MkDocs publishing test suites
+      - name: Run Diataxis, tutorial, and MkDocs publishing test suites
         run: |
-          pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py -v
+          pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py tests/test_tutorials_and_howtos.py -v
 
-      - name: Build MkDocs site in strict mode
-        run: mkdocs build --strict
+      - name: Build English and French MkDocs sites in strict mode
+        run: |
+          mkdocs build --strict -d site
+          mkdocs build -f mkdocs.fr.yml --strict -d site/fr

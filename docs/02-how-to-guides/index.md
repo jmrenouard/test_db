@@ -29,12 +29,11 @@ This section provides goal-oriented operational procedures and incident runbooks
 | :--- | :--- |
 | [Verify Checksums and Privacy Boundaries](security/verify-checksums-and-privacy-boundaries.md) | Validate `employees` and Sirene SHA-256 digests, enforce zero-PII boundaries, and audit `.env` exclusions. |
 
-## Bilingual Technical Guides
+## Technical Guides
 
-Legacy English and French technical guides cover tool usage and Sirene internals:
+Additional English guides cover tool usage and Sirene internals:
 
 - [Technical Guides Index (EN)](../../documentation/en/index.md)
-- [Technical Guides Index (FR)](../../documentation/fr/index.md)
 
 ## Other Documentation Quadrants
 

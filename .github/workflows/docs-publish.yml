@@ -9,6 +9,7 @@ on:
       - "documentation/**"
       - "doc_employees/**"
       - "mkdocs.yml"
+      - "mkdocs.fr.yml"
       - "README.md"
       - "README_fr.md"
       - "Changelog"
@@ -22,6 +23,7 @@ on:
       - ".github/workflows/docs-publish.yml"
       - "tests/test_diataxis_documentation.py"
       - "tests/test_mkdocs_publishing.py"
+      - "tests/test_tutorials_and_howtos.py"
   pull_request:
     branches: ["master"]
     paths:
@@ -29,6 +31,7 @@ on:
       - "documentation/**"
       - "doc_employees/**"
       - "mkdocs.yml"
+      - "mkdocs.fr.yml"
       - "README.md"
       - "README_fr.md"
       - "Changelog"
@@ -42,6 +45,7 @@ on:
       - ".github/workflows/docs-publish.yml"
       - "tests/test_diataxis_documentation.py"
       - "tests/test_mkdocs_publishing.py"
+      - "tests/test_tutorials_and_howtos.py"
   release:
     types: [published]
   workflow_dispatch:
@@ -83,9 +87,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-docs.txt pytest pyyaml
 
-      - name: Run Diataxis and MkDocs publishing test suites
+      - name: Run Diataxis, tutorial, and MkDocs publishing test suites
         run: |
-          pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py -v
+          pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py tests/test_tutorials_and_howtos.py -v
 
       - name: Build versioned MkDocs Material documentation site
         env:
@@ -109,6 +113,7 @@ jobs:
             site_dist/index.html \
             site_dist/.htaccess \
             site_dist/master/index.html \
+            site_dist/master/fr/index.html \
             site_dist/latest/index.html; do
             if [ ! -f "$required_file" ]; then
               echo "Missing required built documentation file: $required_file" >&2
@@ -184,3 +189,4 @@ jobs:
           curl -fsSL https://test-db.lightpath.fr/versions.json | grep -q '"version"'
           curl -fsSLI https://test-db.lightpath.fr/latest/
           curl -fsSLI https://test-db.lightpath.fr/master/
+          curl -fsSLI https://test-db.lightpath.fr/master/fr/

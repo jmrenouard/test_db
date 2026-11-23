@@ -28,13 +28,21 @@ REQUIRED_QUADRANTS: tuple[str, ...] = (
     "04-explanation",
 )
 
-VIRTUAL_DOCS: dict[str, str] = {
+DOCS_FR_DIR = DOCS_DIR / "fr"
+MKDOCS_FR_CONFIG_PATH = REPO_ROOT / "mkdocs.fr.yml"
+
+REQUIRED_QUADRANTS_FR: tuple[str, ...] = (
+    "01-tutoriels",
+    "02-guides-pratiques",
+    "03-reference",
+    "04-explications",
+)
+
+VIRTUAL_DOCS_EN: dict[str, str] = {
     "overview-en.md": "README.md",
-    "overview-fr.md": "README_fr.md",
     "CHANGELOG.md": "Changelog",
     "sirene-quickstart.md": "sirene/README.md",
     "guides/employees-sql-en.md": "doc_employees/employees.md",
-    "guides/employees-sql-fr.md": "doc_employees/employees_fr.md",
     "guides/en/index.md": "documentation/en/index.md",
     "guides/en/sirene_platform.md": "documentation/en/sirene_platform.md",
     "guides/en/mariadb_management.md": "documentation/en/mariadb_management.md",
@@ -44,6 +52,13 @@ VIRTUAL_DOCS: dict[str, str] = {
     "guides/en/interactive_reporting.md": "documentation/en/interactive_reporting.md",
     "guides/en/deadlock_experiment.md": "documentation/en/deadlock_experiment.md",
     "guides/en/gap_locking_experiment.md": "documentation/en/gap_locking_experiment.md",
+}
+
+VIRTUAL_DOCS_FR: dict[str, str] = {
+    "overview-fr.md": "README_fr.md",
+    "CHANGELOG.md": "Changelog",
+    "sirene-quickstart.md": "sirene/README.md",
+    "guides/employees-sql-fr.md": "doc_employees/employees_fr.md",
     "guides/fr/index.md": "documentation/fr/index.md",
     "guides/fr/sirene_platform.md": "documentation/fr/sirene_platform.md",
     "guides/fr/mariadb_management.md": "documentation/fr/mariadb_management.md",
@@ -53,6 +68,11 @@ VIRTUAL_DOCS: dict[str, str] = {
     "guides/fr/interactive_reporting.md": "documentation/fr/interactive_reporting.md",
     "guides/fr/deadlock_experiment.md": "documentation/fr/deadlock_experiment.md",
     "guides/fr/gap_locking_experiment.md": "documentation/fr/gap_locking_experiment.md",
+}
+
+VIRTUAL_FR_ROOT_DOCS: dict[str, str] = {
+    "ACTION_LOGBOOK.md": "docs/ACTION_LOGBOOK.md",
+    "RCA_REGISTER.md": "docs/RCA_REGISTER.md",
 }
 
 VIRTUAL_STATIC_ASSETS: dict[str, str] = {
@@ -662,9 +682,12 @@ def test_docs_as_code_toolchain_configs_valid() -> None:
     ]
     nav_paths = _flatten_nav_paths(nav)
     for nav_path in nav_paths:
-        if nav_path in VIRTUAL_DOCS:
-            assert (REPO_ROOT / VIRTUAL_DOCS[nav_path]).is_file(), (
-                f"mkdocs.yml virtual nav target missing at repo root: {VIRTUAL_DOCS[nav_path]}"
+        assert not nav_path.startswith("guides/fr/") and not nav_path.endswith("-fr.md"), (
+            f"English mkdocs.yml nav must not include French document: {nav_path}"
+        )
+        if nav_path in VIRTUAL_DOCS_EN:
+            assert (REPO_ROOT / VIRTUAL_DOCS_EN[nav_path]).is_file(), (
+                f"mkdocs.yml virtual nav target missing at repo root: {VIRTUAL_DOCS_EN[nav_path]}"
             )
         elif nav_path in VIRTUAL_STATIC_ASSETS:
             assert (REPO_ROOT / VIRTUAL_STATIC_ASSETS[nav_path]).is_file(), (
@@ -676,14 +699,61 @@ def test_docs_as_code_toolchain_configs_valid() -> None:
             )
 
     nav_set = set(nav_paths)
-    missing_virtual_nav = sorted(set(VIRTUAL_DOCS) - nav_set)
+    missing_virtual_nav = sorted(set(VIRTUAL_DOCS_EN) - nav_set)
     assert not missing_virtual_nav, (
-        f"mkdocs.yml nav missing virtual documentation pages: {missing_virtual_nav}"
+        f"mkdocs.yml nav missing English virtual documentation pages: {missing_virtual_nav}"
     )
     for virtual_asset, source_rel in VIRTUAL_STATIC_ASSETS.items():
         assert (REPO_ROOT / source_rel).is_file(), (
             f"Virtual static asset {virtual_asset} missing source on disk: {source_rel}"
         )
+
+    # 1b. French mkdocs.fr.yml strict Diataxis i18n configuration
+    assert MKDOCS_FR_CONFIG_PATH.is_file(), "Missing mkdocs.fr.yml"
+    fr_loader = _MkDocsYamlLoader(MKDOCS_FR_CONFIG_PATH.read_text(encoding="utf-8"))
+    try:
+        mkdocs_fr_cfg = fr_loader.get_single_data()
+    finally:
+        fr_loader.dispose()
+    assert mkdocs_fr_cfg.get("docs_dir") == "docs/fr", "mkdocs.fr.yml docs_dir must be 'docs/fr'"
+    assert mkdocs_fr_cfg.get("theme", {}).get("language") == "fr", "mkdocs.fr.yml theme.language must be 'fr'"
+    fr_nav = mkdocs_fr_cfg.get("nav", [])
+    fr_top_tabs = [next(iter(entry.keys())) for entry in fr_nav if isinstance(entry, dict)]
+    assert fr_top_tabs == [
+        "Accueil",
+        "Tutoriels",
+        "Guides pratiques",
+        "Référence",
+        "Explications",
+        "Versions et gouvernance",
+    ]
+    fr_nav_paths = _flatten_nav_paths(fr_nav)
+    for fr_nav_path in fr_nav_paths:
+        assert not fr_nav_path.startswith("guides/en/") and not fr_nav_path.endswith("-en.md"), (
+            f"French mkdocs.fr.yml nav must not include English document: {fr_nav_path}"
+        )
+        if fr_nav_path in VIRTUAL_DOCS_FR:
+            assert (REPO_ROOT / VIRTUAL_DOCS_FR[fr_nav_path]).is_file(), (
+                f"mkdocs.fr.yml virtual nav target missing: {VIRTUAL_DOCS_FR[fr_nav_path]}"
+            )
+        elif fr_nav_path in VIRTUAL_FR_ROOT_DOCS:
+            assert (REPO_ROOT / VIRTUAL_FR_ROOT_DOCS[fr_nav_path]).is_file(), (
+                f"mkdocs.fr.yml governance nav target missing: {VIRTUAL_FR_ROOT_DOCS[fr_nav_path]}"
+            )
+        elif fr_nav_path in VIRTUAL_STATIC_ASSETS:
+            assert (REPO_ROOT / VIRTUAL_STATIC_ASSETS[fr_nav_path]).is_file(), (
+                f"mkdocs.fr.yml static asset target missing: {VIRTUAL_STATIC_ASSETS[fr_nav_path]}"
+            )
+        else:
+            assert (DOCS_FR_DIR / fr_nav_path).is_file(), (
+                f"mkdocs.fr.yml nav target missing on disk: docs/fr/{fr_nav_path}"
+            )
+    missing_fr_virtual = sorted(set(VIRTUAL_DOCS_FR) - set(fr_nav_paths))
+    assert not missing_fr_virtual, (
+        f"mkdocs.fr.yml nav missing French virtual documentation pages: {missing_fr_virtual}"
+    )
+    for fr_quadrant in REQUIRED_QUADRANTS_FR:
+        assert (DOCS_FR_DIR / fr_quadrant / "index.md").is_file(), f"Missing FR quadrant index: docs/fr/{fr_quadrant}/index.md"
 
     # 2. .vale.ini
     assert VALE_CONFIG_PATH.is_file(), "Missing .vale.ini"
@@ -773,34 +843,56 @@ def test_portal_and_readmes_expose_all_diataxis_quadrants() -> None:
         "RCA_REGISTER.md",
         "Changelog",
         "README.md",
-        "README_fr.md",
         "sirene/README.md",
         "documentation/en/index.md",
-        "documentation/fr/index.md",
         "documentation/sirene_documentation.html",
         DOCS_PORTAL_URL,
     ):
         assert token in portal, f"docs/index.md missing expected portal link or URL: {token}"
+    for fr_token in ("README_fr.md", "documentation/fr/", "01-tutoriels/", "02-guides-pratiques/"):
+        assert fr_token not in portal, f"EN portal docs/index.md must not mix French link: {fr_token}"
 
-    for readme_name, sirene_guide in (
-        ("README.md", "documentation/en/sirene_platform.md"),
-        ("README_fr.md", "documentation/fr/sirene_platform.md"),
+    fr_portal = (DOCS_DIR / "fr" / "index.md").read_text(encoding="utf-8")
+    for token in (
+        "01-tutoriels/index.md",
+        "02-guides-pratiques/index.md",
+        "03-reference/index.md",
+        "04-explications/index.md",
+        "ACTION_LOGBOOK.md",
+        "RCA_REGISTER.md",
+        "Changelog",
+        "README_fr.md",
+        "documentation/fr/index.md",
+        "documentation/sirene_documentation.html",
+        f"{DOCS_PORTAL_URL.rstrip('/')}/fr/",
     ):
-        readme_text = (REPO_ROOT / readme_name).read_text(encoding="utf-8")
-        assert "docs/index.md" in readme_text, f"{readme_name} must link to docs/index.md"
-        assert DOCS_PORTAL_URL in readme_text, f"{readme_name} must reference {DOCS_PORTAL_URL}"
-        for quadrant in REQUIRED_QUADRANTS:
-            assert f"docs/{quadrant}/index.md" in readme_text, (
-                f"{readme_name} must expose docs/{quadrant}/index.md"
-            )
-        for preserved_link in (
-            sirene_guide,
-            "documentation/sirene_documentation.html",
-            "sirene/README.md",
-        ):
-            assert preserved_link in readme_text, (
-                f"{readme_name} must preserve existing link to {preserved_link}"
-            )
+        assert token in fr_portal, f"docs/fr/index.md missing expected French portal link or URL: {token}"
+
+    readme_en = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    assert "docs/index.md" in readme_en, "README.md must link to docs/index.md"
+    assert DOCS_PORTAL_URL in readme_en, f"README.md must reference {DOCS_PORTAL_URL}"
+    for quadrant in REQUIRED_QUADRANTS:
+        assert f"docs/{quadrant}/index.md" in readme_en, f"README.md must expose docs/{quadrant}/index.md"
+    for preserved_link in (
+        "documentation/en/sirene_platform.md",
+        "documentation/sirene_documentation.html",
+        "sirene/README.md",
+    ):
+        assert preserved_link in readme_en, f"README.md must preserve existing link to {preserved_link}"
+
+    readme_fr = (REPO_ROOT / "README_fr.md").read_text(encoding="utf-8")
+    assert "docs/fr/index.md" in readme_fr, "README_fr.md must link to docs/fr/index.md"
+    assert DOCS_PORTAL_URL in readme_fr, f"README_fr.md must reference {DOCS_PORTAL_URL}"
+    for fr_quadrant in REQUIRED_QUADRANTS_FR:
+        assert f"docs/fr/{fr_quadrant}/index.md" in readme_fr, (
+            f"README_fr.md must expose docs/fr/{fr_quadrant}/index.md"
+        )
+    for preserved_link in (
+        "documentation/fr/sirene_platform.md",
+        "documentation/sirene_documentation.html",
+        "sirene/README.md",
+    ):
+        assert preserved_link in readme_fr, f"README_fr.md must preserve existing link to {preserved_link}"
 
 
 def test_ste_structural_checker_catches_violations_and_passes_valid_prose(tmp_path: Path) -> None:
