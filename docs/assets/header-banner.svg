@@ -1,0 +1,252 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 420" width="1260" height="420" fill="none" role="img" aria-label="test_db Hero Banner">
+  <defs>
+    <!-- Banner Background Obsidian-to-Slate Surface -->
+    <linearGradient id="tbHbBg" x1="0" y1="0" x2="1260" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#08090a"/>
+      <stop offset="42%" stop-color="#0c121b"/>
+      <stop offset="78%" stop-color="#0a1622"/>
+      <stop offset="100%" stop-color="#071514"/>
+    </linearGradient>
+
+    <!-- Ambient Architectural Glows -->
+    <radialGradient id="tbHbGlowLeft" cx="145" cy="138" r="245" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#10b981" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#08090a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tbHbGlowRight" cx="980" cy="105" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.12"/>
+      <stop offset="55%" stop-color="#0ea5e9" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#08090a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tbHbGlowAmber" cx="481" cy="318" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#08090a" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Outer Specular Border -->
+    <linearGradient id="tbHbBorder" x1="0" y1="0" x2="1260" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.22"/>
+    </linearGradient>
+
+    <!-- Title Gradient Accent -->
+    <linearGradient id="tbHbTitleAccent" x1="360" y1="85" x2="540" y2="135" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="55%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Divider Accent -->
+    <linearGradient id="tbHbDivider" x1="272" y1="186" x2="1206" y2="186" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.75"/>
+      <stop offset="45%" stop-color="#0ea5e9" stop-opacity="0.55"/>
+      <stop offset="75%" stop-color="#f59e0b" stop-opacity="0.40"/>
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Subtle Technical Grid Pattern -->
+    <pattern id="tbHbGrid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M 42 0 L 0 0 0 42" fill="none" stroke="#ffffff" stroke-opacity="0.028" stroke-width="1"/>
+    </pattern>
+
+    <!-- Clip Rounded Banner Bounds -->
+    <clipPath id="tbHbClip">
+      <rect x="2" y="2" width="1256" height="416" rx="22"/>
+    </clipPath>
+
+    <!-- Embedded Logo Gradients -->
+    <linearGradient id="tbHbLogoBg" x1="4" y1="4" x2="116" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#13161b"/>
+      <stop offset="100%" stop-color="#08090a"/>
+    </linearGradient>
+    <radialGradient id="tbHbLogoGlow" cx="60" cy="56" r="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#10b981" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#08090a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tbHbLogoSpec" x1="12" y1="4" x2="108" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="tbHbLogoOrbit" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="tbHbLogoBody" x1="36" y1="36" x2="84" y2="86" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f2942"/>
+      <stop offset="55%" stop-color="#0a1929"/>
+      <stop offset="100%" stop-color="#07111c"/>
+    </linearGradient>
+    <linearGradient id="tbHbLogoCap" x1="36" y1="35" x2="84" y2="49" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="55%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="tbHbLogoAmber" x1="50" y1="54" x2="70" y2="74" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Pipeline Card Surface Gradients -->
+    <linearGradient id="tbHbCardBg" x1="0" y1="0" x2="0" y2="114" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#101826" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#090e17" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="tbHbCardAmber" x1="0" y1="0" x2="0" y2="114" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1b150c" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#0d0b08" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="tbHbCardEmerald" x1="0" y1="0" x2="0" y2="114" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a1c19" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#07100f" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 1. BACKGROUND CANVAS & AMBIENT LIGHTING -->
+  <g clip-path="url(#tbHbClip)">
+    <rect x="2" y="2" width="1256" height="416" fill="url(#tbHbBg)"/>
+    <rect x="2" y="2" width="1256" height="416" fill="url(#tbHbGrid)"/>
+    <rect x="2" y="2" width="1256" height="416" fill="url(#tbHbGlowLeft)"/>
+    <rect x="2" y="2" width="1256" height="416" fill="url(#tbHbGlowRight)"/>
+    <rect x="2" y="2" width="1256" height="416" fill="url(#tbHbGlowAmber)"/>
+
+    <!-- Subtle Orbital Telemetry Rings Around Left Emblem -->
+    <circle cx="143" cy="135" r="102" stroke="#38bdf8" stroke-opacity="0.14" stroke-width="1" stroke-dasharray="6 6"/>
+    <circle cx="143" cy="135" r="126" stroke="#10b981" stroke-opacity="0.09" stroke-width="1" stroke-dasharray="3 8"/>
+  </g>
+  <rect x="2" y="2" width="1256" height="416" rx="22" stroke="url(#tbHbBorder)" stroke-width="1.5"/>
+  <rect x="6" y="6" width="1248" height="408" rx="19" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- 2. EMBEDDED test_db EMBLEM ON LEFT (174x174 at x=56, y=48) -->
+  <g transform="translate(56, 48) scale(1.45)">
+    <rect x="4" y="4" width="112" height="112" rx="26" fill="url(#tbHbLogoBg)"/>
+    <rect x="4" y="4" width="112" height="112" rx="26" fill="url(#tbHbLogoGlow)"/>
+    <rect x="4" y="4" width="112" height="112" rx="26" stroke="url(#tbHbLogoSpec)" stroke-width="1.5"/>
+    <rect x="7" y="7" width="106" height="106" rx="23" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+
+    <line x1="60" y1="12.5" x2="60" y2="18.5" stroke="#10b981" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="97.8" y1="81.8" x2="102.2" y2="84.4" stroke="#0ea5e9" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="22.2" y1="81.8" x2="17.8" y2="84.4" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round"/>
+
+    <circle cx="60" cy="60" r="37" stroke="#1e293b" stroke-width="2" stroke-opacity="0.8"/>
+    <path d="M 27.5 78.5 A 37 37 0 1 1 92.5 78.5" stroke="url(#tbHbLogoOrbit)" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M 35 87 A 37 37 0 0 0 85 87" stroke="#f59e0b" stroke-opacity="0.55" stroke-width="1.8" stroke-dasharray="3 4" stroke-linecap="round"/>
+
+    <path d="M 37 44 V 76 C 37 81.8 47.3 86 60 86 C 72.7 86 83 81.8 83 76 V 44 Z"
+          fill="url(#tbHbLogoBody)" stroke="#38bdf8" stroke-opacity="0.6" stroke-width="1.4"/>
+    <path d="M 37 55.5 C 37 61.3 47.3 65.5 60 65.5 C 72.7 65.5 83 61.3 83 55.5"
+          stroke="#22d3ee" stroke-opacity="0.55" stroke-width="1.3"/>
+    <path d="M 37 66.5 C 37 72.3 47.3 76.5 60 76.5 C 72.7 76.5 83 72.3 83 66.5"
+          stroke="#10b981" stroke-opacity="0.55" stroke-width="1.3"/>
+    <ellipse cx="60" cy="44" rx="23" ry="8.5" fill="#0b1c2c" stroke="url(#tbHbLogoCap)" stroke-width="1.8"/>
+    <ellipse cx="60" cy="44" rx="14" ry="4.4" stroke="#6ee7b7" stroke-opacity="0.45" stroke-width="1.1"/>
+    <circle cx="80" cy="76" r="11" fill="#090d14" stroke="url(#tbHbLogoAmber)" stroke-width="1.6"/>
+    <path d="M 75.5 76.2 L 78.6 79.3 L 85.0 72.8" stroke="#fde047" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 3. RIGHT HERO TYPOGRAPHY & GUARANTEE BADGES -->
+  <rect x="272" y="48" width="320" height="26" rx="13" fill="#07221c" stroke="#10b981" stroke-opacity="0.55" stroke-width="1.2"/>
+  <circle cx="288" cy="61" r="4" fill="#34d399"/>
+  <text x="300" y="65" fill="#a7f3d0" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2" font-weight="700" letter-spacing="0.5">MULTI-ENGINE SQL · ZERO-PII SYNTHETIC</text>
+
+  <rect x="916" y="48" width="290" height="26" rx="13" fill="#0c1b2c" stroke="#0ea5e9" stroke-opacity="0.48" stroke-width="1.2"/>
+  <text x="1061" y="65" text-anchor="middle" fill="#7dd3fc" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.0" font-weight="700" letter-spacing="0.5">MARIADB 11.8 · PG 18 · SYSBENCH</text>
+
+  <!-- Main Brand Wordmark -->
+  <text x="270" y="130" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif" font-size="58" font-weight="800" letter-spacing="-1.2">
+    test_<tspan fill="url(#tbHbTitleAccent)">db</tspan>
+  </text>
+
+  <!-- Right-Aligned Invariant Summary Pill -->
+  <rect x="942" y="92" width="264" height="42" rx="10" fill="#11161f" stroke="#f59e0b" stroke-opacity="0.4" stroke-width="1.1"/>
+  <text x="1074" y="109" text-anchor="middle" fill="#fde047" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="9.5" font-weight="700" letter-spacing="0.8">DETERMINISTIC CHECKSUMS</text>
+  <text x="1074" y="125" text-anchor="middle" fill="#e2e8f0" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2" font-weight="600">SHA-256 · 3NF ETL · P1–P5 Probe</text>
+
+  <!-- Subtitle -->
+  <text x="272" y="166" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif" font-size="14.0" font-weight="500">
+    Multi-Engine Database Test Platform · Employees 300k/2.8M · INSEE Sirene 3NF ETL · Concurrency &amp; Multi-Master Lab
+  </text>
+
+  <!-- Horizontal Gradient Accent Rule -->
+  <line x1="272" y1="186" x2="1206" y2="186" stroke="url(#tbHbDivider)" stroke-width="1.5"/>
+
+  <!-- Spec Telemetry Row -->
+  <g font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.8" font-weight="600">
+    <circle cx="277" cy="206" r="3.2" fill="#10b981"/>
+    <text x="287" y="210" fill="#94a3b8">Datasets: <tspan fill="#e2e8f0">Employees 300k · Sirene 15k/30k</tspan></text>
+
+    <circle cx="627" cy="206" r="3.2" fill="#f59e0b"/>
+    <text x="637" y="210" fill="#94a3b8">Engines: <tspan fill="#fde68a">MariaDB · MySQL · Percona · PG 18</tspan></text>
+
+    <circle cx="967" cy="206" r="3.2" fill="#0ea5e9"/>
+    <text x="977" y="210" fill="#94a3b8">Verify: <tspan fill="#bae6fd">SHA-256 · P1–P5 Probe</tspan></text>
+  </g>
+
+  <!-- 4. CLEAN 4-STAGE PIPELINE PILLS (y = 258 .. 372) -->
+  <!-- Stage 01: Provision -->
+  <g transform="translate(54, 258)">
+    <rect x="0" y="0" width="258" height="114" rx="14" fill="url(#tbHbCardBg)" stroke="#0ea5e9" stroke-opacity="0.55" stroke-width="1.4"/>
+    <rect x="14" y="14" width="32" height="20" rx="6" fill="#0ea5e9" fill-opacity="0.18" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1"/>
+    <text x="30" y="28" text-anchor="middle" fill="#7dd3fc" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.5" font-weight="800">01</text>
+    <text x="54" y="28" fill="#38bdf8" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="9.5" font-weight="700" letter-spacing="0.9">PROVISION</text>
+    <text x="14" y="61" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif" font-size="18.5" font-weight="800">Multi-Engine Stack</text>
+    <text x="14" y="83" fill="#cbd5e1" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">make start · make sirene-up</text>
+    <text x="14" y="99" fill="#7dd3fc" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">MariaDB 11.8 · PG 18 · MySQL</text>
+  </g>
+
+  <!-- Connector 01 -> 02 -->
+  <g transform="translate(312, 315)">
+    <line x1="6" y1="0" x2="30" y2="0" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 24 -5 L 32 0 L 24 5" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Stage 02: Ingest -->
+  <g transform="translate(352, 258)">
+    <rect x="0" y="0" width="258" height="114" rx="14" fill="url(#tbHbCardAmber)" stroke="#f59e0b" stroke-opacity="0.65" stroke-width="1.4"/>
+    <rect x="14" y="14" width="32" height="20" rx="6" fill="#f59e0b" fill-opacity="0.20" stroke="#fbbf24" stroke-opacity="0.50" stroke-width="1"/>
+    <text x="30" y="28" text-anchor="middle" fill="#fde047" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.5" font-weight="800">02</text>
+    <text x="54" y="28" fill="#fbbf24" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="9.5" font-weight="700" letter-spacing="0.9">INGEST</text>
+    <text x="14" y="61" fill="#fef3c7" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif" font-size="18.5" font-weight="800">Sirene 3NF ETL</text>
+    <text x="14" y="83" fill="#e2e8f0" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">COPY FROM STDIN · 13 tables</text>
+    <text x="14" y="99" fill="#fcd34d" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">monotonic delta · pg_trgm GIN</text>
+  </g>
+
+  <!-- Connector 02 -> 03 -->
+  <g transform="translate(610, 315)">
+    <line x1="6" y1="0" x2="30" y2="0" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 24 -5 L 32 0 L 24 5" stroke="#818cf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Stage 03: Benchmark -->
+  <g transform="translate(650, 258)">
+    <rect x="0" y="0" width="258" height="114" rx="14" fill="url(#tbHbCardBg)" stroke="#818cf8" stroke-opacity="0.55" stroke-width="1.4"/>
+    <rect x="14" y="14" width="32" height="20" rx="6" fill="#818cf8" fill-opacity="0.20" stroke="#a5b4fc" stroke-opacity="0.45" stroke-width="1"/>
+    <text x="30" y="28" text-anchor="middle" fill="#c7d2fe" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.5" font-weight="800">03</text>
+    <text x="54" y="28" fill="#a5b4fc" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="9.5" font-weight="700" letter-spacing="0.9">BENCHMARK</text>
+    <text x="14" y="61" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif" font-size="18.5" font-weight="800">Sysbench &amp; Locks</text>
+    <text x="14" y="83" fill="#cbd5e1" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">deadlock · gap_locking · OLTP</text>
+    <text x="14" y="99" fill="#c7d2fe" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">EXPLAIN · perf-threads · HTML</text>
+  </g>
+
+  <!-- Connector 03 -> 04 -->
+  <g transform="translate(908, 315)">
+    <line x1="6" y1="0" x2="30" y2="0" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 24 -5 L 32 0 L 24 5" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Stage 04: Verify -->
+  <g transform="translate(948, 258)">
+    <rect x="0" y="0" width="258" height="114" rx="14" fill="url(#tbHbCardEmerald)" stroke="#10b981" stroke-opacity="0.60" stroke-width="1.4"/>
+    <rect x="14" y="14" width="32" height="20" rx="6" fill="#10b981" fill-opacity="0.20" stroke="#34d399" stroke-opacity="0.50" stroke-width="1"/>
+    <text x="30" y="28" text-anchor="middle" fill="#6ee7b7" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.5" font-weight="800">04</text>
+    <text x="54" y="28" fill="#34d399" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="9.5" font-weight="700" letter-spacing="0.9">VERIFY</text>
+    <text x="14" y="61" fill="#ecfdf5" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif" font-size="18.5" font-weight="800">SHA-256 &amp; MM Probe</text>
+    <text x="14" y="83" fill="#cbd5e1" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">verify · sirene-verify · pytest</text>
+    <text x="14" y="99" fill="#6ee7b7" font-family="'JetBrains Mono', Consolas, 'DejaVu Sans Mono', monospace" font-size="10.2">P1..P5 PG 18 birep scorecard</text>
+  </g>
+</svg>

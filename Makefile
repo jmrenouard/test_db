@@ -4,9 +4,10 @@ CONTAINER_NAME = mariadb-11-8
 
 -include .env
 
-.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs sirene-mm-up sirene-mm-probe sirene-mm-down sirene-inject sirene-verify sirene-import-sample sirene-incremental-sample
+.PHONY: help start stop status inject inject-fake verify bench perf-threads analyze test-all clean sirene-up sirene-down sirene-test sirene-import sirene-incremental sirene-watch sirene-docs sirene-mm-up sirene-mm-probe sirene-mm-down sirene-inject sirene-verify sirene-import-sample sirene-incremental-sample docs-check docs-build docs-build-versioned docs-serve
 
 COUNT ?= 10
+PYTHON ?= python3
 
 help:
 	@echo "🛠️ test_db Management"
@@ -49,6 +50,12 @@ help:
 	@echo "  make sirene-verify      - Verify injected Sirene row counts and SHA-256 checksums"
 	@echo "  make sirene-import-sample      - Run full_import.py on embedded offline synthetic Parquet files"
 	@echo "  make sirene-incremental-sample - Run incremental_import.py on embedded synthetic delta Parquet files"
+	@echo ""
+	@echo "Documentation (MkDocs Material):"
+	@echo "  make docs-check           - Run Diataxis and MkDocs publishing pytest suites"
+	@echo "  make docs-build           - Build strict MkDocs Material site in site/"
+	@echo "  make docs-build-versioned - Build multi-version IONOS site bundle in site_dist/"
+	@echo "  make docs-serve           - Serve MkDocs Material documentation locally"
 
 start:
 	@echo "🚀 Starting MariaDB container ($(CONTAINER_NAME))..."
@@ -162,3 +169,19 @@ sirene-import-sample:
 sirene-incremental-sample:
 	@echo "🔄 Running incremental_import.py against embedded synthetic delta Parquet files..."
 	@docker compose -f sirene/docker-compose.yml run --rm sirene-etl python incremental_import.py --ul-file /app/data/delta/DeltaUniteLegale_synthetic.parquet --etab-file /app/data/delta/DeltaEtablissement_synthetic.parquet --force
+
+docs-check:
+	@echo "📚 Running Diataxis and MkDocs publishing checks..."
+	@$(PYTHON) -m pytest tests/test_diataxis_documentation.py tests/test_mkdocs_publishing.py -v
+
+docs-build:
+	@echo "🏗️ Building strict MkDocs Material site in site/..."
+	@$(PYTHON) -m mkdocs build --strict -d site
+
+docs-build-versioned:
+	@echo "📦 Building multi-version IONOS site bundle in site_dist/..."
+	@$(PYTHON) scripts/build_versioned_docs.py --output site_dist --base-url https://test-db.lightpath.fr --main-ref WORKTREE
+
+docs-serve:
+	@echo "🌐 Serving MkDocs Material documentation locally..."
+	@$(PYTHON) -m mkdocs serve

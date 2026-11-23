@@ -27,3 +27,8 @@ tenacity>=9.0
 python-dotenv>=1.0
 pytest>=8.0
 
+# MkDocs Material documentation publishing (requirements-docs.txt)
+mkdocs>=1.6.1,<2.0
+mkdocs-material>=9.6.0,<10.0
+pymdown-extensions>=10.0
+

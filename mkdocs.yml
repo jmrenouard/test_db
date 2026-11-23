@@ -1,0 +1,176 @@
+site_name: test_db Documentation
+site_description: Multi-engine database test platform (MariaDB, MySQL, Percona, PostgreSQL 18), Sysbench benchmarks, and INSEE Sirene 3NF ETL
+site_url: https://test-db.lightpath.fr/
+repo_name: jmrenouard/test_db
+repo_url: https://github.com/jmrenouard/test_db
+edit_uri: edit/master/docs/
+copyright: Copyright &copy; 2026 Jean-Marie Renouard &middot; LightPath
+
+docs_dir: docs
+exclude_docs: |
+  *.kdbx
+  *.keyx
+  *.pid
+  *.log
+  .env
+  .env.*
+  .env_*
+
+hooks:
+  - scripts/mkdocs_hooks.py
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.tracking
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jmrenouard/test_db
+      name: test_db on GitHub
+    - icon: fontawesome/solid/globe
+      link: https://www.lightpath.fr
+      name: LightPath
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - 01-tutorials/index.md
+      - MariaDB & Employees Sandbox: 01-tutorials/01-mariadb-employees-sandbox.md
+      - Sirene PostgreSQL 18 Offline Lab: 01-tutorials/02-sirene-postgresql18-offline-lab.md
+      - Concurrency & Benchmarking Lab: 01-tutorials/03-concurrency-and-benchmarking-lab.md
+  - How-To Guides:
+      - 02-how-to-guides/index.md
+      - Deployment:
+          - Deploy MariaDB & PostgreSQL Stacks: 02-how-to-guides/deployment/deploy-mariadb-and-postgresql-stacks.md
+      - Operations:
+          - Run Sysbench & SQL Analysis: 02-how-to-guides/operations/run-sysbench-and-sql-analysis.md
+          - Run Sirene Full & Incremental ETL: 02-how-to-guides/operations/run-sirene-full-and-incremental-etl.md
+          - Qualify PostgreSQL 18 Multi-Master: 02-how-to-guides/operations/qualify-postgresql18-multimaster.md
+      - Incident Response:
+          - Remediate Deadlocks, Gap Locks & ETL Drift: 02-how-to-guides/incident-response/remediate-deadlocks-gap-locks-and-etl-drift.md
+      - Security:
+          - Verify Checksums & Privacy Boundaries: 02-how-to-guides/security/verify-checksums-and-privacy-boundaries.md
+  - Reference:
+      - 03-reference/index.md
+      - Architecture Specs:
+          - Datasets & Schemas Matrix: 03-reference/architecture-specs/datasets-and-schemas-matrix.md
+      - Configuration:
+          - Environment Variables & Makefile Targets: 03-reference/configuration/environment-variables-and-makefile-targets.md
+      - CLI & Scripts:
+          - CLI Scripts & SQL Catalog: 03-reference/cli-and-scripts/cli-scripts-and-sql-catalog.md
+      - Troubleshooting Codes:
+          - Error & Alert Matrix: 03-reference/troubleshooting-codes/error-and-alert-matrix.md
+      - Bilingual Guides (EN):
+          - Guides Index (EN): guides/en/index.md
+          - Sirene 3NF Platform: guides/en/sirene_platform.md
+          - MariaDB Management: guides/en/mariadb_management.md
+          - Tools Guide: guides/en/tools_guide.md
+          - Benchmarking: guides/en/benchmarking.md
+          - SQL Analyzer: guides/en/sql_analyzer.md
+          - Interactive Reporting: guides/en/interactive_reporting.md
+          - Deadlock Experiment: guides/en/deadlock_experiment.md
+          - Gap Locking Experiment: guides/en/gap_locking_experiment.md
+          - 60 Employees SQL Queries (EN): guides/employees-sql-en.md
+      - Guides Bilingues (FR):
+          - Index des Guides (FR): guides/fr/index.md
+          - Plateforme Sirene 3NF: guides/fr/sirene_platform.md
+          - Gestion MariaDB: guides/fr/mariadb_management.md
+          - Guide des Outils: guides/fr/guide_outils.md
+          - Benchmarking (FR): guides/fr/benchmarking.md
+          - Analyseur SQL: guides/fr/sql_analyzer.md
+          - Rapports Interactifs: guides/fr/interactive_reporting.md
+          - Expérience Deadlock: guides/fr/deadlock_experiment.md
+          - Expérience Gap Locking: guides/fr/gap_locking_experiment.md
+          - 60 Requêtes SQL Employees (FR): guides/employees-sql-fr.md
+  - Explanation:
+      - 04-explanation/index.md
+      - Architecture Overview:
+          - Platform & ETL Architecture: 04-explanation/architecture-overview/platform-and-etl-architecture.md
+      - Design Decisions:
+          - ADR-001 PostgreSQL 18 3NF Sirene ETL & Multi-Master Qualification: 04-explanation/design-decisions/adr-001-postgresql18-3nf-sirene-etl-and-mm-qualification.md
+          - ADR-002 Diataxis Versioned MkDocs Publishing: 04-explanation/design-decisions/adr-002-diataxis-versioned-mkdocs-publishing.md
+      - Deep Dives:
+          - Concurrency, Locking & Replication Tradeoffs: 04-explanation/deep-dives/concurrency-locking-and-replication-tradeoffs.md
+      - Project Overviews:
+          - Overview (English): overview-en.md
+          - Aperçu (Français): overview-fr.md
+          - Sirene Quickstart: sirene-quickstart.md
+  - Releases & Governance:
+      - Changelog: CHANGELOG.md
+      - Action Logbook: ACTION_LOGBOOK.md
+      - RCA Register: RCA_REGISTER.md
